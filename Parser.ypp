@@ -1,0 +1,108 @@
+%skeleton "lalr1.cc"
+%require "3.0"
+%debug
+%locations
+
+%code requires {
+namespace udc {
+    class Driver;
+    class Scanner;
+}
+}
+
+%code provides {
+#include "location.hh"
+
+namespace udc {
+    using Location = Parser::location_type;
+    using Symbol = Parser::symbol_type;
+    using TokenType = Parser::token_type;
+}
+}
+
+%code {
+#include "Driver.hpp"
+
+#ifdef yylex
+#undef yylex
+#endif
+#define yylex x_vScanner.NextSymbol
+}
+
+%defines
+%define api.namespace {udc}
+%define api.token.constructor
+%define api.token.prefix {k}
+%define api.value.type variant
+%define parse.assert
+%define parse.error verbose
+%define parser_class_name {Parser}
+
+%parse-param {Driver &x_vDriver}
+%parse-param {Scanner &x_vScanner}
+
+%token End 0 "[end of file]"
+
+%token KwBool           "bool"
+%token KwBreak          "break"
+%token KwClass          "class"
+%token KwElse           "else"
+%token KwExtends        "extends"
+%token KwFor            "for"
+%token KwIf             "if"
+%token KwInt            "int"
+%token KwNew            "new"
+%token KwNull           "null"
+%token KwReturn         "return"
+%token KwString         "string"
+%token KwThis           "this"
+%token KwVoid           "void"
+%token KwWhile          "while"
+%token KwStatic         "static"
+%token KwPrint          "Print"
+%token KwReadInteger    "ReadInteger"
+%token KwReadLine       "ReadLine"
+%token KwInstanceOf     "instanceof"
+
+%token <std::string>    Id  "identifier"
+%token <int>            Li  "integer literal"
+%token <bool>           Lb  "bool literal"
+%token <std::string>    Ls  "string literal"
+
+%token OpAdd "+"
+%token OpSub "-"
+%token OpMul "*"
+%token OpDiv "/"
+%token OpMod "%"
+%token OpLes "<"
+%token OpLeq "<="
+%token OpGre ">"
+%token OpGeq ">="
+%token OpAsg "="
+%token OpEqu "=="
+%token OpNeq "!="
+%token OpAnd "&&"
+%token OpIor "||"
+%token OpNot "!"
+
+%token PuSem ";"
+%token PuCom ","
+%token PuDot "."
+%token PuSqo "["
+%token PuSqc "]"
+%token PuRno "("
+%token PuRnc ")"
+%token PuCuo "{"
+%token PuCuc "}"
+
+%start Program
+
+%%
+Program :
+
+
+%%
+
+void ::udc::Parser::error(const location_type &vLoc, const std::string &sMsg) {
+    x_vDriver.PrintError(vLoc, sMsg);
+}

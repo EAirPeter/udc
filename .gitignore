@@ -1,0 +1,10 @@
+*
+!.gitignore
+!Makefile
+!*.cpp
+!*.hpp
+!*.l
+!*.ypp
+Parser.cpp
+Parser.hpp
+Scanner.cpp
