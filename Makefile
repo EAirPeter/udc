@@ -13,7 +13,6 @@ FLEXCPP := $(addsuffix .cpp, $(basename $(FLEXOBJ)))
 CXXCPP := $(addsuffix .cpp, $(basename $(CXXOBJ)))
 
 all: udc
-	#rm -f $(BISONCPP) $(BISONHPP) $(FLEXCPP)
 
 keep: udc
 

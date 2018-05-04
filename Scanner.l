@@ -31,23 +31,23 @@
 
 #define MkIdentifier(val_) (x_bPrint ? [] (const Location &l, const std::string &s) { \
     std::cout << l << ": Identifier[" << s << "]" << std::endl; \
-    return ::udc::Parser::make_Id(s, l); \
-}(x_vLocation, (val_)) : ::udc::Parser::make_Id((val_), x_vLocation))
+    return ::udc::Parser::make_Identifier(s, l); \
+}(x_vLocation, (val_)) : ::udc::Parser::make_Identifier((val_), x_vLocation))
 
 #define MkBoolLit(val_) (x_bPrint ? [] (const Location &l, const std::string &s, bool b) { \
     std::cout << l << ": BoolLit[" << s << "]" << std::endl; \
-    return ::udc::Parser::make_Lb(b, l); \
-}(x_vLocation, YYText(), (val_)) : ::udc::Parser::make_Lb((val_), x_vLocation))
+    return ::udc::Parser::make_BoolLit(b, l); \
+}(x_vLocation, YYText(), (val_)) : ::udc::Parser::make_BoolLit((val_), x_vLocation))
 
 #define MkIntLit(val_) (x_bPrint ? [] (const Location &l, const std::string &s, int n) { \
     std::cout << l << ": IntLit[" << s << "]" << std::endl; \
-    return ::udc::Parser::make_Li(n, l); \
-}(x_vLocation, YYText(), (val_)) : ::udc::Parser::make_Li((val_), x_vLocation))
+    return ::udc::Parser::make_IntLit(n, l); \
+}(x_vLocation, YYText(), (val_)) : ::udc::Parser::make_IntLit((val_), x_vLocation))
 
 #define MkStrLit(val_) (x_bPrint ? [] (const Location &l, const std::string &org, const std::string &s) { \
     std::cout << l << ": StrLit[" << org << "]" << std::endl; \
-    return ::udc::Parser::make_Ls(s, l); \
-}(x_vLocation, sOrg, (val_)) : ::udc::Parser::make_Ls((val_), x_vLocation))
+    return ::udc::Parser::make_StrLit(s, l); \
+}(x_vLocation, sOrg, (val_)) : ::udc::Parser::make_StrLit((val_), x_vLocation))
 
 #define MkOperator(type_) (x_bPrint ? [] (const Location &l, const std::string &s) { \
     std::cout << l << ": Operator[" << s << "]" << std::endl; \

@@ -2,7 +2,7 @@
 
 namespace udc {
 
-Driver::Driver() : x_vScanner(*this, false), x_vParser(*this, x_vScanner) {}
+Driver::Driver() : x_vScanner(*this, true), x_vParser(*this, x_vScanner) {}
 
 int Driver::Parse() {
     return x_vParser.parse();

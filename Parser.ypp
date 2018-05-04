@@ -41,7 +41,7 @@ namespace udc {
 %parse-param {Driver &x_vDriver}
 %parse-param {Scanner &x_vScanner}
 
-%token End 0 "[end of file]"
+%token End 0 "end-of-file"
 
 %token KwBool           "bool"
 %token KwBreak          "break"
@@ -64,10 +64,10 @@ namespace udc {
 %token KwReadLine       "ReadLine"
 %token KwInstanceOf     "instanceof"
 
-%token <std::string>    Id  "identifier"
-%token <int>            Li  "integer literal"
-%token <bool>           Lb  "bool literal"
-%token <std::string>    Ls  "string literal"
+%token <std::string>    Identifier  "identifier"
+%token <int>            IntLit      "integer-literal"
+%token <bool>           BoolLit     "bool-literal"
+%token <std::string>    StrLit      "string-literal"
 
 %token OpAdd "+"
 %token OpSub "-"
@@ -98,8 +98,212 @@ namespace udc {
 %start Program
 
 %%
-Program :
+Program
+    : ClassDefList
+    ;
 
+ClassDefList
+    : ClassDef
+    | ClassDefList ClassDef
+    ;
+
+ClassDef
+    : "class" "identifier"  "{" FieldList "}"
+    | "class" "identifier" "extends" "identifier" "{" FieldList "}"
+    ;
+
+FieldList
+    :
+    | FieldList VariableDef
+    | FieldList FunctionDef
+    ;
+
+VariableDef
+    : Variable ";"
+    ;
+
+Variable
+    : Type "identifier"
+    ;
+
+Type
+    : "void"
+    | "int"
+    | "bool"
+    | "string"
+    | "class" "identifier"
+    | Type "[" "]"
+    ;
+
+FunctionDef
+    : Type "identifier" "(" Formals ")" StmtBlock
+    | "static" Type "identifier" "(" Formals ")" StmtBlock
+    ;
+
+Formals
+    :
+    | VariableList
+    ;
+
+VariableList
+    : Variable
+    | VariableList "," Variable
+    ;
+
+StmtBlock
+    : "{" StmtList "}"
+    ;
+
+StmtList
+    :
+    | StmtList VariableDef
+    | StmtList Stmt
+    ;
+
+Stmt
+    : SimpleClause ";"
+    | IfStmt
+    | WhileStmt
+    | ForStmt
+    | BreakStmt
+    | ReturnStmt
+    | PrintStmt
+    | StmtBlock
+    ;
+
+SimpleClause
+    :
+    | LValue "=" Expr
+    | Call
+    ;
+
+IfStmt
+    : "if" "(" Expr ")" Stmt ElseClause
+    ;
+
+ElseClause
+    :
+    | "else" Stmt
+    ;
+
+WhileStmt
+    : "while" "(" Expr ")" Stmt
+    ;
+
+ForStmt
+    : "for" "(" SimpleClause ";" Expr ";" SimpleClause ")" Stmt
+    ;
+
+BreakStmt
+    : "break" ";"
+    ;
+
+ReturnStmt
+    : "return" ";"
+    | "return" Expr ";"
+    ;
+
+PrintStmt
+    : "Print" "(" ExprList ")" ";"
+    ;
+
+Call
+    : ObjectSpec "identifier" "(" Actuals ")"
+
+ObjectSpec
+    :
+    | Expr ".";
+
+LValue
+    : ObjectSpec "identifier"
+    | Expr "[" Expr "]"
+    ;
+
+Actuals
+    :
+    | ExprList
+    ;
+
+ExprList
+    : Expr
+    | ExprList "," Expr
+    ;
+
+Expr
+    : IorExpr
+    ;
+
+IorExpr
+    : AndExpr
+    | IorExpr "||" AndExpr
+    ;
+
+AndExpr
+    : EqualityExpr
+    | AndExpr "&&" EqualityExpr
+    ;
+
+EqualityExpr
+    : RelationalExpr
+    | EqualityExpr "==" RelationalExpr
+    | EqualityExpr "!=" RelationalExpr
+    ;
+
+RelationalExpr
+    : AdditiveExpr
+    | RelationalExpr "<" AdditiveExpr
+    | RelationalExpr ">" AdditiveExpr
+    | RelationalExpr "<=" AdditiveExpr
+    | RelationalExpr ">=" AdditiveExpr
+    ;
+
+AdditiveExpr
+    : MultiplicativeExpr
+    | AdditiveExpr "+" MultiplicativeExpr
+    | AdditiveExpr "-" MultiplicativeExpr
+    ;
+
+MultiplicativeExpr
+    : CastExpr
+    | MultiplicativeExpr "*" CastExpr
+    | MultiplicativeExpr "/" CastExpr
+    | MultiplicativeExpr "%" CastExpr
+    ;
+
+CastExpr
+    : UnaryExpr
+    | "new" "identifier" "(" ")"
+    | "new" Type "[" Expr "]"
+    | "(" "class" "identifier" ")" CastExpr
+    ;
+
+UnaryExpr
+    : PostfixExpr
+    | "-" CastExpr
+    | "!" CastExpr
+    ;
+
+PostfixExpr
+    : PrimaryExpr
+    | Call
+    | "ReadInteger" "(" ")"
+    | "ReadLine" "(" ")"
+    | "instanceof" "(" Expr "," "identifier" ")"
+    ;
+
+PrimaryExpr
+    : Literal
+    | LValue
+    | "this"
+    | "(" Expr ")"
+    ;
+
+Literal
+    : BoolLit
+    | IntLit
+    | StrLit
+    | "null"
+    ;
 
 %%
 
