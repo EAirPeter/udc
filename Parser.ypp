@@ -4,6 +4,11 @@
 %locations
 
 %code requires {
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
 namespace udc {
     class Driver;
     class Scanner;
@@ -22,6 +27,11 @@ namespace udc {
 
 %code {
 #include "Driver.hpp"
+
+#include "ast/ClassDef.hpp"
+#include "ast/Constants.hpp"
+#include "ast/FieldDef.hpp"
+#include "ast/Node.hpp"
 
 #ifdef yylex
 #undef yylex
@@ -95,215 +105,376 @@ namespace udc {
 %token PuCuo "{"
 %token PuCuc "}"
 
+%type <std::vector<std::unique_ptr<ast::ClassDef>>> ClassDefList
+%type <std::unique_ptr<ast::ClassDef>> ClassDef
+%type <std::vector<std::unique_ptr<ast::FieldDef>>> FieldListOpt
+%type <std::unique_ptr<ast::VarDef>> VariableDef Variable
+%type <std::unique_ptr<ast::FnDef>> FunctionDef
+%type <std::unique_ptr<ast::Type>> Type
+%type <std::vector<std::unique_ptr<ast::VarDef>>> Formals VariableList
+%type <std::unique_ptr<ast::BlockStmt>> BlockStmt
+%type <std::vector<std::unique_ptr<ast::BlockItem>>> BlockItemListOpt
+%type <std::unique_ptr<ast::Stmt>> Stmt
+%type <std::unique_ptr<ast::IfStmt>> IfStmt
+%type <std::unique_ptr<ast::WhileStmt>> WhileStmt
+%type <std::unique_ptr<ast::ForStmt>> ForStmt
+%type <std::unique_ptr<ast::BreakStmt>> BreakStmt
+%type <std::unique_ptr<ast::ReturnStmt>> ReturnStmt
+%type <std::unique_ptr<ast::PrintStmt>> PrintStmt
+%type <std::unique_ptr<ast::Expr>> Expr ExprOpt Call
+%type <std::unique_ptr<ast::BinaryExpr>> OrExpr AndExpr EquExpr RelExpr AddExpr MulExpr
+%type <std::unique_ptr<ast::UnaryExpr>> UnaryExpr
+%type <std::unique_ptr<ast::PrimaryExpr>> PrimaryExpr PrimaryNoNewArray
+%type <std::unique_ptr<ast::Literal>> Literal
+%type <std::unqiue_ptr<ast::LValue>> LValue
+%type <std::vector<std::unique_ptr<ast::Expr>>> Actuals ExprList
+
+%precedence UnmatchedIf
+%precedence "else"
+
 %start Program
 
 %%
-Program
-    : ClassDefList
-    ;
+Program:
+    ClassDefList[cdl] {
+        x_upProgram = std::make_unique<ast::Program>(@1, std::move($cdl));
+    };
 
-ClassDefList
-    : ClassDef
-    | ClassDefList ClassDef
-    ;
+ClassDefList:
+    ClassDef[cd] {
+        $$->AddClass(std::move($cd));
+    } |
+    ClassDefList ClassDef[cd] {
+        $$->AddClass(std::move($cd));
+    };
 
-ClassDef
-    : "class" "identifier"  "{" FieldList "}"
-    | "class" "identifier" "extends" "identifier" "{" FieldList "}"
-    ;
+ClassDef:
+    "class" Identifier[id] "{" FieldListOpt[fl] "}" {
+        $$ = std::make_unique<ast::ClassDef>(@1, std::move($id), {}, std::move($fl));
+    } |
+    "class" Identifier[id] "extends" Identifier[base] "{" FieldListOpt[fl] "}" {
+        $$ = std::make_unique<ast::ClassDef>(@1, std::move($id), std::move($base), std::move($fl));
+    };
 
-FieldList
-    :
-    | FieldList VariableDef
-    | FieldList FunctionDef
-    ;
+FieldListOpt:
+    %empty {} |
+    FieldListOpt VariableDef[vd] {
+        $$.emplace_back(std::move($vd));
+    } |
+    FieldListOpt FunctionDef[fd] {
+        $$.emplace_back(std::move($fd));
+    };
 
-VariableDef
-    : Variable ";"
-    ;
+VariableDef:
+    Variable[var] ";" {
+        $$ = std::move($var);
+    };
 
-Variable
-    : Type "identifier"
-    ;
+Variable:
+    Type[ty] Identifier[id] {
+        $$ = std::make_unique<ast::VarDef>(@1, std::move($ty), std::move($id));
+    };
 
-Type
-    : "void"
-    | "int"
-    | "bool"
-    | "string"
-    | "class" "identifier"
-    | Type "[" "]"
-    ;
+Type:
+    "void" {
+        $$ = std::make_unique<ast::Type>(@1, ast::TypeId::kVoid);
+    } |
+    "int" {
+        $$ = std::make_unique<ast::Type>(@1, ast::TypeId::kInt);
+    } |
+    "bool" {
+        $$ = std::make_unique<ast::Type>(@1, ast::TypeId::kBool);
+    } |
+    "string" {
+        $$ = std::make_unique<ast::Type>(@1, ast::TypeId::kString);
+    } |
+    "class" Identifier[id] {
+        $$ = std::make_unique<ast::Type>(@1, ast::TypeId::kClass, std::move($id));
+    } |
+    Type[ty] "[" "]" {
+        $$ = std::make_unique<ast::Type>(@1, ast::TypeId::kArray, std::move($ty));
+    };
 
-FunctionDef
-    : Type "identifier" "(" Formals ")" StmtBlock
-    | "static" Type "identifier" "(" Formals ")" StmtBlock
-    ;
+FunctionDef:
+    Type[ty] Identifier[id] "(" Formals[pars] ")" BlockStmt[body] {
+        $$ = std::make_unique<ast::FnDef>(@1, false, std::move($ty), std::move($id), std::move($pars), std::move($body));
+    } |
+    "static" Type[ty] Identifier[id] "(" Formals[pars] ")" BlockStmt[body] {
+        $$ = std::make_unique<ast::FnDef>(@1, true, std::move($ty), std::move($id), std::move($pars), std::move($body));
+    };
 
-Formals
-    :
-    | VariableList
-    ;
+Formals:
+    %empty {} |
+    VariableList[vl] {
+        $$ = std::move($vl);
+    };
 
-VariableList
-    : Variable
-    | VariableList "," Variable
-    ;
+VariableList:
+    Variable[v] {
+        $$.emplace_back(std::move($v));
+    } |
+    VariableList[vl] "," Variable[v] {
+        $$ = std::move($vl);
+        $$.emplace_back(std::move($v));
+    };
 
-StmtBlock
-    : "{" StmtList "}"
-    ;
+BlockStmt:
+    "{" BlockItemListOpt[bil] "}" {
+        $$ = std::make_unique<ast::std>(@1::move($bil));
+    };
 
-StmtList
-    :
-    | StmtList VariableDef
-    | StmtList Stmt
-    ;
+BlockItemListOpt:
+    %empty {} |
+    BlockItemListOpt VariableDef[vd] {
+        $$.emplace_back(std::move($vd));
+    } |
+    BlockItemListOpt Stmt[st] {
+        $$.emplace_back(std::move($st));
+    };
 
-Stmt
-    : SimpleClause ";"
-    | IfStmt
-    | WhileStmt
-    | ForStmt
-    | BreakStmt
-    | ReturnStmt
-    | PrintStmt
-    | StmtBlock
-    ;
+Stmt:
+    ";" {
+        $$ = std::make_unique<ast::ExprStmt>(@1, nullptr);
+    } |
+    Expr[e] ";" {
+        $$ = std::make_unique<ast::ExprStmt>(@1, std::move($e));
+    } |
+    IfStmt[st] {
+        $$ = std::move($st);
+    } |
+    WhileStmt[st] {
+        $$ = std::move($st);
+    } |
+    ForStmt[st] {
+        $$ = std::move($st);
+    } |
+    BreakStmt[st] {
+        $$ = std::move($st);
+    } |
+    ReturnStmt[st] {
+        $$ = std::move($st);
+    } |
+    PrintStmt[st] {
+        $$ = std::move($st);
+    } |
+    BlockStmt[st] {
+        $$ = std::move($st);
+    };
 
-SimpleClause
-    :
-    | LValue "=" Expr
-    | Call
-    ;
+Expr:
+    OrExpr[e] {
+        $$ = std::move($e);
+    } |
+    LValue[l] "=" Expr[r] {
+        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::OpId::kAsg, std::move($l), std::move($r));
+    };
 
-IfStmt
-    : "if" "(" Expr ")" Stmt ElseClause
-    ;
+OrExpr:
+    AndExpr[e] {
+        $$ = std::move($e);
+    } |
+    OrExpr[l] "||" AndExpr[r] {
+        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::OpId::kIor, std::move($l), std::move($r));
+    };
 
-ElseClause
-    :
-    | "else" Stmt
-    ;
+AndExpr:
+    EquExpr[e] {
+        $$ = std::move($e);
+    } |
+    AndExpr[l] "&&" EquExpr[r] {
+        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::OpId::kAnd, std::move($l), std::move($r));
+    };
 
-WhileStmt
-    : "while" "(" Expr ")" Stmt
-    ;
+EquExpr:
+    RelExpr[e] {
+        $$ = std::move($e);
+    } | 
+    EquExpr[l] "==" RelExpr[r] {
+        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::OpId::kEqu, std::move($l), std::move($r));
+    } |
+    EquExpr[l] "!=" RelExpr[r] {
+        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::OpId::kNeq, std::move($l), std::move($r));
+    };
 
-ForStmt
-    : "for" "(" SimpleClause ";" Expr ";" SimpleClause ")" Stmt
-    ;
+RelExpr:
+    AddExpr[e] {
+        $$ = std::move($e);
+    } |
+    RelExpr[l] "<" AddExpr[r] {
+        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::OpId::kLes, std::move($l), std::move($r));
+    } |
+    RelExpr[l] ">" AddExpr[r] {
+        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::OpId::kGre, std::move($l), std::move($r));
+    } |
+    RelExpr[l] "<=" AddExpr[r] {
+        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::OpId::kLeq, std::move($l), std::move($r));
+    } |
+    RelExpr[l] ">=" AddExpr[r] {
+        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::OpId::kGeq, std::move($l), std::move($r));
+    };
 
-BreakStmt
-    : "break" ";"
-    ;
+AddExpr:
+    MulExpr[e] {
+        $$ = std::move($e);
+    } |
+    AddExpr[l] "+" MulExpr[r] {
+        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::OpId::kAdd, std::move($l), std::move($r));
+    } |
+    AddExpr[l] "-" MulExpr[r] {
+        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::OpId::kSub, std::move($l), std::move($r));
+    };
 
-ReturnStmt
-    : "return" ";"
-    | "return" Expr ";"
-    ;
+MulExpr:
+    UnaryExpr[e] {
+        $$ = std::move($e);
+    } |
+    MulExpr[l] "*" UnaryExpr[r] {
+        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::OpId::kMul, std::move($l), std::move($r));
+    } |
+    MulExpr[l] "/" UnaryExpr[r] {
+        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::OpId::kDiv, std::move($l), std::move($r));
+    } |
+    MulExpr[l] "%" UnaryExpr[r] {
+        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::OpId::kMod, std::move($l), std::move($r));
+    };
 
-PrintStmt
-    : "Print" "(" ExprList ")" ";"
-    ;
+UnaryExpr:
+    PrimaryExpr[e] {
+        $$ = std::move($e);
+    } |
+    "-" UnaryExpr[e] {
+        $$ = std::make_unique<ast::UnaryExpr>(@1, ast::OpId::kNeg, std::move($e));
+    } |
+    "!" UnaryExpr[e] {
+        $$ = std::make_unique<ast::UnaryExpr>(@1, ast::OpId::kNot, std::move($e));
+    } |
+    "(" "class" Identifier[id] ")" UnaryExpr[e] {
+        $$ = std::make_unique<ast::CastExpr>(@1, std::move($id), std::move($e));
+    };
 
-Call
-    : ObjectSpec "identifier" "(" Actuals ")"
+PrimaryExpr:
+    PrimaryNoNewArray[e] {
+        $$ = std::move($e);
+    } |
+    "new" Type[ty] "[" Expr[e] "]" {
+        $$ = std::make_unique<ast::NewExpr>(@1, ast::TypeId::kArray, std::move($ty), std::move($e));
+    };
 
-ObjectSpec
-    :
-    | Expr ".";
+PrimaryNoNewArray:
+    Literal[e] {
+        $$ = std::move($e);
+    } |
+    "this" {
+        $$ = std::make_unique<ast::This>(@1);
+    } |
+    LValue[e] {
+        $$ = std::move($e);
+    } |
+    "(" Expr[e] ")" {
+        $$ = std::move($e);
+    } |
+    "new" Identifier[id] "(" ")" {
+        $$ = std::make_unique<ast::NewExpr>(@1, ast::TypeId::kClass, std::move($id));
+    } |
+    Call[e] {
+        $$ = std::move($e);
+    };
 
-LValue
-    : ObjectSpec "identifier"
-    | Expr "[" Expr "]"
-    ;
+Literal:
+    "null" {
+        $$ = std::make_unique<ast::Null>(@1);
+    } |
+    IntLit[n] {
+        $$ = std::make_unique<ast::IntLit>(@1, $n);
+    } |
+    BoolLit[b] {
+        $$ = std::make_unique<ast::BoolLit>(@1, $b);
+    } |
+    StrLit[s] {
+        $$ = std::make_unique<ast::StrLit>(@1, std::move($s));
+    };
 
-Actuals
-    :
-    | ExprList
-    ;
+LValue:
+    Identifier[id] {
+        $$ = std::make_unique<ast::Identifier>(@1, std::move($id));
+    } |
+    PrimaryExpr[e] "." Identifier[id] {
+        $$ = std::make_unique<ast::VarAccess>(@1, std::move($e), std::move($id));
+    } |
+    PrimaryNoNewArray[e] "[" Expr[sub] "]" {
+        $$ = std::make_unique<ast::ArrayAccess>(@1, std::move($e), std::move($sub));
+    };
 
-ExprList
-    : Expr
-    | ExprList "," Expr
-    ;
+Call:
+    Identifier[id] "(" Actuals[args] ")" {
+        $$ = std::make_unique<ast::CallExpr>(@1, nullptr, std::move($id), std::move($args));
+    } |
+    PrimaryExpr[e] "." Identifier[id] "(" Actuals[args] ")" {
+        $$ = std::make_unique<ast::CallExpr>(@1, std::move($e), std::move($id), std::move($args));
+    } |
+    "ReadInteger" "(" ")" {
+        $$ = std::make_unique<ast::ReadInteger>(@1);
+    } |
+    "ReadLine" "(" ")" {
+        $$ = std::make_unique<ast::ReadLine>(@1);
+    } |
+    "instanceof" "(" Expr[e] "," Identifier[id] ")" {
+        $$ = std::make_unique<ast::InstanceOf>(@1, std::move($e), std::move($id));
+    };
 
-Expr
-    : IorExpr
-    ;
+Actuals:
+    %empty {} |
+    ExprList[el] {
+        $$ = std::move($el);
+    };
 
-IorExpr
-    : AndExpr
-    | IorExpr "||" AndExpr
-    ;
+ExprList:
+    Expr[e] {
+        $$.emplace_back(std::move($e));
+    } |
+    ExprList[el] "," Expr[e] {
+        $$ = std::move(el);
+        $$.emplace_back(std::move($e));
+    };
 
-AndExpr
-    : EqualityExpr
-    | AndExpr "&&" EqualityExpr
-    ;
+IfStmt:
+    "if" "(" Expr[e] ")" Stmt[st] %prec UnmatchedIf {
+        $$ = std::make_unique<ast::IfStmt>(@1, std::move($e), std::move($st), nullptr);
+    } |
+    "if" "(" Expr[e] ")" Stmt[st] "else" Stmt[est] {
+        $$ = std::make_unique<ast::IfStmt>(@1, std::move($e), std::move($st), std::move($est));
+    };
 
-EqualityExpr
-    : RelationalExpr
-    | EqualityExpr "==" RelationalExpr
-    | EqualityExpr "!=" RelationalExpr
-    ;
+WhileStmt:
+    "while" "(" Expr[e] ")" Stmt[st] {
+        $$ = std::make_unique<ast::WhileStmt>(@1, std::move($e), std::move($st));
+    };
 
-RelationalExpr
-    : AdditiveExpr
-    | RelationalExpr "<" AdditiveExpr
-    | RelationalExpr ">" AdditiveExpr
-    | RelationalExpr "<=" AdditiveExpr
-    | RelationalExpr ">=" AdditiveExpr
-    ;
+ForStmt:
+    "for" "(" ExprOpt[e1] ";" ExprOpt[e2] ";" ExprOpt[e3] ")" Stmt[st] {
+        $$ = std::make_unique<ast::ForStmt>(@1, std::move($e1), std::move($e2), std::move($e3), std::move($st));
+    };
 
-AdditiveExpr
-    : MultiplicativeExpr
-    | AdditiveExpr "+" MultiplicativeExpr
-    | AdditiveExpr "-" MultiplicativeExpr
-    ;
+ExprOpt:
+    %empty {} |
+    Expr[e] {
+        $$ = std::move($e);
+    };
 
-MultiplicativeExpr
-    : CastExpr
-    | MultiplicativeExpr "*" CastExpr
-    | MultiplicativeExpr "/" CastExpr
-    | MultiplicativeExpr "%" CastExpr
-    ;
+BreakStmt:
+    "break" ";" {
+        $$ = std::make_unique<ast::BreakStmt>(@1);
+    };
 
-CastExpr
-    : UnaryExpr
-    | "new" "identifier" "(" ")"
-    | "new" Type "[" Expr "]"
-    | "(" "class" "identifier" ")" CastExpr
-    ;
+ReturnStmt:
+    "return" ExprOpt[e] ";" {
+        $$ = std::make_unique<ast::ReturnStmt>(@1, std::move($e));
+    };
 
-UnaryExpr
-    : PostfixExpr
-    | "-" CastExpr
-    | "!" CastExpr
-    ;
-
-PostfixExpr
-    : PrimaryExpr
-    | Call
-    | "ReadInteger" "(" ")"
-    | "ReadLine" "(" ")"
-    | "instanceof" "(" Expr "," "identifier" ")"
-    ;
-
-PrimaryExpr
-    : Literal
-    | LValue
-    | "this"
-    | "(" Expr ")"
-    ;
-
-Literal
-    : BoolLit
-    | IntLit
-    | StrLit
-    | "null"
-    ;
+PrintStmt:
+    "Print" "(" ExprList[el] ")" ";" {
+        $$ = std::make_unique<ast::PrintStmt>(@1, std::move($el));
+    }
 
 %%
 
