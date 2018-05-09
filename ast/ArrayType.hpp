@@ -1,6 +1,8 @@
 #ifndef UDC_AST_ARRAY_TYPE_HPP_
 #define UDC_AST_ARRAY_TYPE_HPP_
 
+#include <memory>
+
 #include "Base.hpp"
 #include "Interface.hpp"
 

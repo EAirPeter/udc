@@ -1,6 +1,7 @@
 #ifndef UDC_AST_CALL_EXPR_HPP_
 #define UDC_AST_CALL_EXPR_HPP_
 
+#include <memory>
 #include <vector>
 
 #include "Base.hpp"

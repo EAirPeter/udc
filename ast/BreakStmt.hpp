@@ -12,10 +12,6 @@ public:
     virtual ~BreakStmt();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;
-
-private:
-    std::unique_ptr<IExpression> x_upCond;
-    std::unique_ptr<IStatement> x_upBody;
 };
 
 }

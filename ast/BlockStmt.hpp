@@ -1,6 +1,7 @@
 #ifndef UDC_AST_BLOCK_STMT_HPP_
 #define UDC_AST_BLOCK_STMT_HPP_
 
+#include <memory>
 #include <vector>
 
 #include "Base.hpp"

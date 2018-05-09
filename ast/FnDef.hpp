@@ -1,6 +1,9 @@
 #ifndef UDC_AST_FN_DEF_HPP_
 #define UDC_AST_FN_DEF_HPP_
 
+#include <memory>
+#include <vector>
+
 #include "Base.hpp"
 #include "Interface.hpp"
 

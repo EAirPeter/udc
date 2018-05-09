@@ -1,6 +1,7 @@
 #ifndef UDC_AST_CLASS_DEF_HPP_
 #define UDC_AST_CLASS_DEF_HPP_
 
+#include <memory>
 #include <optional>
 #include <vector>
 

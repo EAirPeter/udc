@@ -1,6 +1,8 @@
 #ifndef UDC_AST_VAR_ACCESS_HPP_
 #define UDC_AST_VAR_ACCESS_HPP_
 
+#include <memory>
+
 #include "Base.hpp"
 #include "Interface.hpp"
 

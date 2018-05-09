@@ -21,7 +21,7 @@ void udc::ast::IfStmt::Print(std::ostream &os, std::uint32_t cIndent) const {
     os << Indent(cIndent) << "if (" << *x_upCond << ")" << std::endl;
     x_upThen->Print(os, cIndent + 1);
     if (x_upElse) {
-        os << Indent(cIndent) << "else" << std::endl;
+        os << std::endl << Indent(cIndent) << "else" << std::endl;
         x_upElse->Print(os, cIndent + 1);
     }
 }

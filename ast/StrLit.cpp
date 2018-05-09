@@ -1,5 +1,3 @@
-#include <iomanip>
-
 #include "../IndentHelper.hpp"
 #include "StrLit.hpp"
 
@@ -12,7 +10,27 @@ StrLit::StrLit(const Location &vLocation, std::string &&sVal) noexcept :
 StrLit::~StrLit() {}
 
 void StrLit::Print(std::ostream &os, std::uint32_t cIndent) const {
-    os << Indent(cIndent) << std::quoted(x_sVal);
+    os << Indent(cIndent) << '\"';
+    for (auto ch : x_sVal) {
+        switch (ch) {
+        case '\"':
+            os << "\\\"";
+            break;
+        case '\\':
+            os << "\\\\";
+            break;
+        case '\t':
+            os << "\\t";
+            break;
+        case '\n':
+            os << "\\n";
+            break;
+        default:
+            os << ch;
+            break;
+        }
+    }
+    os << '\"';
 }
 
 }

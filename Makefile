@@ -3,8 +3,14 @@ LIBS := -flto -ggdb
 
 BISONOBJ += Parser.o
 FLEXOBJ += Scanner.o
-CXXOBJ += Driver.o Main.o
-ASTCLASS += ClassDef FieldDef Node VarDef Program
+CXXOBJ += Driver.o IndentHelper.o Main.o
+ASTCLASS += Base
+ASTCLASS += ClassDef FnDef Program VarDef
+ASTCLASS += AssignExpr BinaryExpr CallExpr CastExpr NewArrayExpr NewClassExpr UnaryExpr
+ASTCLASS += BoolLit IntLit NullLit StrLit
+ASTCLASS += ArrayAccess InstanceOf ReadInteger ReadLine This VarAccess
+ASTCLASS += BlockStmt BreakStmt ExprStmt ForStmt IfStmt PrintStmt ReturnStmt WhileStmt
+ASTCLASS += ArrayType BoolType ClassType IntType StrType VoidType
 
 BISONCPP := $(addsuffix .cpp, $(basename $(BISONOBJ)))
 BISONHPP := $(addsuffix .hpp, $(basename $(BISONOBJ)))
@@ -31,7 +37,9 @@ $(BISONCPP): %.cpp: %.ypp
 $(FLEXCPP): %.cpp: %.l
 	flex -o $@ $<
 
-$(BISONHPP): %.hpp: %.ypp
+$(BISONHPP): %.hpp: %.cpp
+	sed -i 's/return \*new (yyas_<T> ()) T (t)/return \*new (yyas_<T> ()) T (std\:\:move((T\&)t))/' $@
+
 $(FLEXCPP): $(BISONHPP)
 $(CXXCPP): $(BISONHPP)
 $(ASTCPP): $(BISONHPP)

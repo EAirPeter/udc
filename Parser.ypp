@@ -4,6 +4,8 @@
 %locations
 
 %code requires {
+#include <memory>
+
 #include "ast/All.hpp"
 
 namespace udc {
@@ -138,14 +140,15 @@ namespace udc {
 %%
 Program:
     ClassDefList[cdl] {
-        x_upProgram = std::make_unique<ast::Program>(@1, std::move($cdl));
+        x_vDriver.SetProgram(std::make_unique<ast::Program>(@1, std::move($cdl)));
     };
 
 ClassDefList:
     ClassDef[cd] {
         $$.emplace_back(std::move($cd));
     } |
-    ClassDefList ClassDef[cd] {
+    ClassDefList[cdl] ClassDef[cd] {
+        $$ = std::move($cdl);
         $$.emplace_back(std::move($cd));
     };
 
@@ -159,10 +162,12 @@ ClassDef:
 
 FieldListOpt:
     %empty {} |
-    FieldListOpt VariableDef[vd] {
+    FieldListOpt[fl] VariableDef[vd] {
+        $$ = std::move($fl);
         $$.emplace_back(std::move($vd));
     } |
-    FieldListOpt FunctionDef[fd] {
+    FieldListOpt[fl] FunctionDef[fd] {
+        $$ = std::move($fl);
         $$.emplace_back(std::move($fd));
     };
 
@@ -226,10 +231,12 @@ BlockStmt:
 
 BlockItemListOpt:
     %empty {} |
-    BlockItemListOpt VariableDef[vd] {
+    BlockItemListOpt[bil] VariableDef[vd] {
+        $$ = std::move($bil);
         $$.emplace_back(std::move($vd));
     } |
-    BlockItemListOpt Stmt[st] {
+    BlockItemListOpt[bil] Stmt[st] {
+        $$ = std::move($bil);
         $$.emplace_back(std::move($st));
     };
 

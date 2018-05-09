@@ -7,6 +7,8 @@
 #include "Parser.hpp"
 #include "Scanner.hpp"
 
+#include "ast/All.hpp"
+
 namespace udc {
 
 class Driver {
@@ -15,8 +17,8 @@ public:
 
 public:
     int Parse();
-
     void PrintSymbols();
+    void SetProgram(std::unique_ptr<ast::Program> &&upProgram) noexcept;
 
 public:
     template<class ...tArgs>
@@ -27,6 +29,7 @@ public:
 private:
     Scanner x_vScanner;
     Parser x_vParser;
+    std::unique_ptr<ast::Program> x_upProgram;
 
 };
 

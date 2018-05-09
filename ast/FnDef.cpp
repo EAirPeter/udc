@@ -14,6 +14,7 @@ FnDef::FnDef(
 ) noexcept :
     Base(vLocation),
     x_bStatic(bStatic),
+    x_upType(std::move(upType)),
     x_sName(std::move(sName)),
     x_vecPars(std::move(vecPars)),
     x_upBody(std::move(upBody))
