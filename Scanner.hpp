@@ -1,6 +1,7 @@
 #ifndef UDC_SCANNER_HPP_
 #define UDC_SCANNER_HPP_
 
+#include "Location.hpp"
 #include "Parser.hpp"
 
 #if !defined(yyFlexLexerOnce)

@@ -1,9 +1,10 @@
 %{
+#ifdef __GNUC__
 // warning: comparison of integer expressions of different signedness: ‘int’ and ‘yy_size_t’ {aka ‘long unsigned int’} [-Wsign-compare]
 // if ((int) ((yy_n_chars) + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
 //     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// work around for that
 #pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
 
 #include "Driver.hpp"
 #include "Scanner.hpp"

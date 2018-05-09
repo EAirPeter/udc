@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#include "Location.hpp"
 #include "Parser.hpp"
 #include "Scanner.hpp"
 
@@ -20,7 +21,7 @@ public:
 public:
     template<class ...tArgs>
     static inline void PrintError(const Location &vLoc, tArgs &&...vArgs) {
-        (std::cerr << "At " << vLoc << ": " << ... << std::forward<tArgs>(vArgs)) << std::endl;
+        ((std::cerr << "At " << vLoc << ": ") << ... << std::forward<tArgs>(vArgs)) << std::endl;
     }
 
 private:
