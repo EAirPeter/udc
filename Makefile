@@ -1,3 +1,5 @@
+export BISON_PKGDATADIR=$(PWD)/bison
+
 CXXFLAGS := -Wall -Wextra -std=c++17 -flto -ggdb
 LIBS := -flto -ggdb
 
@@ -38,7 +40,6 @@ $(FLEXCPP): %.cpp: %.l
 	flex -o $@ $<
 
 $(BISONHPP): %.hpp: %.cpp
-	sed -i 's/return \*new (yyas_<T> ()) T (t)/return \*new (yyas_<T> ()) T (std\:\:move((T\&)t))/' $@
 
 $(FLEXCPP): $(BISONHPP)
 $(CXXCPP): $(BISONHPP)

@@ -86,7 +86,6 @@
 
 %option batch
 %option c++
-%option debug
 %option nodefault
 %option noinput
 %option nounistd
