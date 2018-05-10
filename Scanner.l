@@ -6,6 +6,12 @@
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
 
+
+#ifdef _MSC_VER
+// warning C4244: 'return': conversion from 'std::streamsize' to 'int', possible loss of data
+#pragma warning(disable: 4244)
+#endif
+
 #include "Driver.hpp"
 #include "Scanner.hpp"
 
