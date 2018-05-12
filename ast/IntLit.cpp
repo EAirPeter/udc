@@ -3,7 +3,7 @@
 
 namespace udc::ast {
 
-IntLit::IntLit(const Location &vLocation, int nVal) noexcept : Base(vLocation), x_nVal(nVal) {}
+IntLit::IntLit(const Location &vLocation, int nVal) noexcept : ExprBase(vLocation), x_nVal(nVal) {}
 
 IntLit::~IntLit() {}
 

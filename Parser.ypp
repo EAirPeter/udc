@@ -27,8 +27,8 @@ namespace udc {
 #endif
 
 namespace udc {
-    using Symbol = Parser::symbol_type;
-    using TokenType = Parser::token_type;
+    using Token = Parser::symbol_type;
+    using TokenId = Parser::token_type;
 }
 }
 
@@ -40,7 +40,7 @@ namespace udc {
 #ifdef yylex
 #undef yylex
 #endif
-#define yylex x_vScanner.NextSymbol
+#define yylex x_vScanner.NextToken
 }
 
 %defines
@@ -111,25 +111,23 @@ namespace udc {
 
 %type <std::vector<std::unique_ptr<ast::ClassDef>>> ClassDefList
 %type <std::unique_ptr<ast::ClassDef>> ClassDef
-%type <std::vector<std::unique_ptr<ast::IDefinition>>> FieldListOpt
+%type <std::vector<std::unique_ptr<ast::NodeBase>>> FieldListOpt BlockItemListOpt
 %type <std::unique_ptr<ast::VarDef>> VariableDef Variable
 %type <std::unique_ptr<ast::FnDef>> FunctionDef
-%type <std::unique_ptr<ast::IType>> Type
+%type <std::unique_ptr<ast::TypeName>> Type
 %type <std::vector<std::unique_ptr<ast::VarDef>>> Formals VariableList
 %type <std::unique_ptr<ast::BlockStmt>> BlockStmt
-%type <std::vector<std::unique_ptr<ast::IBlockItem>>> BlockItemListOpt
-%type <std::unique_ptr<ast::IStatement>> Stmt
+%type <std::unique_ptr<ast::NodeBase>> Stmt
 %type <std::unique_ptr<ast::IfStmt>> IfStmt
 %type <std::unique_ptr<ast::WhileStmt>> WhileStmt
 %type <std::unique_ptr<ast::ForStmt>> ForStmt
 %type <std::unique_ptr<ast::BreakStmt>> BreakStmt
 %type <std::unique_ptr<ast::ReturnStmt>> ReturnStmt
 %type <std::unique_ptr<ast::PrintStmt>> PrintStmt
-%type <std::unique_ptr<ast::IExpression>> Expr ExprOpt Call PrimaryExpr PrimaryNoNewArray
-%type <std::unique_ptr<ast::IExpression>> OrExpr AndExpr EquExpr RelExpr AddExpr MulExpr UnaryExpr
-%type <std::unique_ptr<ast::ILiteral>> Literal
-%type <std::unique_ptr<ast::ILValue>> LValue
-%type <std::vector<std::unique_ptr<ast::IExpression>>> Actuals ExprList
+%type <std::unique_ptr<ast::ExprBase>> Expr ExprOpt Call PrimaryExpr PrimaryNoNewArray
+%type <std::unique_ptr<ast::ExprBase>> OrExpr AndExpr EquExpr RelExpr AddExpr MulExpr UnaryExpr
+%type <std::unique_ptr<ast::ExprBase>> Literal LValue
+%type <std::vector<std::unique_ptr<ast::ExprBase>>> Actuals ExprList
 
 %precedence UnmatchedIf
 %precedence "else"
@@ -182,22 +180,23 @@ Variable:
 
 Type:
     "void" {
-        $$ = std::make_unique<ast::VoidType>(@1);
+        $$ = std::make_unique<ast::TypeName>(@1, ast::TypeId::kVoid);
     } |
     "int" {
-        $$ = std::make_unique<ast::IntType>(@1);
+        $$ = std::make_unique<ast::TypeName>(@1, ast::TypeId::kInt);
     } |
     "bool" {
-        $$ = std::make_unique<ast::BoolType>(@1);
+        $$ = std::make_unique<ast::TypeName>(@1, ast::TypeId::kBool);
     } |
     "string" {
-        $$ = std::make_unique<ast::StrType>(@1);
+        $$ = std::make_unique<ast::TypeName>(@1, ast::TypeId::kString);
     } |
     "class" Identifier[id] {
-        $$ = std::make_unique<ast::ClassType>(@1, std::move($id));
+        $$ = std::make_unique<ast::TypeName>(@1, std::move($id));
     } |
     Type[ty] "[" "]" {
-        $$ = std::make_unique<ast::ArrayType>(@1, std::move($ty));
+        $$ = std::move($ty);
+        $$->AddDimension();
     };
 
 FunctionDef:

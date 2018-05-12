@@ -1,20 +1,14 @@
 #ifndef UDC_AST_ALL_HPP_
 #define UDC_AST_ALL_HPP_
 
-#include "Interface.hpp"
+#include "ExprBase.hpp"
+#include "NodeBase.hpp"
 
-#include "Base.hpp"
 #include "ClassDef.hpp"
 #include "FnDef.hpp"
 #include "Program.hpp"
+#include "TypeName.hpp"
 #include "VarDef.hpp"
-
-#include "ArrayType.hpp"
-#include "BoolType.hpp"
-#include "ClassType.hpp"
-#include "IntType.hpp"
-#include "StrType.hpp"
-#include "VoidType.hpp"
 
 #include "BlockStmt.hpp"
 #include "BreakStmt.hpp"

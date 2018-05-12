@@ -4,7 +4,7 @@
 namespace udc::ast {
 
 NewClassExpr::NewClassExpr(const Location &vLocation, std::string &&sName) noexcept :
-    Base(vLocation), x_sName(std::move(sName))
+    ExprBase(vLocation), x_sName(std::move(sName))
 {}
 
 NewClassExpr::~NewClassExpr() {}

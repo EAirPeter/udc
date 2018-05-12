@@ -3,7 +3,7 @@
 
 namespace udc::ast {
 
-BoolLit::BoolLit(const Location &vLocation, bool bVal) noexcept : Base(vLocation), x_bVal(bVal) {}
+BoolLit::BoolLit(const Location &vLocation, bool bVal) noexcept : ExprBase(vLocation), x_bVal(bVal) {}
 
 BoolLit::~BoolLit() {}
 

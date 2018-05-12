@@ -3,24 +3,35 @@
 
 #include <memory>
 
-#include "Base.hpp"
-#include "Interface.hpp"
+#include "ExprBase.hpp"
 
 namespace udc::ast {
 
-class VarAccess : public Base, public ILValue {
+class VarAccess : public ExprBase {
 public:
     VarAccess(
         const Location &vLocation,
-        std::unique_ptr<IExpression> &&upExpr,
+        std::unique_ptr<ExprBase> &&upExpr,
         std::string &&sName
     ) noexcept;
     virtual ~VarAccess();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;
+    
+    virtual inline void AcceptVisitor(eval::VisitorBase &vis) noexcept override {
+        vis.Visit(*this);
+    }
+
+    inline ExprBase *GetExpr() const noexcept {
+        return x_upExpr.get();
+    }
+
+    constexpr const std::string &GetName() const noexcept {
+        return x_sName;
+    }
 
 private:
-    std::unique_ptr<IExpression> x_upExpr;
+    std::unique_ptr<ExprBase> x_upExpr;
     std::string x_sName;
 };
 

@@ -4,20 +4,27 @@
 #include <memory>
 #include <vector>
 
-#include "Base.hpp"
-#include "Interface.hpp"
+#include "NodeBase.hpp"
 
 namespace udc::ast {
 
-class BlockStmt : public Base, public IStatement {
+class BlockStmt : public NodeBase {
 public:
-    BlockStmt(const Location &vLocation, std::vector<std::unique_ptr<IBlockItem>> &&vecItems) noexcept;
+    BlockStmt(const Location &vLocation, std::vector<std::unique_ptr<NodeBase>> &&vecItems) noexcept;
     virtual ~BlockStmt();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;
+    
+    virtual inline void AcceptVisitor(eval::VisitorBase &vis) noexcept override {
+        vis.Visit(*this);
+    }
+
+    constexpr const std::vector<std::unique_ptr<NodeBase>> &GetItems() const noexcept {
+        return x_vecItems;
+    }
 
 private:
-    std::vector<std::unique_ptr<IBlockItem>> x_vecItems;
+    std::vector<std::unique_ptr<NodeBase>> x_vecItems;
 };
 
 }

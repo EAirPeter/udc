@@ -4,17 +4,17 @@
 #include <memory>
 #include <vector>
 
-#include "Base.hpp"
-#include "Interface.hpp"
+#include "NodeBase.hpp"
+#include "eval/Type.hpp"
 
 namespace udc::ast {
 
-class FnDef : public Base, public virtual IDefinition {
+class FnDef : public NodeBase {
 public:
     FnDef(
         const Location &vLocation,
         bool bStatic,
-        std::unique_ptr<IType> &&upType,
+        std::unique_ptr<TypeName> &&upType,
         std::string &&sName,
         std::vector<std::unique_ptr<VarDef>> &&vecPars,
         std::unique_ptr<BlockStmt> &&upBody
@@ -23,12 +23,45 @@ public:
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;
 
+    virtual inline void AcceptVisitor(eval::VisitorBase &vis) noexcept override {
+        vis.Visit(*this);
+    }
+
+    constexpr bool IsStatic() const noexcept {
+        return x_bStatic;
+    }
+
+    inline TypeName *GetTypeName() const noexcept {
+        return x_upType.get();
+    }
+
+    constexpr const std::string &GetName() const noexcept {
+        return x_sName;
+    }
+
+    constexpr const std::vector<std::unique_ptr<VarDef>> &GetPars() const noexcept {
+        return x_vecPars;
+    }
+
+    inline BlockStmt *GetBody() const noexcept {
+        return x_upBody.get();
+    }
+    
+    constexpr const eval::Type &GetType() const noexcept {
+        return x_vType;
+    }
+
+    constexpr void SetType(const eval::Type &vType) noexcept {
+        x_vType = vType;
+    }
+
 private:
     bool x_bStatic;
-    std::unique_ptr<IType> x_upType;
+    std::unique_ptr<TypeName> x_upType;
     std::string x_sName;
     std::vector<std::unique_ptr<VarDef>> x_vecPars;
     std::unique_ptr<BlockStmt> x_upBody;
+    eval::Type x_vType;
 };
 
 }

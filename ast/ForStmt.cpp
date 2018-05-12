@@ -1,16 +1,17 @@
 #include "../IndentHelper.hpp"
+#include "ExprBase.hpp"
 #include "ForStmt.hpp"
 
 namespace udc::ast {
 
 ForStmt::ForStmt(
     const Location &vLocation,
-    std::unique_ptr<IExpression> &&upInit,
-    std::unique_ptr<IExpression> &&upCond,
-    std::unique_ptr<IExpression> &&upIncr,
-    std::unique_ptr<IStatement> &&upBody
+    std::unique_ptr<ExprBase> &&upInit,
+    std::unique_ptr<ExprBase> &&upCond,
+    std::unique_ptr<ExprBase> &&upIncr,
+    std::unique_ptr<NodeBase> &&upBody
 ) noexcept :
-    Base(vLocation),
+    NodeBase(vLocation),
     x_upInit(std::move(upInit)),
     x_upCond(std::move(upCond)),
     x_upIncr(std::move(upIncr)),

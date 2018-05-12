@@ -65,7 +65,7 @@
 #ifdef YY_DECL
 #undef YY_DECL
 #endif
-#define YY_DECL ::udc::Symbol udc::Scanner::NextSymbol() noexcept
+#define YY_DECL ::udc::Token udc::Scanner::NextToken() noexcept
 
 #ifdef yyterminate
 #undef yyterminate

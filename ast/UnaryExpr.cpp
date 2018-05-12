@@ -6,9 +6,9 @@ namespace udc::ast {
 UnaryExpr::UnaryExpr(
     const Location &vLocation,
     UnaOp vOp,
-    std::unique_ptr<IExpression> &&upExpr
+    std::unique_ptr<ExprBase> &&upExpr
 ) noexcept :
-    Base(vLocation), x_vOp(vOp), x_upExpr(std::move(upExpr))
+    ExprBase(vLocation), x_vOp(vOp), x_upExpr(std::move(upExpr))
 {}
 
 UnaryExpr::~UnaryExpr() {}

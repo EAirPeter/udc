@@ -4,10 +4,10 @@ namespace udc::ast {
 
 AssignExpr::AssignExpr(
     const Location &vLocation,
-    std::unique_ptr<ILValue> &&upLhs,
-    std::unique_ptr<IExpression> &&upRhs
+    std::unique_ptr<ExprBase> &&upLhs,
+    std::unique_ptr<ExprBase> &&upRhs
 ) noexcept :
-    Base(vLocation), x_upLhs(std::move(upLhs)), x_upRhs(std::move(upRhs))
+    ExprBase(vLocation), x_upLhs(std::move(upLhs)), x_upRhs(std::move(upRhs))
 {}
 
 AssignExpr::~AssignExpr() {}

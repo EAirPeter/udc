@@ -5,10 +5,10 @@ namespace udc::ast {
 
 InstanceOf::InstanceOf(
     const Location &vLocation,
-    std::unique_ptr<IExpression> &&upExpr,
+    std::unique_ptr<ExprBase> &&upExpr,
     std::string &&sName
 ) noexcept :
-    Base(vLocation), x_upExpr(std::move(upExpr)), x_sName(std::move(sName))
+    ExprBase(vLocation), x_upExpr(std::move(upExpr)), x_sName(std::move(sName))
 {}
 
 InstanceOf::~InstanceOf() {}

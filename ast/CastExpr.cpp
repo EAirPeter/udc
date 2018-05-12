@@ -6,9 +6,9 @@ namespace udc::ast {
 CastExpr::CastExpr(
     const Location &vLocation,
     std::string &&sName,
-    std::unique_ptr<IExpression> &&upExpr
+    std::unique_ptr<ExprBase> &&upExpr
 ) noexcept :
-    Base(vLocation), x_sName(std::move(sName)), x_upExpr(std::move(upExpr))
+    ExprBase(vLocation), x_sName(std::move(sName)), x_upExpr(std::move(upExpr))
 {}
 
 CastExpr::~CastExpr() {}

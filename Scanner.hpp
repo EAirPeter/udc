@@ -24,7 +24,7 @@ public:
     constexpr void SetPrint(bool bPrint) noexcept {
         x_bPrint = bPrint;
     }
-    Symbol NextSymbol() noexcept;
+    Token NextToken() noexcept;
 
 private:
     Driver &x_vDriver;

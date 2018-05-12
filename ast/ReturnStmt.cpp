@@ -1,10 +1,11 @@
 #include "../IndentHelper.hpp"
+#include "ExprBase.hpp"
 #include "ReturnStmt.hpp"
 
 namespace udc::ast {
 
-ReturnStmt::ReturnStmt(const Location &vLocation, std::unique_ptr<IExpression> &&upExpr) noexcept :
-    Base(vLocation), x_upExpr(std::move(upExpr))
+ReturnStmt::ReturnStmt(const Location &vLocation, std::unique_ptr<ExprBase> &&upExpr) noexcept :
+    NodeBase(vLocation), x_upExpr(std::move(upExpr))
 {}
 
 ReturnStmt::~ReturnStmt() {}

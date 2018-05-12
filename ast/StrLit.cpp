@@ -4,7 +4,7 @@
 namespace udc::ast {
 
 StrLit::StrLit(const Location &vLocation, std::string &&sVal) noexcept :
-    Base(vLocation), x_sVal(std::move(sVal))
+    ExprBase(vLocation), x_sVal(std::move(sVal))
 {}
 
 StrLit::~StrLit() {}

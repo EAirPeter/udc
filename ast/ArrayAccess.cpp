@@ -5,10 +5,10 @@ namespace udc::ast {
 
 ArrayAccess::ArrayAccess(
     const Location &vLocation,
-    std::unique_ptr<IExpression> &&upExpr,
-    std::unique_ptr<IExpression> &&upSub
+    std::unique_ptr<ExprBase> &&upExpr,
+    std::unique_ptr<ExprBase> &&upSub
 ) noexcept :
-    Base(vLocation), x_upExpr(std::move(upExpr)), x_upSub(std::move(upSub))
+    ExprBase(vLocation), x_upExpr(std::move(upExpr)), x_upSub(std::move(upSub))
 {}
 
 ArrayAccess::~ArrayAccess() {}

@@ -1,15 +1,16 @@
 #include "../IndentHelper.hpp"
+#include "ExprBase.hpp"
 #include "IfStmt.hpp"
 
 namespace udc::ast {
 
 IfStmt::IfStmt(
     const Location &vLocation,
-    std::unique_ptr<IExpression> &&upCond,
-    std::unique_ptr<IStatement> &&upThen,
-    std::unique_ptr<IStatement> &&upElse
+    std::unique_ptr<ExprBase> &&upCond,
+    std::unique_ptr<NodeBase> &&upThen,
+    std::unique_ptr<NodeBase> &&upElse
 ) noexcept :
-    Base(vLocation),
+    NodeBase(vLocation),
     x_upCond(std::move(upCond)),
     x_upThen(std::move(upThen)),
     x_upElse(std::move(upElse))

@@ -3,7 +3,7 @@
 
 namespace udc::ast {
 
-This::This(const Location &vLocation) noexcept : Base(vLocation) {}
+This::This(const Location &vLocation) noexcept : ExprBase(vLocation) {}
 
 This::~This() {}
 

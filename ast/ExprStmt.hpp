@@ -3,20 +3,27 @@
 
 #include <memory>
 
-#include "Base.hpp"
-#include "Interface.hpp"
+#include "NodeBase.hpp"
 
 namespace udc::ast {
 
-class ExprStmt : public Base, public virtual IStatement {
+class ExprStmt : public NodeBase {
 public:
-    ExprStmt(const Location &vLocation, std::unique_ptr<IExpression> &&upExpr) noexcept;
+    ExprStmt(const Location &vLocation, std::unique_ptr<ExprBase> &&upExpr) noexcept;
     virtual ~ExprStmt();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;
+    
+    virtual inline void AcceptVisitor(eval::VisitorBase &vis) noexcept override {
+        vis.Visit(*this);
+    }
+
+    inline ExprBase *GetExpr() const noexcept {
+        return x_upExpr.get();
+    }
 
 private:
-    std::unique_ptr<IExpression> x_upExpr;
+    std::unique_ptr<ExprBase> x_upExpr;
 };
 
 }

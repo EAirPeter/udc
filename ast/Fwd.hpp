@@ -3,30 +3,18 @@
 
 namespace udc::ast {
 
+enum class TypeId;
 enum class BinOp;
 enum class UnaOp;
 
-struct IBlockItem;
-struct IDefinition;
-struct IExpression;
-struct ILValue;
-struct INode;
-struct IStatement;
-struct ILiteral;
-struct IType;
+class ExprBase;
+class NodeBase;
 
-class Base;
 class ClassDef;
 class FnDef;
 class Program;
+class TypeName;
 class VarDef;
-
-class ArrayType;
-class BoolType;
-class ClassType;
-class IntType;
-class StrType;
-class VoidType;
 
 class BlockStmt;
 class BreakStmt;

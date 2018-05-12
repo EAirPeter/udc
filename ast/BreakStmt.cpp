@@ -3,7 +3,7 @@
 
 namespace udc::ast {
 
-BreakStmt::BreakStmt(const Location &vLocation) noexcept : Base(vLocation) {}
+BreakStmt::BreakStmt(const Location &vLocation) noexcept : NodeBase(vLocation) {}
 
 BreakStmt::~BreakStmt() {}
 

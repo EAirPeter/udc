@@ -4,7 +4,7 @@
 namespace udc::ast {
 
 Program::Program(const Location &vLocation, std::vector<std::unique_ptr<ClassDef>> &&vecClasses) noexcept :
-    Base(vLocation), x_vecClasses(std::move(vecClasses))
+    NodeBase(vLocation), x_vecClasses(std::move(vecClasses)), x_stClass(false)
 {}
 
 Program::~Program() {}

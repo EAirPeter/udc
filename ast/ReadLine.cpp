@@ -3,7 +3,7 @@
 
 namespace udc::ast {
 
-ReadLine::ReadLine(const Location &vLocation) noexcept : Base(vLocation) {}
+ReadLine::ReadLine(const Location &vLocation) noexcept : ExprBase(vLocation) {}
 
 ReadLine::~ReadLine() {}
 

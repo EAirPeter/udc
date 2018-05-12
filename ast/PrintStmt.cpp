@@ -1,10 +1,11 @@
 #include "../IndentHelper.hpp"
+#include "ExprBase.hpp"
 #include "PrintStmt.hpp"
 
 namespace udc::ast {
 
-PrintStmt::PrintStmt(const Location &vLocation, std::vector<std::unique_ptr<IExpression>> &&vecArgs) noexcept :
-    Base(vLocation), x_vecArgs(std::move(vecArgs))
+PrintStmt::PrintStmt(const Location &vLocation, std::vector<std::unique_ptr<ExprBase>> &&vecArgs) noexcept :
+    NodeBase(vLocation), x_vecArgs(std::move(vecArgs))
 {}
 
 PrintStmt::~PrintStmt() {}

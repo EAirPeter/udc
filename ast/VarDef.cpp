@@ -1,9 +1,10 @@
+#include "TypeName.hpp"
 #include "VarDef.hpp"
 
 namespace udc::ast {
 
-VarDef::VarDef(const Location &vLocation, std::unique_ptr<IType> &&upType, std::string &&sName) noexcept :
-    Base(vLocation), x_upType(std::move(upType)), x_sName(std::move(sName))
+VarDef::VarDef(const Location &vLocation, std::unique_ptr<TypeName> &&upType, std::string &&sName) noexcept :
+    NodeBase(vLocation), x_upType(std::move(upType)), x_sName(std::move(sName))
 {}
 
 VarDef::~VarDef() {}

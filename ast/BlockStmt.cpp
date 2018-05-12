@@ -2,8 +2,8 @@
 
 namespace udc::ast {
 
-BlockStmt::BlockStmt(const Location &vLocation, std::vector<std::unique_ptr<IBlockItem>> &&vecItems) noexcept :
-    Base(vLocation), x_vecItems(std::move(vecItems))
+BlockStmt::BlockStmt(const Location &vLocation, std::vector<std::unique_ptr<NodeBase>> &&vecItems) noexcept :
+    NodeBase(vLocation), x_vecItems(std::move(vecItems))
 {}
 
 BlockStmt::~BlockStmt() {}

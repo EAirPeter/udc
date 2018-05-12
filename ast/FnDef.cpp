@@ -1,5 +1,6 @@
 #include "BlockStmt.hpp"
 #include "FnDef.hpp"
+#include "TypeName.hpp"
 #include "VarDef.hpp"
 
 namespace udc::ast {
@@ -7,12 +8,12 @@ namespace udc::ast {
 FnDef::FnDef(
     const Location &vLocation,
     bool bStatic,
-    std::unique_ptr<IType> &&upType,
+    std::unique_ptr<TypeName> &&upType,
     std::string &&sName,
     std::vector<std::unique_ptr<VarDef>> &&vecPars,
     std::unique_ptr<BlockStmt> &&upBody
 ) noexcept :
-    Base(vLocation),
+    NodeBase(vLocation),
     x_bStatic(bStatic),
     x_upType(std::move(upType)),
     x_sName(std::move(sName)),

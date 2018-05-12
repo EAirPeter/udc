@@ -13,7 +13,7 @@ int Driver::Parse() {
 
 void Driver::PrintSymbols() {
     x_vScanner.SetPrint(true);
-    while (x_vScanner.NextSymbol().token() != TokenType::kEnd);
+    while (x_vScanner.NextToken().token() != TokenId::kEnd);
     x_vScanner.SetPrint(false);
 }
 

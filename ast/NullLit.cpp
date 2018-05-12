@@ -3,7 +3,7 @@
 
 namespace udc::ast {
 
-NullLit::NullLit(const Location &vLocation) noexcept : Base(vLocation) {}
+NullLit::NullLit(const Location &vLocation) noexcept : ExprBase(vLocation) {}
 
 NullLit::~NullLit() {}
 

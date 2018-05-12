@@ -3,7 +3,7 @@
 
 namespace udc::ast {
 
-ReadInteger::ReadInteger(const Location &vLocation) noexcept : Base(vLocation) {}
+ReadInteger::ReadInteger(const Location &vLocation) noexcept : ExprBase(vLocation) {}
 
 ReadInteger::~ReadInteger() {}
 

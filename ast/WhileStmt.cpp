@@ -1,14 +1,15 @@
 #include "../IndentHelper.hpp"
+#include "ExprBase.hpp"
 #include "WhileStmt.hpp"
 
 namespace udc::ast {
 
 WhileStmt::WhileStmt(
     const Location &vLocation,
-    std::unique_ptr<IExpression> &&upCond,
-    std::unique_ptr<IStatement> &&upBody
+    std::unique_ptr<ExprBase> &&upCond,
+    std::unique_ptr<NodeBase> &&upBody
 ) noexcept :
-    Base(vLocation), x_upCond(std::move(upCond)), x_upBody(std::move(upBody))
+    NodeBase(vLocation), x_upCond(std::move(upCond)), x_upBody(std::move(upBody))
 {}
 
 udc::ast::WhileStmt::~WhileStmt() {}

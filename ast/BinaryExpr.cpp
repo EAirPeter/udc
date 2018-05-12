@@ -5,10 +5,10 @@ namespace udc::ast {
 BinaryExpr::BinaryExpr(
     const Location &vLocation,
     BinOp vOp,
-    std::unique_ptr<IExpression> &&upLhs,
-    std::unique_ptr<IExpression> &&upRhs
+    std::unique_ptr<ExprBase> &&upLhs,
+    std::unique_ptr<ExprBase> &&upRhs
 ) noexcept :
-    Base(vLocation), x_vOp(vOp), x_upLhs(std::move(upLhs)), x_upRhs(std::move(upRhs))
+    ExprBase(vLocation), x_vOp(vOp), x_upLhs(std::move(upLhs)), x_upRhs(std::move(upRhs))
 {}
 
 BinaryExpr::~BinaryExpr() {}

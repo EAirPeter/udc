@@ -7,12 +7,14 @@ ClassDef::ClassDef(
     const Location &vLocation,
     std::string &&sName,
     std::optional<std::string> &&soBase,
-    std::vector<std::unique_ptr<IDefinition>> &&vecFields
+    std::vector<std::unique_ptr<NodeBase>> &&vecFields
 ) noexcept :
-    Base(vLocation),
+    NodeBase(vLocation),
     x_sName(std::move(sName)),
     x_soBase(std::move(soBase)),
-    x_vecFields(std::move(vecFields))
+    x_vecFields(std::move(vecFields)),
+    x_stFn(false),
+    x_stVar(true)
 {}
 
 ClassDef::~ClassDef() {}
@@ -25,6 +27,15 @@ void ClassDef::Print(std::ostream &os, std::uint32_t cIndent) const {
         os << std::endl;
         upField->Print(os, cIndent + 1);
     }
+}
+
+bool ClassDef::Accepts(const INonArrayType &ty) const noexcept {
+    auto pCls = dynamic_cast<const ClassDef *>(&ty);
+    if (!pCls)
+        return false;
+    while (pCls && pCls != this)
+        pCls = pCls->GetBase();
+    return pCls == this;
 }
 
 }

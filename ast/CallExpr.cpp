@@ -5,11 +5,11 @@ namespace udc::ast {
 
 CallExpr::CallExpr(
     const Location &vLocation,
-    std::unique_ptr<IExpression> &&upExpr,
+    std::unique_ptr<ExprBase> &&upExpr,
     std::string &&sName,
-    std::vector<std::unique_ptr<IExpression>> &&vecArgs
+    std::vector<std::unique_ptr<ExprBase>> &&vecArgs
 ) noexcept :
-    Base(vLocation),
+    ExprBase(vLocation),
     x_upExpr(std::move(upExpr)),
     x_sName(std::move(sName)),
     x_vecArgs(std::move(vecArgs))
