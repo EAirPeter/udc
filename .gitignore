@@ -2,6 +2,7 @@
 !.gitignore
 !Makefile
 !ast/
+!ast/eval/
 !bison/
 !bison/*
 !*.cpp
