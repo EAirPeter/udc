@@ -18,18 +18,37 @@ public:
 public:
     int Parse();
     void PrintSymbols();
-    void SetProgram(std::unique_ptr<ast::Program> &&upProgram) noexcept;
+    void SetProgram(ast::Program &upProgram) noexcept;
+
+    template<class tNode, class ...tArgs>
+    tNode &AddNode(tArgs &&...vArgs) {
+        auto &&upNode = std::make_unique<tNode>(std::forward<tArgs>(vArgs)...);
+        auto pNode = upNode.get();
+        x_vecNodes.emplace_back(std::move(upNode));
+        return *pNode;
+    }
 
 public:
     template<class ...tArgs>
     static inline void PrintError(const Location &vLoc, tArgs &&...vArgs) {
-        ((std::cerr << "At " << vLoc << ": ") << ... << std::forward<tArgs>(vArgs)) << std::endl;
+        ((std::cerr << "At " << vLoc << ":   error: ") << ... << std::forward<tArgs>(vArgs)) << std::endl;
+    }
+
+    template<class ...tArgs>
+    static inline void PrintWarning(const Location &vLoc, tArgs &&...vArgs) {
+        ((std::cerr << "At " << vLoc << ": warning: ") << ... << std::forward<tArgs>(vArgs)) << std::endl;
+    }
+
+    template<class ...tArgs>
+    static inline void PrintNote(const Location &vLoc, tArgs &&...vArgs) {
+        ((std::cerr << "At " << vLoc << ":    note: ") << ... << std::forward<tArgs>(vArgs)) << std::endl;
     }
 
 private:
     Scanner x_vScanner;
     Parser x_vParser;
-    std::unique_ptr<ast::Program> x_upProgram;
+    std::vector<std::unique_ptr<ast::NodeBase>> x_vecNodes;
+    std::optional<std::reference_wrapper<ast::Program>> x_oProg;
 
 };
 

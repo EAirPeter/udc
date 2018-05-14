@@ -3,7 +3,7 @@
 namespace udc::ast {
 
 BlockStmt::BlockStmt(const Location &vLocation, std::vector<std::unique_ptr<NodeBase>> &&vecItems) noexcept :
-    NodeBase(vLocation), x_vecItems(std::move(vecItems))
+    NodeBase(vLocation), x_vecItems(std::move(vecItems)), x_stVar(false)
 {}
 
 BlockStmt::~BlockStmt() {}

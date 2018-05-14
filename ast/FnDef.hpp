@@ -1,11 +1,10 @@
 #ifndef UDC_AST_FN_DEF_HPP_
 #define UDC_AST_FN_DEF_HPP_
 
-#include <memory>
-#include <vector>
-
+#include "../RefContainer.hpp"
 #include "NodeBase.hpp"
 #include "eval/Type.hpp"
+#include "eval/SymbolTable.hpp"
 
 namespace udc::ast {
 
@@ -16,7 +15,7 @@ public:
         bool bStatic,
         std::unique_ptr<TypeName> &&upType,
         std::string &&sName,
-        std::vector<std::unique_ptr<VarDef>> &&vecPars,
+        RefVec<VarDef> &&vecPars,
         std::unique_ptr<BlockStmt> &&upBody
     ) noexcept;
     virtual ~FnDef();
@@ -39,7 +38,7 @@ public:
         return x_sName;
     }
 
-    constexpr const std::vector<std::unique_ptr<VarDef>> &GetPars() const noexcept {
+    constexpr const RefVec<VarDef> &GetPars() const noexcept {
         return x_vecPars;
     }
 
@@ -55,13 +54,18 @@ public:
         x_vType = vType;
     }
 
+    constexpr eval::VarTable &GetVarTable() noexcept {
+        return x_stVar;
+    }
+
 private:
     bool x_bStatic;
     std::unique_ptr<TypeName> x_upType;
     std::string x_sName;
-    std::vector<std::unique_ptr<VarDef>> x_vecPars;
+    RefVec<VarDef> x_vecPars;
     std::unique_ptr<BlockStmt> x_upBody;
     eval::Type x_vType;
+    eval::VarTable x_stVar;
 };
 
 }

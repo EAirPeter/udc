@@ -18,9 +18,7 @@ public:
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const = 0;
 
-    virtual inline void AcceptVisitor(eval::VisitorBase &vis) noexcept {
-        vis.Visit(*this);
-    }
+    virtual inline void AcceptVisitor(eval::VisitorBase &vis) noexcept = 0;
 
 public:
     constexpr const Location &GetLocation() const noexcept {

@@ -1,10 +1,9 @@
 #ifndef UDC_AST_CLASS_DEF_HPP_
 #define UDC_AST_CLASS_DEF_HPP_
 
-#include <memory>
 #include <optional>
-#include <vector>
 
+#include "../RefContainer.hpp"
 #include "NodeBase.hpp"
 #include "eval/SymbolTable.hpp"
 #include "eval/Type.hpp"
@@ -17,12 +16,13 @@ public:
         const Location &vLocation,
         std::string &&sName,
         std::optional<std::string> &&soBase,
-        std::vector<std::unique_ptr<NodeBase>> &&vecFields
+        RefVec<NodeBase> &&vecFields
     ) noexcept;
     virtual ~ClassDef();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;
     virtual bool Accepts(const INonArrayType &ty) const noexcept override;
+    virtual void Print(std::ostream &os) const override;
     
     virtual inline void AcceptVisitor(eval::VisitorBase &vis) noexcept override {
         vis.Visit(*this);
@@ -36,7 +36,7 @@ public:
         return x_soBase;
     }
 
-    constexpr const std::vector<std::unique_ptr<NodeBase>> &GetFields() const noexcept {
+    constexpr const std::vector<std::reference_wrapper<NodeBase>> &GetFields() const noexcept {
         return x_vecFields;
     }
 
@@ -44,8 +44,15 @@ public:
         return x_pBase;
     }
 
-    constexpr void SetBase(const ClassDef &tyBase) noexcept {
+    inline void SetBase(ClassDef &tyBase) noexcept {
         x_pBase = &tyBase;
+        x_stFn.SetParent(tyBase.x_stFn);
+        x_stVar.SetParent(tyBase.x_stVar);
+        tyBase.x_vecDeriveds.emplace_back(this);
+    }
+
+    constexpr const std::vector<ClassDef *> &GetDeriveds() const noexcept {
+        return x_vecDeriveds;
     }
 
     constexpr eval::FnTable &GetFnTable() noexcept {
@@ -59,8 +66,9 @@ public:
 private:
     std::string x_sName;
     std::optional<std::string> x_soBase;
-    std::vector<std::unique_ptr<NodeBase>> x_vecFields;
+    RefVec<NodeBase> x_vecFields;
     const ClassDef *x_pBase;
+    std::vector<ClassDef *> x_vecDeriveds;
     eval::FnTable x_stFn;
     eval::VarTable x_stVar;
 };

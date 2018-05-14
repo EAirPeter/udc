@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "NodeBase.hpp"
+#include "eval/SymbolTable.hpp"
 
 namespace udc::ast {
 
@@ -23,8 +24,13 @@ public:
         return x_vecItems;
     }
 
+    constexpr eval::VarTable &GetVarTable() noexcept {
+        return x_stVar;
+    }
+
 private:
     std::vector<std::unique_ptr<NodeBase>> x_vecItems;
+    eval::VarTable x_stVar;
 };
 
 }

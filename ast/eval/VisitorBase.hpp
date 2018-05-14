@@ -3,12 +3,28 @@
 
 #include "../Fwd.hpp"
 
+namespace udc {
+class Driver;
+}
+
 namespace udc::ast::eval {
 
-#define DEF_VISIT(type_) virtual inline void Visit(type_ &) {}
-struct VisitorBase {
+#define DEF_VISIT(type_) virtual inline void Visit(type_ &) noexcept {}
+class VisitorBase {
+public:
+    constexpr VisitorBase(Driver &vDriver) noexcept : y_vDriver(vDriver) {}
     virtual inline ~VisitorBase() = default;
-    DEF_VISIT(NodeBase)
+
+    constexpr bool IsRejected() const noexcept {
+        return x_bRejected;
+    }
+
+protected:
+    constexpr void Y_Reject() noexcept {
+        x_bRejected = true;
+    }
+
+public:
     DEF_VISIT(ClassDef)
     DEF_VISIT(FnDef)
     DEF_VISIT(Program)
@@ -43,6 +59,10 @@ struct VisitorBase {
     DEF_VISIT(IntLit)
     DEF_VISIT(NullLit)
     DEF_VISIT(StrLit)
+protected:
+    Driver &y_vDriver;
+private:
+    bool x_bRejected = false;
 };
 #undef DEF_VISIT
 

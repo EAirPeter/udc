@@ -26,6 +26,10 @@ public:
         return x_stClass;
     }
 
+    constexpr const eval::ClassTable &GetClassTable() const noexcept {
+        return x_stClass;
+    }
+
 private:
     std::vector<std::unique_ptr<ClassDef>> x_vecClasses;
     eval::ClassTable x_stClass;

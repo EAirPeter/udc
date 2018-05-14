@@ -3,8 +3,8 @@
 %locations
 
 %code requires {
-#include <memory>
 
+#include "RefContainer.hpp"
 #include "ast/All.hpp"
 
 namespace udc {
@@ -109,25 +109,25 @@ namespace udc {
 %token PuCuo "{"
 %token PuCuc "}"
 
-%type <std::vector<std::unique_ptr<ast::ClassDef>>> ClassDefList
-%type <std::unique_ptr<ast::ClassDef>> ClassDef
-%type <std::vector<std::unique_ptr<ast::NodeBase>>> FieldListOpt BlockItemListOpt
-%type <std::unique_ptr<ast::VarDef>> VariableDef Variable
-%type <std::unique_ptr<ast::FnDef>> FunctionDef
-%type <std::unique_ptr<ast::TypeName>> Type
-%type <std::vector<std::unique_ptr<ast::VarDef>>> Formals VariableList
-%type <std::unique_ptr<ast::BlockStmt>> BlockStmt
-%type <std::unique_ptr<ast::NodeBase>> Stmt
-%type <std::unique_ptr<ast::IfStmt>> IfStmt
-%type <std::unique_ptr<ast::WhileStmt>> WhileStmt
-%type <std::unique_ptr<ast::ForStmt>> ForStmt
-%type <std::unique_ptr<ast::BreakStmt>> BreakStmt
-%type <std::unique_ptr<ast::ReturnStmt>> ReturnStmt
-%type <std::unique_ptr<ast::PrintStmt>> PrintStmt
-%type <std::unique_ptr<ast::ExprBase>> Expr ExprOpt Call PrimaryExpr PrimaryNoNewArray
-%type <std::unique_ptr<ast::ExprBase>> OrExpr AndExpr EquExpr RelExpr AddExpr MulExpr UnaryExpr
-%type <std::unique_ptr<ast::ExprBase>> Literal LValue
-%type <std::vector<std::unique_ptr<ast::ExprBase>>> Actuals ExprList
+%type <RefVec<ast::ClassDef>> ClassDefList
+%type <ast::ClassDef *> ClassDef
+%type <RefVec<ast::NodeBase>> FieldListOpt BlockItemListOpt
+%type <ast::VarDef *> VariableDef Variable
+%type <ast::FnDef *> FunctionDef
+%type <ast::TypeName *> Type
+%type <RefVec<ast::VarDef>> Formals VariableList
+%type <ast::BlockStmt *> BlockStmt
+%type <ast::NodeBase *> Stmt
+%type <ast::IfStmt *> IfStmt
+%type <ast::WhileStmt *> WhileStmt
+%type <ast::ForStmt *> ForStmt
+%type <ast::BreakStmt *> BreakStmt
+%type <ast::ReturnStmt *> ReturnStmt
+%type <ast::PrintStmt *> PrintStmt
+%type <ast::ExprBase *> Expr ExprOpt Call PrimaryExpr PrimaryNoNewArray
+%type <ast::ExprBase *> OrExpr AndExpr EquExpr RelExpr AddExpr MulExpr UnaryExpr
+%type <ast::ExprBase *> Literal LValue
+%type <RefVec<ast::ExprBase>> Actuals ExprList
 
 %precedence UnmatchedIf
 %precedence "else"
@@ -137,35 +137,35 @@ namespace udc {
 %%
 Program:
     ClassDefList[cdl] {
-        x_vDriver.SetProgram(std::make_unique<ast::Program>(@1, std::move($cdl)));
+        x_vDriver.SetProgram(x_vDriver.AddNode<ast::Program>(@1, std::move($cdl)));
     };
 
 ClassDefList:
     ClassDef[cd] {
-        $$.emplace_back(std::move($cd));
+        $$.emplace_back(*std::move($cd));
     } |
     ClassDefList[cdl] ClassDef[cd] {
         $$ = std::move($cdl);
-        $$.emplace_back(std::move($cd));
+        $$.emplace_back(*std::move($cd));
     };
 
 ClassDef:
     "class" Identifier[id] "{" FieldListOpt[fl] "}" {
-        $$ = std::make_unique<ast::ClassDef>(@1, std::move($id), std::nullopt, std::move($fl));
+        $$ = &x_vDriver.AddNode<ast::ClassDef>(@1, std::move($id), std::nullopt, std::move($fl));
     } |
     "class" Identifier[id] "extends" Identifier[base] "{" FieldListOpt[fl] "}" {
-        $$ = std::make_unique<ast::ClassDef>(@1, std::move($id), std::move($base), std::move($fl));
+        $$ = &x_vDriver.AddNode<ast::ClassDef>(@1, std::move($id), std::move($base), std::move($fl));
     };
 
 FieldListOpt:
     %empty {} |
     FieldListOpt[fl] VariableDef[vd] {
         $$ = std::move($fl);
-        $$.emplace_back(std::move($vd));
+        $$.emplace_back(*std::move($vd));
     } |
     FieldListOpt[fl] FunctionDef[fd] {
         $$ = std::move($fl);
-        $$.emplace_back(std::move($fd));
+        $$.emplace_back(*std::move($fd));
     };
 
 VariableDef:
@@ -175,24 +175,24 @@ VariableDef:
 
 Variable:
     Type[ty] Identifier[id] {
-        $$ = std::make_unique<ast::VarDef>(@1, std::move($ty), std::move($id));
+        $$ = &x_vDriver.AddNode<ast::VarDef>(@1, std::move($ty), std::move($id));
     };
 
 Type:
     "void" {
-        $$ = std::make_unique<ast::TypeName>(@1, ast::TypeId::kVoid);
+        $$ = &x_vDriver.AddNode<ast::TypeName>(@1, ast::TypeId::kVoid);
     } |
     "int" {
-        $$ = std::make_unique<ast::TypeName>(@1, ast::TypeId::kInt);
+        $$ = &x_vDriver.AddNode<ast::TypeName>(@1, ast::TypeId::kInt);
     } |
     "bool" {
-        $$ = std::make_unique<ast::TypeName>(@1, ast::TypeId::kBool);
+        $$ = &x_vDriver.AddNode<ast::TypeName>(@1, ast::TypeId::kBool);
     } |
     "string" {
-        $$ = std::make_unique<ast::TypeName>(@1, ast::TypeId::kString);
+        $$ = &x_vDriver.AddNode<ast::TypeName>(@1, ast::TypeId::kString);
     } |
     "class" Identifier[id] {
-        $$ = std::make_unique<ast::TypeName>(@1, std::move($id));
+        $$ = &x_vDriver.AddNode<ast::TypeName>(@1, std::move($id));
     } |
     Type[ty] "[" "]" {
         $$ = std::move($ty);
@@ -201,10 +201,10 @@ Type:
 
 FunctionDef:
     Type[ty] Identifier[id] "(" Formals[pars] ")" BlockStmt[body] {
-        $$ = std::make_unique<ast::FnDef>(@1, false, std::move($ty), std::move($id), std::move($pars), std::move($body));
+        $$ = &x_vDriver.AddNode<ast::FnDef>(@1, false, std::move($ty), std::move($id), std::move($pars), std::move($body));
     } |
     "static" Type[ty] Identifier[id] "(" Formals[pars] ")" BlockStmt[body] {
-        $$ = std::make_unique<ast::FnDef>(@1, true, std::move($ty), std::move($id), std::move($pars), std::move($body));
+        $$ = &x_vDriver.AddNode<ast::FnDef>(@1, true, std::move($ty), std::move($id), std::move($pars), std::move($body));
     };
 
 Formals:
@@ -215,35 +215,35 @@ Formals:
 
 VariableList:
     Variable[v] {
-        $$.emplace_back(std::move($v));
+        $$.emplace_back(*std::move($v));
     } |
     VariableList[vl] "," Variable[v] {
         $$ = std::move($vl);
-        $$.emplace_back(std::move($v));
+        $$.emplace_back(*std::move($v));
     };
 
 BlockStmt:
     "{" BlockItemListOpt[bil] "}" {
-        $$ = std::make_unique<ast::BlockStmt>(@1, std::move($bil));
+        $$ = &x_vDriver.AddNode<ast::BlockStmt>(@1, std::move($bil));
     };
 
 BlockItemListOpt:
     %empty {} |
     BlockItemListOpt[bil] VariableDef[vd] {
         $$ = std::move($bil);
-        $$.emplace_back(std::move($vd));
+        $$.emplace_back(*std::move($vd));
     } |
     BlockItemListOpt[bil] Stmt[st] {
         $$ = std::move($bil);
-        $$.emplace_back(std::move($st));
+        $$.emplace_back(*std::move($st));
     };
 
 Stmt:
     ";" {
-        $$ = std::make_unique<ast::ExprStmt>(@1, nullptr);
+        $$ = &x_vDriver.AddNode<ast::ExprStmt>(@1, nullptr);
     } |
     Expr[e] ";" {
-        $$ = std::make_unique<ast::ExprStmt>(@1, std::move($e));
+        $$ = &x_vDriver.AddNode<ast::ExprStmt>(@1, std::move($e));
     } |
     IfStmt[st] {
         $$ = std::move($st);
@@ -272,7 +272,7 @@ Expr:
         $$ = std::move($e);
     } |
     LValue[l] "=" Expr[r] {
-        $$ = std::make_unique<ast::AssignExpr>(@1, std::move($l), std::move($r));
+        $$ = &x_vDriver.AddNode<ast::AssignExpr>(@1, std::move($l), std::move($r));
     };
 
 OrExpr:
@@ -280,7 +280,7 @@ OrExpr:
         $$ = std::move($e);
     } |
     OrExpr[l] "||" AndExpr[r] {
-        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::BinOp::kIor, std::move($l), std::move($r));
+        $$ = &x_vDriver.AddNode<ast::BinaryExpr>(@1, ast::BinOp::kIor, std::move($l), std::move($r));
     };
 
 AndExpr:
@@ -288,7 +288,7 @@ AndExpr:
         $$ = std::move($e);
     } |
     AndExpr[l] "&&" EquExpr[r] {
-        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::BinOp::kAnd, std::move($l), std::move($r));
+        $$ = &x_vDriver.AddNode<ast::BinaryExpr>(@1, ast::BinOp::kAnd, std::move($l), std::move($r));
     };
 
 EquExpr:
@@ -296,10 +296,10 @@ EquExpr:
         $$ = std::move($e);
     } | 
     EquExpr[l] "==" RelExpr[r] {
-        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::BinOp::kEqu, std::move($l), std::move($r));
+        $$ = &x_vDriver.AddNode<ast::BinaryExpr>(@1, ast::BinOp::kEqu, std::move($l), std::move($r));
     } |
     EquExpr[l] "!=" RelExpr[r] {
-        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::BinOp::kNeq, std::move($l), std::move($r));
+        $$ = &x_vDriver.AddNode<ast::BinaryExpr>(@1, ast::BinOp::kNeq, std::move($l), std::move($r));
     };
 
 RelExpr:
@@ -307,16 +307,16 @@ RelExpr:
         $$ = std::move($e);
     } |
     RelExpr[l] "<" AddExpr[r] {
-        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::BinOp::kLes, std::move($l), std::move($r));
+        $$ = &x_vDriver.AddNode<ast::BinaryExpr>(@1, ast::BinOp::kLes, std::move($l), std::move($r));
     } |
     RelExpr[l] ">" AddExpr[r] {
-        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::BinOp::kGre, std::move($l), std::move($r));
+        $$ = &x_vDriver.AddNode<ast::BinaryExpr>(@1, ast::BinOp::kGre, std::move($l), std::move($r));
     } |
     RelExpr[l] "<=" AddExpr[r] {
-        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::BinOp::kLeq, std::move($l), std::move($r));
+        $$ = &x_vDriver.AddNode<ast::BinaryExpr>(@1, ast::BinOp::kLeq, std::move($l), std::move($r));
     } |
     RelExpr[l] ">=" AddExpr[r] {
-        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::BinOp::kGeq, std::move($l), std::move($r));
+        $$ = &x_vDriver.AddNode<ast::BinaryExpr>(@1, ast::BinOp::kGeq, std::move($l), std::move($r));
     };
 
 AddExpr:
@@ -324,10 +324,10 @@ AddExpr:
         $$ = std::move($e);
     } |
     AddExpr[l] "+" MulExpr[r] {
-        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::BinOp::kAdd, std::move($l), std::move($r));
+        $$ = &x_vDriver.AddNode<ast::BinaryExpr>(@1, ast::BinOp::kAdd, std::move($l), std::move($r));
     } |
     AddExpr[l] "-" MulExpr[r] {
-        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::BinOp::kSub, std::move($l), std::move($r));
+        $$ = &x_vDriver.AddNode<ast::BinaryExpr>(@1, ast::BinOp::kSub, std::move($l), std::move($r));
     };
 
 MulExpr:
@@ -335,13 +335,13 @@ MulExpr:
         $$ = std::move($e);
     } |
     MulExpr[l] "*" UnaryExpr[r] {
-        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::BinOp::kMul, std::move($l), std::move($r));
+        $$ = &x_vDriver.AddNode<ast::BinaryExpr>(@1, ast::BinOp::kMul, std::move($l), std::move($r));
     } |
     MulExpr[l] "/" UnaryExpr[r] {
-        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::BinOp::kDiv, std::move($l), std::move($r));
+        $$ = &x_vDriver.AddNode<ast::BinaryExpr>(@1, ast::BinOp::kDiv, std::move($l), std::move($r));
     } |
     MulExpr[l] "%" UnaryExpr[r] {
-        $$ = std::make_unique<ast::BinaryExpr>(@1, ast::BinOp::kMod, std::move($l), std::move($r));
+        $$ = &x_vDriver.AddNode<ast::BinaryExpr>(@1, ast::BinOp::kMod, std::move($l), std::move($r));
     };
 
 UnaryExpr:
@@ -349,13 +349,13 @@ UnaryExpr:
         $$ = std::move($e);
     } |
     "-" UnaryExpr[e] {
-        $$ = std::make_unique<ast::UnaryExpr>(@1, ast::UnaOp::kNeg, std::move($e));
+        $$ = &x_vDriver.AddNode<ast::UnaryExpr>(@1, ast::UnaOp::kNeg, std::move($e));
     } |
     "!" UnaryExpr[e] {
-        $$ = std::make_unique<ast::UnaryExpr>(@1, ast::UnaOp::kNot, std::move($e));
+        $$ = &x_vDriver.AddNode<ast::UnaryExpr>(@1, ast::UnaOp::kNot, std::move($e));
     } |
     "(" "class" Identifier[id] ")" UnaryExpr[e] {
-        $$ = std::make_unique<ast::CastExpr>(@1, std::move($id), std::move($e));
+        $$ = &x_vDriver.AddNode<ast::CastExpr>(@1, std::move($id), std::move($e));
     };
 
 PrimaryExpr:
@@ -363,7 +363,7 @@ PrimaryExpr:
         $$ = std::move($e);
     } |
     "new" Type[ty] "[" Expr[e] "]" {
-        $$ = std::make_unique<ast::NewArrayExpr>(@1, std::move($ty), std::move($e));
+        $$ = &x_vDriver.AddNode<ast::NewArrayExpr>(@1, std::move($ty), std::move($e));
     };
 
 PrimaryNoNewArray:
@@ -371,7 +371,7 @@ PrimaryNoNewArray:
         $$ = std::move($e);
     } |
     "this" {
-        $$ = std::make_unique<ast::This>(@1);
+        $$ = &x_vDriver.AddNode<ast::This>(@1);
     } |
     LValue[e] {
         $$ = std::move($e);
@@ -380,7 +380,7 @@ PrimaryNoNewArray:
         $$ = std::move($e);
     } |
     "new" Identifier[id] "(" ")" {
-        $$ = std::make_unique<ast::NewClassExpr>(@1, std::move($id));
+        $$ = &x_vDriver.AddNode<ast::NewClassExpr>(@1, std::move($id));
     } |
     Call[e] {
         $$ = std::move($e);
@@ -388,44 +388,44 @@ PrimaryNoNewArray:
 
 Literal:
     "null" {
-        $$ = std::make_unique<ast::NullLit>(@1);
+        $$ = &x_vDriver.AddNode<ast::NullLit>(@1);
     } |
     IntLit[n] {
-        $$ = std::make_unique<ast::IntLit>(@1, $n);
+        $$ = &x_vDriver.AddNode<ast::IntLit>(@1, $n);
     } |
     BoolLit[b] {
-        $$ = std::make_unique<ast::BoolLit>(@1, $b);
+        $$ = &x_vDriver.AddNode<ast::BoolLit>(@1, $b);
     } |
     StrLit[s] {
-        $$ = std::make_unique<ast::StrLit>(@1, std::move($s));
+        $$ = &x_vDriver.AddNode<ast::StrLit>(@1, std::move($s));
     };
 
 LValue:
     Identifier[id] {
-        $$ = std::make_unique<ast::VarAccess>(@1, nullptr, std::move($id));
+        $$ = &x_vDriver.AddNode<ast::VarAccess>(@1, nullptr, std::move($id));
     } |
     PrimaryExpr[e] "." Identifier[id] {
-        $$ = std::make_unique<ast::VarAccess>(@1, std::move($e), std::move($id));
+        $$ = &x_vDriver.AddNode<ast::VarAccess>(@1, std::move($e), std::move($id));
     } |
     PrimaryNoNewArray[e] "[" Expr[sub] "]" {
-        $$ = std::make_unique<ast::ArrayAccess>(@1, std::move($e), std::move($sub));
+        $$ = &x_vDriver.AddNode<ast::ArrayAccess>(@1, std::move($e), std::move($sub));
     };
 
 Call:
     Identifier[id] "(" Actuals[args] ")" {
-        $$ = std::make_unique<ast::CallExpr>(@1, nullptr, std::move($id), std::move($args));
+        $$ = &x_vDriver.AddNode<ast::CallExpr>(@1, nullptr, std::move($id), std::move($args));
     } |
     PrimaryExpr[e] "." Identifier[id] "(" Actuals[args] ")" {
-        $$ = std::make_unique<ast::CallExpr>(@1, std::move($e), std::move($id), std::move($args));
+        $$ = &x_vDriver.AddNode<ast::CallExpr>(@1, std::move($e), std::move($id), std::move($args));
     } |
     "ReadInteger" "(" ")" {
-        $$ = std::make_unique<ast::ReadInteger>(@1);
+        $$ = &x_vDriver.AddNode<ast::ReadInteger>(@1);
     } |
     "ReadLine" "(" ")" {
-        $$ = std::make_unique<ast::ReadLine>(@1);
+        $$ = &x_vDriver.AddNode<ast::ReadLine>(@1);
     } |
     "instanceof" "(" Expr[e] "," Identifier[id] ")" {
-        $$ = std::make_unique<ast::InstanceOf>(@1, std::move($e), std::move($id));
+        $$ = &x_vDriver.AddNode<ast::InstanceOf>(@1, std::move($e), std::move($id));
     };
 
 Actuals:
@@ -436,29 +436,29 @@ Actuals:
 
 ExprList:
     Expr[e] {
-        $$.emplace_back(std::move($e));
+        $$.emplace_back(*std::move($e));
     } |
     ExprList[el] "," Expr[e] {
         $$ = std::move($el);
-        $$.emplace_back(std::move($e));
+        $$.emplace_back(*std::move($e));
     };
 
 IfStmt:
     "if" "(" Expr[e] ")" Stmt[st] %prec UnmatchedIf {
-        $$ = std::make_unique<ast::IfStmt>(@1, std::move($e), std::move($st), nullptr);
+        $$ = &x_vDriver.AddNode<ast::IfStmt>(@1, std::move($e), std::move($st), nullptr);
     } |
     "if" "(" Expr[e] ")" Stmt[st] "else" Stmt[est] {
-        $$ = std::make_unique<ast::IfStmt>(@1, std::move($e), std::move($st), std::move($est));
+        $$ = &x_vDriver.AddNode<ast::IfStmt>(@1, std::move($e), std::move($st), std::move($est));
     };
 
 WhileStmt:
     "while" "(" Expr[e] ")" Stmt[st] {
-        $$ = std::make_unique<ast::WhileStmt>(@1, std::move($e), std::move($st));
+        $$ = &x_vDriver.AddNode<ast::WhileStmt>(@1, std::move($e), std::move($st));
     };
 
 ForStmt:
     "for" "(" ExprOpt[e1] ";" ExprOpt[e2] ";" ExprOpt[e3] ")" Stmt[st] {
-        $$ = std::make_unique<ast::ForStmt>(@1, std::move($e1), std::move($e2), std::move($e3), std::move($st));
+        $$ = &x_vDriver.AddNode<ast::ForStmt>(@1, std::move($e1), std::move($e2), std::move($e3), std::move($st));
     };
 
 ExprOpt:
@@ -469,17 +469,17 @@ ExprOpt:
 
 BreakStmt:
     "break" ";" {
-        $$ = std::make_unique<ast::BreakStmt>(@1);
+        $$ = &x_vDriver.AddNode<ast::BreakStmt>(@1);
     };
 
 ReturnStmt:
     "return" ExprOpt[e] ";" {
-        $$ = std::make_unique<ast::ReturnStmt>(@1, std::move($e));
+        $$ = &x_vDriver.AddNode<ast::ReturnStmt>(@1, std::move($e));
     };
 
 PrintStmt:
     "Print" "(" ExprList[el] ")" ";" {
-        $$ = std::make_unique<ast::PrintStmt>(@1, std::move($el));
+        $$ = &x_vDriver.AddNode<ast::PrintStmt>(@1, std::move($el));
     }
 
 %%

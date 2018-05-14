@@ -7,13 +7,13 @@ ClassDef::ClassDef(
     const Location &vLocation,
     std::string &&sName,
     std::optional<std::string> &&soBase,
-    std::vector<std::unique_ptr<NodeBase>> &&vecFields
+    RefVec<NodeBase> &&vecFields
 ) noexcept :
     NodeBase(vLocation),
     x_sName(std::move(sName)),
     x_soBase(std::move(soBase)),
     x_vecFields(std::move(vecFields)),
-    x_stFn(false),
+    x_stFn(true),
     x_stVar(true)
 {}
 
@@ -23,9 +23,9 @@ void ClassDef::Print(std::ostream &os, std::uint32_t cIndent) const {
     os << Indent(cIndent) << "class " << x_sName;
     if (x_soBase)
         os << " extends " << *x_soBase;
-    for (auto &&upField : x_vecFields) {
+    for (NodeBase &vField : x_vecFields) {
         os << std::endl;
-        upField->Print(os, cIndent + 1);
+        vField.Print(os, cIndent + 1);
     }
 }
 
@@ -36,6 +36,10 @@ bool ClassDef::Accepts(const INonArrayType &ty) const noexcept {
     while (pCls && pCls != this)
         pCls = pCls->GetBase();
     return pCls == this;
+}
+
+void ClassDef::Print(std::ostream &os) const {
+    os << "class " << x_sName;
 }
 
 }

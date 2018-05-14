@@ -18,23 +18,44 @@ public:
         x_pParent = &st;
     }
 
-    tSymbol *Lookup(const std::string &sName) const noexcept {
+    inline tSymbol *LookupUntilOverridable(const std::string &sName) const noexcept {
+        if (x_bOverridable)
+            return nullptr;
         auto it = x_map.find(sName);
-        return it != x_map.end() ? it->second.get() : x_pParent ? x_pParent->Lookup(sName) : nullptr;
+        return it != x_map.end() ? it->second : nullptr;
     }
 
-    bool Add(const std::string &sName, tSymbol *pSymbol) noexcept {
-        if (x_pParent && !x_pParent->x_bOverridable) {
-            if (x_pParent->Lookup(sName))
-                return false;
-        }
+    inline tSymbol *LookupInParent(const std::string &sName) const noexcept {
+        return x_pParent ? x_pParent->Lookup(sName) : nullptr;
+    }
+
+    inline tSymbol *Lookup(const std::string &sName) const noexcept {
+        auto it = x_map.find(sName);
+        return it != x_map.end() ? it->second : LookupInParent(sName);
+    }
+    
+    tSymbol *AddNoOverride(const std::string &sName, tSymbol *pSymbol) noexcept {
+        auto pPrevious = LookupInParent(sName);
+        if (pPrevious)
+            return pPrevious;
         auto [it, res] = x_map.emplace(
             std::piecewise_construct,
             std::forward_as_tuple(sName),
             std::forward_as_tuple(pSymbol)
         );
-        (void) it;
-        return res;
+        return res ? nullptr : it->second;
+    }
+
+    tSymbol *Add(const std::string &sName, tSymbol *pSymbol) noexcept {
+        auto pPrevious = x_pParent ? x_pParent->LookupUntilOverridable(sName) : nullptr;
+        if (pPrevious)
+            return pPrevious;
+        auto [it, res] = x_map.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(sName),
+            std::forward_as_tuple(pSymbol)
+        );
+        return res ? nullptr : it->second;
     }
 
 private:

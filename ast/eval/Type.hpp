@@ -10,9 +10,22 @@ namespace udc::ast::eval {
 struct INonArrayType {
     virtual inline ~INonArrayType() = default;
     virtual bool Accepts(const INonArrayType &ty) const noexcept = 0;
+    virtual void Print(std::ostream &os) const = 0;
 };
 
+constexpr bool operator ==(const INonArrayType &lhs, const INonArrayType &rhs) noexcept {
+    return std::addressof(lhs) == std::addressof(rhs);
+}
+
 namespace _impl_BuiltinType {
+template<BuiltinTypeId vId>
+constexpr const char *BuiltinTypeIdNtmbs() noexcept {
+    constexpr const char *aNames[] {
+        "null", "void", "int", "bool", "string"
+    };
+    return aNames[(int) vId];
+}
+
 template<BuiltinTypeId vId>
 class BuiltinType : public INonArrayType {
 public:
@@ -22,6 +35,10 @@ public:
 
     virtual inline bool Accepts(const INonArrayType &ty) const noexcept override {
         return dynamic_cast<const BuiltinType *>(&ty) == this;
+    }
+
+    virtual inline void Print(std::ostream &os) const override {
+        os << BuiltinTypeIdNtmbs<vId>();
     }
 
 private:
@@ -37,12 +54,19 @@ using StringType = _impl_BuiltinType::BuiltinType<_impl_BuiltinType::BuiltinType
 
 class Type {
 public:
-    constexpr Type(const INonArrayType &tyElem = VoidType::vInstance, std::uint32_t cDimension = 0) noexcept :
-        x_tyElem(&tyElem), x_cDimension(cDimension)
+    const static Type tyNull;
+    const static Type tyVoid;
+    const static Type tyInt;
+    const static Type tyBool;
+    const static Type tyString;
+
+public:
+    inline Type(const INonArrayType &tyElem = VoidType::vInstance, std::uint32_t cDimension = 0) noexcept :
+        x_tyElem(tyElem), x_cDimension(cDimension)
     {}
     
-    constexpr const INonArrayType &GetElemType() const noexcept {
-        return *x_tyElem;
+    inline const INonArrayType &GetElemType() const noexcept {
+        return x_tyElem;
     }
 
     constexpr std::uint32_t GetDimension() const noexcept {
@@ -53,14 +77,31 @@ public:
         return x_cDimension;
     }
 
-    inline bool Accepts(const Type &vt) const noexcept {
-        return GetDimension() == vt.GetDimension() && GetElemType().Accepts(vt.GetElemType());
+    constexpr bool Accepts(const Type &vt) const noexcept {
+        return IsArray() ?
+            vt.GetElemType() == NullType::vInstance || *this == vt :
+            GetElemType().Accepts(vt.GetElemType());
+    }
+
+    constexpr bool operator ==(const Type &ty) const noexcept {
+        return GetElemType() == ty.GetElemType() && GetDimension() == ty.GetDimension();
+    }
+    
+    constexpr bool operator !=(const Type &ty) const noexcept {
+        return !(*this == ty);
     }
 
 private:
-    const INonArrayType *x_tyElem;
+    std::reference_wrapper<const INonArrayType> x_tyElem;
     std::uint32_t x_cDimension;
 };
+
+inline std::ostream &operator <<(std::ostream &os, const Type &ty) {
+    ty.GetElemType().Print(os);
+    for (auto i = ty.GetDimension(); i; --i)
+        os << "[]";
+    return os;
+}
 
 }
 

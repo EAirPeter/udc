@@ -20,4 +20,10 @@ const StringType StringType::vInstance {};
 
 }
 
+const Type Type::tyNull(NullType::vInstance);
+const Type Type::tyVoid(VoidType::vInstance);
+const Type Type::tyInt(IntType::vInstance);
+const Type Type::tyBool(BoolType::vInstance);
+const Type Type::tyString(StringType::vInstance);
+
 }
