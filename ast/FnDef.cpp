@@ -10,7 +10,7 @@ FnDef::FnDef(
     bool bStatic,
     std::unique_ptr<TypeName> &&upType,
     std::string &&sName,
-    RefVec<VarDef> &&vecPars,
+    std::vector<std::unique_ptr<VarDef>> &&vecPars,
     std::unique_ptr<BlockStmt> &&upBody
 ) noexcept :
     NodeBase(vLocation),

@@ -2,8 +2,8 @@
 #define UDC_AST_CLASS_DEF_HPP_
 
 #include <optional>
+#include <vector>
 
-#include "../RefContainer.hpp"
 #include "NodeBase.hpp"
 #include "eval/SymbolTable.hpp"
 #include "eval/Type.hpp"
@@ -16,7 +16,7 @@ public:
         const Location &vLocation,
         std::string &&sName,
         std::optional<std::string> &&soBase,
-        RefVec<NodeBase> &&vecFields
+        std::vector<std::unique_ptr<NodeBase>> &&vecFields
     ) noexcept;
     virtual ~ClassDef();
 
@@ -36,7 +36,7 @@ public:
         return x_soBase;
     }
 
-    constexpr const std::vector<std::reference_wrapper<NodeBase>> &GetFields() const noexcept {
+    constexpr const std::vector<std::unique_ptr<NodeBase>> &GetFields() const noexcept {
         return x_vecFields;
     }
 
@@ -66,7 +66,7 @@ public:
 private:
     std::string x_sName;
     std::optional<std::string> x_soBase;
-    RefVec<NodeBase> x_vecFields;
+    std::vector<std::unique_ptr<NodeBase>> x_vecFields;
     const ClassDef *x_pBase;
     std::vector<ClassDef *> x_vecDeriveds;
     eval::FnTable x_stFn;

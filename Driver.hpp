@@ -18,15 +18,7 @@ public:
 public:
     int Parse();
     void PrintSymbols();
-    void SetProgram(ast::Program &upProgram) noexcept;
-
-    template<class tNode, class ...tArgs>
-    tNode &AddNode(tArgs &&...vArgs) {
-        auto &&upNode = std::make_unique<tNode>(std::forward<tArgs>(vArgs)...);
-        auto pNode = upNode.get();
-        x_vecNodes.emplace_back(std::move(upNode));
-        return *pNode;
-    }
+    void SetProgram(std::unique_ptr<ast::Program> &&upProg) noexcept;
 
 public:
     template<class ...tArgs>
@@ -47,9 +39,7 @@ public:
 private:
     Scanner x_vScanner;
     Parser x_vParser;
-    std::vector<std::unique_ptr<ast::NodeBase>> x_vecNodes;
-    std::optional<std::reference_wrapper<ast::Program>> x_oProg;
-
+    std::unique_ptr<ast::Program> x_upProg;
 };
 
 }

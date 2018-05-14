@@ -7,7 +7,7 @@ ClassDef::ClassDef(
     const Location &vLocation,
     std::string &&sName,
     std::optional<std::string> &&soBase,
-    RefVec<NodeBase> &&vecFields
+    std::vector<std::unique_ptr<NodeBase>> &&vecFields
 ) noexcept :
     NodeBase(vLocation),
     x_sName(std::move(sName)),
@@ -23,9 +23,9 @@ void ClassDef::Print(std::ostream &os, std::uint32_t cIndent) const {
     os << Indent(cIndent) << "class " << x_sName;
     if (x_soBase)
         os << " extends " << *x_soBase;
-    for (NodeBase &vField : x_vecFields) {
+    for (auto &upField : x_vecFields) {
         os << std::endl;
-        vField.Print(os, cIndent + 1);
+        upField->Print(os, cIndent + 1);
     }
 }
 

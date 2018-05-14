@@ -11,27 +11,26 @@ Driver::Driver() : x_vScanner(*this, false), x_vParser(*this, x_vScanner) {}
 int Driver::Parse() {
     if (x_vParser.parse())
         return 1;
-    auto &vProg = x_oProg->get();
-    if (x_oProg)
-        std::cout << *x_oProg << std::endl;
+    if (x_upProg)
+        std::cout << *x_upProg << std::endl;
     
     ast::eval::ClassNameVisitor visClassName(*this);
-    vProg.AcceptVisitor(visClassName);
+    x_upProg->AcceptVisitor(visClassName);
     if (visClassName.IsRejected())
         return 2;
 
     ast::eval::InheritVisitor visInherit(*this);
-    vProg.AcceptVisitor(visInherit);
+    x_upProg->AcceptVisitor(visInherit);
     if (visInherit.IsRejected())
         return 3;
 
     ast::eval::FieldVisitor visStatic(*this);
-    vProg.AcceptVisitor(visStatic);
+    x_upProg->AcceptVisitor(visStatic);
     if (visInherit.IsRejected())
         return 4;
 
     ast::eval::TypeVisitor visType(*this);
-    vProg.AcceptVisitor(visType);
+    x_upProg->AcceptVisitor(visType);
     if (visType.IsRejected())
         return 5;
 
@@ -44,8 +43,8 @@ void Driver::PrintSymbols() {
     x_vScanner.SetPrint(false);
 }
 
-void Driver::SetProgram(ast::Program &vProg) noexcept {
-    x_oProg = vProg;
+void Driver::SetProgram(std::unique_ptr<ast::Program> &&upProg) noexcept {
+    x_upProg = std::move(upProg);
 }
 
 }
