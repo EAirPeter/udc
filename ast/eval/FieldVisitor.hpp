@@ -25,6 +25,7 @@ private:
     ClassTable *x_pstClass = nullptr;
     FnTable *x_pstFn = nullptr;
     VarTable *x_pstVar = nullptr;
+    bool x_bPar = false;
     Type x_ty;
 };
 

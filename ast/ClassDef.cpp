@@ -42,4 +42,21 @@ void ClassDef::Print(std::ostream &os) const {
     os << "class " << x_sName;
 }
 
+bool ClassDef::SetBase(ClassDef &tyBase) noexcept {
+    auto pThisRoot = X_GetRoot();
+    auto pBaseRoot = tyBase.X_GetRoot();
+    if (pThisRoot == pBaseRoot)
+        return false;
+    x_pRoot = pBaseRoot;
+    x_pBase = &tyBase;
+    x_stFn.SetParent(tyBase.x_stFn);
+    x_stVar.SetParent(tyBase.x_stVar);
+    tyBase.x_vecDeriveds.emplace_back(this);
+    return true;
+}
+
+ClassDef *ClassDef::X_GetRoot() noexcept {
+    return !x_pRoot ? this : x_pRoot = x_pRoot->X_GetRoot();
+}
+
 }

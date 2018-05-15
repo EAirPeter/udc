@@ -8,7 +8,7 @@ namespace udc::ast {
 
 class ExprBase : public NodeBase {
 public:
-    using NodeBase::NodeBase;
+    inline ExprBase(const Location &vLocation, bool bLvalue = false) : NodeBase(vLocation), x_bLvalue(bLvalue) {}
     virtual inline ~ExprBase() = default;
 
     constexpr const eval::Type &GetType() const noexcept {
@@ -19,8 +19,13 @@ public:
         x_vType = vType;
     }
 
+    constexpr bool IsLvalue() const noexcept {
+        return x_bLvalue;
+    }
+
 private:
     eval::Type x_vType;
+    bool x_bLvalue;
 };
 
 }

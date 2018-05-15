@@ -8,7 +8,7 @@ ArrayAccess::ArrayAccess(
     std::unique_ptr<ExprBase> &&upExpr,
     std::unique_ptr<ExprBase> &&upSub
 ) noexcept :
-    ExprBase(vLocation), x_upExpr(std::move(upExpr)), x_upSub(std::move(upSub))
+    ExprBase(vLocation, true), x_upExpr(std::move(upExpr)), x_upSub(std::move(upSub))
 {}
 
 ArrayAccess::~ArrayAccess() {}

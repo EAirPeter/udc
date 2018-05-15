@@ -44,12 +44,7 @@ public:
         return x_pBase;
     }
 
-    inline void SetBase(ClassDef &tyBase) noexcept {
-        x_pBase = &tyBase;
-        x_stFn.SetParent(tyBase.x_stFn);
-        x_stVar.SetParent(tyBase.x_stVar);
-        tyBase.x_vecDeriveds.emplace_back(this);
-    }
+    bool SetBase(ClassDef &tyBase) noexcept;
 
     constexpr const std::vector<ClassDef *> &GetDeriveds() const noexcept {
         return x_vecDeriveds;
@@ -59,14 +54,26 @@ public:
         return x_stFn;
     }
 
+    constexpr const eval::FnTable &GetFnTable() const noexcept {
+        return x_stFn;
+    }
+
     constexpr eval::VarTable &GetVarTable() noexcept {
         return x_stVar;
     }
+
+    constexpr const eval::VarTable &GetVarTable() const noexcept {
+        return x_stVar;
+    }
+
+private:
+    ClassDef *X_GetRoot() noexcept;
 
 private:
     std::string x_sName;
     std::optional<std::string> x_soBase;
     std::vector<std::unique_ptr<NodeBase>> x_vecFields;
+    ClassDef *x_pRoot = nullptr;
     const ClassDef *x_pBase;
     std::vector<ClassDef *> x_vecDeriveds;
     eval::FnTable x_stFn;

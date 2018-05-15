@@ -1,4 +1,5 @@
-#include "../../Driver.hpp"
+#include <cassert>
+
 #include "../../ScopeHelper.hpp"
 #include "../All.hpp"
 #include "TypeVisitor.hpp"
@@ -14,6 +15,7 @@ void TypeVisitor::Visit(Program &vProg) noexcept {
 void TypeVisitor::Visit(ClassDef &vClass) noexcept {
     ENTER_SCOPE(x_pstFn, &vClass.GetFnTable());
     ENTER_SCOPE(x_pstVar, &vClass.GetVarTable());
+    ENTER_SCOPE(x_pClass, &vClass);
     for (auto &upField : vClass.GetFields())
         if (auto pFn = dynamic_cast<FnDef *>(upField.get()))
             pFn->AcceptVisitor(*this);
@@ -22,8 +24,6 @@ void TypeVisitor::Visit(ClassDef &vClass) noexcept {
 void TypeVisitor::Visit(FnDef &vFn) noexcept {
     vFn.GetVarTable().SetParent(*x_pstVar);
     ENTER_SCOPE(x_pstVar, &vFn.GetVarTable());
-    for (auto &upPar : vFn.GetPars())
-        upPar->AcceptVisitor(*this);
     ENTER_SCOPE(x_pFn, &vFn);
     vFn.GetBody()->AcceptVisitor(*this);
 }
@@ -32,15 +32,7 @@ void TypeVisitor::Visit(VarDef &vVar) noexcept {
     auto &sName = vVar.GetName();
     auto pPrevious = x_pstVar->Add(sName, &vVar);
     if (pPrevious) {
-        Y_Reject();
-        y_vDriver.PrintError(
-            vVar.GetLocation(),
-            "redefinition of variable ", sName
-        );
-        y_vDriver.PrintNote(
-            pPrevious->GetLocation(),
-            "previous definition is here"
-        );
+        Y_RjRedefinition(vVar.GetLocation(), "variable", sName, pPrevious->GetLocation());
         return;
     }
     vVar.GetTypeName()->AcceptVisitor(*this);
@@ -56,11 +48,7 @@ void TypeVisitor::Visit(BlockStmt &stmt) noexcept {
 
 void TypeVisitor::Visit(BreakStmt &stmt) noexcept {
     if (!x_pLoop) {
-        Y_Reject();
-        y_vDriver.PrintError(
-            stmt.GetLocation(),
-            "break statement not in loop statement"
-        );
+        Y_RjIllegalBreak(stmt.GetLocation());
         return;
     }
 }
@@ -76,11 +64,8 @@ void TypeVisitor::Visit(ForStmt &stmt) noexcept {
     if (stmt.GetCond()) {
         stmt.GetCond()->AcceptVisitor(*this);
         if (stmt.GetCond()->GetType() != Type::tyBool) {
-            Y_Reject();
-            y_vDriver.PrintError(
-                stmt.GetCond()->GetLocation(),
-                "type ", Type::tyBool, " expected, but got type ", stmt.GetCond()->GetType()
-            );
+            Y_RjTypeMissMatch(stmt.GetCond()->GetLocation(), Type::tyBool, stmt.GetCond()->GetType());
+            return;
         }
     }
     if (stmt.GetIncr())
@@ -92,11 +77,8 @@ void TypeVisitor::Visit(ForStmt &stmt) noexcept {
 void TypeVisitor::Visit(IfStmt &stmt) noexcept {
     stmt.GetCond()->AcceptVisitor(*this);
     if (stmt.GetCond()->GetType() != Type::tyBool) {
-        Y_Reject();
-        y_vDriver.PrintError(
-            stmt.GetCond()->GetLocation(),
-            "type ", Type::tyBool, " expected, but got type ", stmt.GetCond()->GetType()
-        );
+        Y_RjTypeMissMatch(stmt.GetCond()->GetLocation(), Type::tyBool, stmt.GetCond()->GetType());
+        return;
     }
     stmt.GetThen()->AcceptVisitor(*this);
     if (stmt.GetElse())
@@ -108,12 +90,8 @@ void TypeVisitor::Visit(PrintStmt &stmt) noexcept {
         upArg->AcceptVisitor(*this);
         auto &ty = upArg->GetType();
         if (ty != Type::tyInt && ty != Type::tyBool && ty != Type::tyString) {
-            Y_Reject();
-            y_vDriver.PrintError(
-                upArg->GetLocation(),
-                "type ", Type::tyInt, ", ", Type::tyBool, " or ", Type::tyString,
-                " expected, but got type ", upArg->GetType()
-            );
+            Y_RjNotPrintable(upArg->GetLocation(), upArg->GetType());
+            return;
         }
     }
 }
@@ -123,42 +101,17 @@ void TypeVisitor::Visit(ReturnStmt &stmt) noexcept {
     if (stmt.GetExpr()) {
         stmt.GetExpr()->AcceptVisitor(*this);
         if (x_pFn->GetType() == Type::tyVoid) {
-            Y_Reject();
-            y_vDriver.PrintError(
-                stmt.GetExpr()->GetLocation(),
-                "cannot return a value for ", x_pFn->GetType(), " function ", x_pFn->GetName()
-            );
-            y_vDriver.PrintNote(
-                x_pFn->GetLocation(),
-                "function ", x_pFn->GetName(), " is defined here"
-            );
+            Y_RjReturnForVoid(stmt.GetExpr()->GetLocation(), x_pFn->GetName());
             return;
         }
         if (!x_pFn->GetType().Accepts(stmt.GetExpr()->GetType())) {
-            Y_Reject();
-            y_vDriver.PrintError(
-                stmt.GetExpr()->GetLocation(),
-                "cannot return object of type ", stmt.GetExpr()->GetType(),
-                " for ", x_pFn->GetType(), " function ", x_pFn->GetName()
-            );
-            y_vDriver.PrintNote(
-                x_pFn->GetLocation(),
-                "function ", x_pFn->GetName(), " is defined here"
-            );
+            Y_RjNoConversion(stmt.GetExpr()->GetLocation(), x_pFn->GetType(), stmt.GetExpr()->GetType());
             return;
         }
     }
     else {
         if (x_pFn->GetType() != Type::tyVoid) {
-            Y_Reject();
-            y_vDriver.PrintError(
-                stmt.GetLocation(),
-                x_pFn->GetType(), " function must return with a value"
-            );
-            y_vDriver.PrintNote(
-                x_pFn->GetLocation(),
-                "function ", x_pFn->GetName(), " is defined here"
-            );
+            Y_RjNoReturnVal(stmt.GetLocation(), x_pFn->GetType(), x_pFn->GetName());
             return;
         }
     }
@@ -167,20 +120,293 @@ void TypeVisitor::Visit(ReturnStmt &stmt) noexcept {
 void TypeVisitor::Visit(WhileStmt &stmt) noexcept {
     stmt.GetCond()->AcceptVisitor(*this);
     if (stmt.GetCond()->GetType() != Type::tyBool) {
-        Y_Reject();
-        y_vDriver.PrintError(
-            stmt.GetCond()->GetLocation(),
-            "type ", Type::tyBool, " expected, but got type ", stmt.GetCond()->GetType()
-        );
+        Y_RjTypeMissMatch(stmt.GetCond()->GetLocation(), Type::tyBool, stmt.GetCond()->GetType());
+        return;
     }
     ENTER_SCOPE(x_pLoop, &stmt);
     stmt.GetBody()->AcceptVisitor(*this);
 }
 
+void TypeVisitor::Visit(AssignExpr &expr) noexcept {
+    expr.GetLhs()->AcceptVisitor(*this);
+    expr.GetRhs()->AcceptVisitor(*this);
+    auto &tyLhs = expr.GetLhs()->GetType();
+    auto &tyRhs = expr.GetRhs()->GetType();
+    expr.SetType(tyLhs);
+    if (!expr.GetLhs()->IsLvalue()) {
+        Y_RjAssignNonLval(expr.GetLhs()->GetLocation());
+        return;
+    }
+    if (!tyLhs.Accepts(tyRhs)) {
+        Y_RjNoConversion(expr.GetLocation(), tyLhs, tyRhs);
+        return;
+    }
+}
+
+void TypeVisitor::Visit(BinaryExpr &expr) noexcept {
+    expr.GetLhs()->AcceptVisitor(*this);
+    expr.GetRhs()->AcceptVisitor(*this);
+    auto &tyLhs = expr.GetLhs()->GetType();
+    auto &tyRhs = expr.GetRhs()->GetType();
+    switch (expr.GetOp()) {
+    case BinOp::kIor:
+        expr.SetType(Type::tyBool);
+    case BinOp::kAnd:
+        if (tyLhs != Type::tyBool) {
+            Y_RjTypeMissMatch(expr.GetLhs()->GetLocation(), Type::tyBool, tyLhs);
+            return;
+        }
+        if (tyRhs != Type::tyBool) {
+            Y_RjTypeMissMatch(expr.GetLhs()->GetLocation(), Type::tyBool, tyRhs);
+            return;
+        }
+        break;
+    case BinOp::kEqu:
+    case BinOp::kNeq:
+        expr.SetType(Type::tyBool);
+        if (!tyLhs.Accepts(tyRhs) && !tyRhs.Accepts(tyLhs)) {
+            Y_RjNoComparison(expr.GetLocation(), tyLhs, tyRhs);
+            return;
+        }
+        break;
+    case BinOp::kLes:
+    case BinOp::kGre:
+    case BinOp::kLeq:
+    case BinOp::kGeq:
+        expr.SetType(Type::tyBool);
+        if (tyLhs != Type::tyInt) {
+            Y_RjTypeMissMatch(expr.GetLhs()->GetLocation(), Type::tyInt, tyLhs);
+            return;
+        }
+        if (tyRhs != Type::tyInt) {
+            Y_RjTypeMissMatch(expr.GetLhs()->GetLocation(), Type::tyInt, tyRhs);
+            return;
+        }
+        break;
+    case BinOp::kAdd:
+    case BinOp::kSub:
+    case BinOp::kMul:
+    case BinOp::kDiv:
+    case BinOp::kMod:
+        expr.SetType(Type::tyInt);
+        if (tyLhs != Type::tyInt) {
+            Y_RjTypeMissMatch(expr.GetLhs()->GetLocation(), Type::tyInt, tyLhs);
+            return;
+        }
+        if (tyRhs != Type::tyInt) {
+            Y_RjTypeMissMatch(expr.GetLhs()->GetLocation(), Type::tyInt, tyRhs);
+            return;
+        }
+        break;
+    }
+}
+
+void TypeVisitor::Visit(CallExpr &expr) noexcept {
+    // TODO: virtual call
+    auto pstFn = (const FnTable *) x_pstFn;
+    bool bArray = false;
+    if (expr.GetExpr()) {
+        expr.GetExpr()->AcceptVisitor(*this);
+        auto &tyExpr = expr.GetExpr()->GetType();
+        if (tyExpr.IsArray())
+            bArray = true;
+        else {
+            auto pClass = dynamic_cast<const ClassDef *>(&tyExpr.GetElemType());
+            if (!pClass) {
+                Y_RjNotWhat(expr.GetExpr()->GetLocation(), "a class or array", tyExpr);
+                return;
+            }
+            pstFn = &pClass->GetFnTable();
+        }
+    }
+    if (bArray) {
+        if (expr.GetName() != "length") {
+            Y_RjNotFound(expr.GetLocation(), "function", expr.GetName());
+            return;
+        }
+        expr.SetType(Type::tyInt);
+        if (expr.GetArgs().size()) {
+            Y_RjArgNumber(expr.GetLocation(), "length", 0, expr.GetArgs().size());
+            return;
+        }
+    }
+    else {
+        auto pFn = pstFn->Lookup(expr.GetName());
+        if (!pFn) {
+            Y_RjNotFound(expr.GetLocation(), "function", expr.GetName());
+            return;
+        }
+        expr.SetType(pFn->GetType());
+        if (expr.GetArgs().size() != pFn->GetPars().size()) {
+            Y_RjArgNumber(expr.GetLocation(), pFn->GetName(), pFn->GetPars().size(), expr.GetArgs().size());
+            return;
+        }
+        std::size_t i = 0;
+        for (auto &upArg : expr.GetArgs()) {
+            auto &upPar = pFn->GetPars()[i];
+            upArg->AcceptVisitor(*this);
+            if (!upPar->GetType().Accepts(upArg->GetType())) {
+                Y_RjArgType(
+                    upArg->GetLocation(),
+                    pFn->GetName(), i + 1, upPar->GetName(),
+                    upPar->GetType(), upArg->GetType()
+                );
+                return;
+            }
+            ++i;
+        }
+    }
+}
+
+void TypeVisitor::Visit(CastExpr &expr) noexcept {
+    auto pClass = x_pstClass->Lookup(expr.GetName());
+    if (!pClass) {
+        Y_RjNotFound(expr.GetLocation(), "class", expr.GetName());
+        return;
+    }
+    expr.SetType({*pClass, 0});
+    expr.GetExpr()->AcceptVisitor(*this);
+    if (!expr.GetType().Accepts(expr.GetExpr()->GetType())) {
+        Y_RjNoConversion(expr.GetLocation(), expr.GetType(), expr.GetExpr()->GetType());
+        return;
+    }
+}
+
+void TypeVisitor::Visit(NewArrayExpr &expr) noexcept {
+    expr.GetTypeName()->AcceptVisitor(*this);
+    expr.SetType({x_ty.GetElemType(), x_ty.GetDimension() + 1});
+    if (x_ty.GetElemType() == VoidType::vInstance) {
+        Y_RjIllegalType(expr.GetLocation(), expr.GetType());
+        expr.SetType(Type::tyVoid);
+        return;
+    }
+    expr.GetExpr()->AcceptVisitor(*this);
+    if (expr.GetExpr()->GetType() != Type::tyInt) {
+        Y_RjTypeMissMatch(expr.GetExpr()->GetLocation(), Type::tyInt, expr.GetExpr()->GetType());
+        return;
+    }
+}
+
+void TypeVisitor::Visit(NewClassExpr &expr) noexcept {
+    auto pClass = x_pstClass->Lookup(expr.GetName());
+    if (!pClass) {
+        Y_RjNotFound(expr.GetLocation(), "class", expr.GetName());
+        return;
+    }
+    expr.SetType({*pClass, 0});
+}
+
+void TypeVisitor::Visit(UnaryExpr &expr) noexcept {
+    expr.GetExpr()->AcceptVisitor(*this);
+    auto &ty = expr.GetExpr()->GetType();
+    switch (expr.GetOp()) {
+    case UnaOp::kNeg:
+        expr.SetType(Type::tyInt);
+        if (ty != Type::tyInt) {
+            Y_RjTypeMissMatch(expr.GetExpr()->GetLocation(), Type::tyInt, ty);
+            return;
+        }
+        break;
+    case UnaOp::kNot:
+        expr.SetType(Type::tyBool);
+        if (ty != Type::tyBool) {
+            Y_RjTypeMissMatch(expr.GetExpr()->GetLocation(), Type::tyBool, ty);
+            return;
+        }
+        break;
+    }
+}
+
+void TypeVisitor::Visit(ArrayAccess &expr) noexcept {
+    expr.GetExpr()->AcceptVisitor(*this);
+    auto &tyExpr = expr.GetExpr()->GetType();
+    if (!tyExpr.IsArray()) {
+        Y_RjNotWhat(expr.GetExpr()->GetLocation(), "an array", tyExpr);
+        return;
+    }
+    expr.SetType({tyExpr.GetElemType(), tyExpr.GetDimension() - 1});
+    expr.GetSub()->AcceptVisitor(*this);
+    auto &tySub = expr.GetSub()->GetType();
+    if (tySub != Type::tyInt) {
+        Y_RjTypeMissMatch(expr.GetSub()->GetLocation(), Type::tyInt, tySub);
+        return;
+    }
+}
+
+void TypeVisitor::Visit(InstanceOf &expr) noexcept {
+    expr.SetType(Type::tyBool);
+    auto pClass = x_pstClass->Lookup(expr.GetName());
+    if (!pClass) {
+        Y_RjNotFound(expr.GetLocation(), "class", expr.GetName());
+        return;
+    }
+    expr.SetClass(*pClass);
+    expr.GetExpr()->AcceptVisitor(*this);
+    auto &ty = expr.GetExpr()->GetType();
+    if (ty.IsArray() || !dynamic_cast<const ClassDef *>(&ty.GetElemType())) {
+        Y_RjNotWhat(expr.GetLocation(), "a class", ty);
+        return;
+    }
+}
+
+void TypeVisitor::Visit(ReadInteger &expr) noexcept {
+    expr.SetType(Type::tyInt);
+}
+
+void TypeVisitor::Visit(ReadLine &expr) noexcept {
+    expr.SetType(Type::tyString);
+}
+
+void TypeVisitor::Visit(This &expr) noexcept {
+    assert(x_pClass);
+    expr.SetType(*x_pClass);
+}
+
+void TypeVisitor::Visit(VarAccess &expr) noexcept {
+    auto pstVar = (const VarTable *) x_pstVar;
+    if (expr.GetExpr()) {
+        expr.GetExpr()->AcceptVisitor(*this);
+        auto &tyExpr = expr.GetExpr()->GetType();
+        auto pClass = tyExpr.IsArray() ? nullptr : dynamic_cast<const ClassDef *>(&tyExpr.GetElemType());
+        if (!pClass) {
+            Y_RjNotWhat(expr.GetExpr()->GetLocation(), "a class", tyExpr);
+            return;
+        }
+        pstVar = &pClass->GetVarTable();
+    }
+    auto pVar = pstVar->Lookup(expr.GetName());
+    if (!pVar) {
+        Y_RjNotFound(expr.GetLocation(), "variable", expr.GetName());
+        return;
+    }
+    expr.SetType(pVar->GetType());
+}
+
+void TypeVisitor::Visit(BoolLit &expr) noexcept {
+    expr.SetType(Type::tyBool);
+}
+
+void TypeVisitor::Visit(IntLit &expr) noexcept {
+    expr.SetType(Type::tyInt);
+}
+
+void TypeVisitor::Visit(NullLit &expr) noexcept {
+    expr.SetType(Type::tyNull);
+}
+
+void TypeVisitor::Visit(StrLit &expr) noexcept {
+    expr.SetType(Type::tyString);
+}
+
 void TypeVisitor::Visit(TypeName &vTypeName) noexcept {
     switch (vTypeName.GetId()) {
     case TypeId::kVoid:
-        x_ty = {VoidType::vInstance, vTypeName.GetDimension()};
+        if (vTypeName.GetDimension()) {
+            Y_RjIllegalType(vTypeName.GetLocation(), {VoidType::vInstance, vTypeName.GetDimension()});
+            x_ty = Type::tyVoid;
+            return;
+        }
+        x_ty = Type::tyVoid;
         break;
     case TypeId::kInt:
         x_ty = {IntType::vInstance, vTypeName.GetDimension()};
@@ -194,11 +420,7 @@ void TypeVisitor::Visit(TypeName &vTypeName) noexcept {
     case TypeId::kClass: {
         auto pClass = x_pstClass->Lookup(vTypeName.GetName());
         if (!pClass) {
-            Y_Reject();
-            y_vDriver.PrintError(
-                vTypeName.GetLocation(),
-                "unknown class ", vTypeName.GetName()
-            );
+            Y_RjNotFound(vTypeName.GetLocation(), "class", vTypeName.GetName());
             x_ty = Type::tyVoid;
             break;
         }

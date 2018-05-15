@@ -34,7 +34,10 @@ public:
     virtual inline ~BuiltinType() = default;
 
     virtual inline bool Accepts(const INonArrayType &ty) const noexcept override {
-        return dynamic_cast<const BuiltinType *>(&ty) == this;
+        if constexpr (vId == BuiltinTypeId::kVoid)
+            return false;
+        else
+            return dynamic_cast<const BuiltinType *>(&ty) == this;
     }
 
     virtual inline void Print(std::ostream &os) const override {

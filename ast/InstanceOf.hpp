@@ -26,9 +26,18 @@ public:
         return x_sName;
     }
 
+    constexpr const ClassDef &GetClass() const noexcept {
+        return *x_pClass;
+    }
+
+    constexpr void SetClass(const ClassDef &vClass) noexcept {
+        x_pClass = &vClass;
+    }
+
 private:
     std::unique_ptr<ExprBase> x_upExpr;
     std::string x_sName;
+    const ClassDef *x_pClass;
 };
 
 }

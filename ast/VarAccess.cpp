@@ -8,7 +8,7 @@ VarAccess::VarAccess(
     std::unique_ptr<ExprBase> &&upExpr,
     std::string &&sName
 ) noexcept :
-    ExprBase(vLocation), x_upExpr(std::move(upExpr)), x_sName(std::move(sName))
+    ExprBase(vLocation, true), x_upExpr(std::move(upExpr)), x_sName(std::move(sName))
 {}
 
 VarAccess::~VarAccess() {}
