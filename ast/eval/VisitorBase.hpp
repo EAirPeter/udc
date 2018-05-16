@@ -66,6 +66,7 @@ public:
     virtual inline void Visit(TypeName &) noexcept {}
 
 protected:
+    void Y_RJThisInStatic(const Location &vLoc, const std::string &sName) noexcept;
     void Y_RjOverride(const Location &vLoc, const std::string &sName, const Location &vPrevious) noexcept;
     void Y_RjInheritCycle(const Location &vLoc) noexcept;
     void Y_RjIllegalType(const Location &vLoc, const Type &ty) noexcept;

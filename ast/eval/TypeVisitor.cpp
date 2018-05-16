@@ -15,6 +15,7 @@ void TypeVisitor::Visit(Program &vProg) noexcept {
 void TypeVisitor::Visit(ClassDef &vClass) noexcept {
     ENTER_SCOPE(x_pstFn, &vClass.GetFnTable());
     ENTER_SCOPE(x_pstVar, &vClass.GetVarTable());
+    ENTER_SCOPE(x_pstVf, &vClass.GetVfTable());
     ENTER_SCOPE(x_pClass, &vClass);
     for (auto &upField : vClass.GetFields())
         if (auto pFn = dynamic_cast<FnDef *>(upField.get()))
@@ -202,8 +203,8 @@ void TypeVisitor::Visit(BinaryExpr &expr) noexcept {
 }
 
 void TypeVisitor::Visit(CallExpr &expr) noexcept {
-    // TODO: virtual call
     auto pstFn = (const FnTable *) x_pstFn;
+    auto pstVf = (const VfTable *) x_pstVf;
     bool bArray = false;
     if (expr.GetExpr()) {
         expr.GetExpr()->AcceptVisitor(*this);
@@ -217,6 +218,7 @@ void TypeVisitor::Visit(CallExpr &expr) noexcept {
                 return;
             }
             pstFn = &pClass->GetFnTable();
+            pstVf = &pClass->GetVfTable();
         }
     }
     if (bArray) {
@@ -232,6 +234,10 @@ void TypeVisitor::Visit(CallExpr &expr) noexcept {
     }
     else {
         auto pFn = pstFn->Lookup(expr.GetName());
+        auto idx = pstVf->IndexOf(expr.GetName());
+        assert(!pFn || !~idx);
+        if (!pFn)
+            pFn = pstVf->At(idx);
         if (!pFn) {
             Y_RjNotFound(expr.GetLocation(), "function", expr.GetName());
             return;
@@ -255,6 +261,7 @@ void TypeVisitor::Visit(CallExpr &expr) noexcept {
             }
             ++i;
         }
+        expr.SetCallee(*pFn, idx);
     }
 }
 
@@ -266,7 +273,7 @@ void TypeVisitor::Visit(CastExpr &expr) noexcept {
     }
     expr.SetType({*pClass, 0});
     expr.GetExpr()->AcceptVisitor(*this);
-    if (!expr.GetType().Accepts(expr.GetExpr()->GetType())) {
+    if (!expr.GetType().Accepts(expr.GetExpr()->GetType()) && !expr.GetExpr()->GetType().Accepts(expr.GetType())) {
         Y_RjNoConversion(expr.GetLocation(), expr.GetType(), expr.GetExpr()->GetType());
         return;
     }
@@ -359,7 +366,12 @@ void TypeVisitor::Visit(ReadLine &expr) noexcept {
 
 void TypeVisitor::Visit(This &expr) noexcept {
     assert(x_pClass);
+    assert(x_pFn);
     expr.SetType(*x_pClass);
+    if (x_pFn->IsStatic()) {
+        Y_RJThisInStatic(expr.GetLocation(), x_pFn->GetName());
+        return;
+    }
 }
 
 void TypeVisitor::Visit(VarAccess &expr) noexcept {

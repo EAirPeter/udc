@@ -56,6 +56,7 @@ private:
     ClassTable *x_pstClass = nullptr;
     FnTable *x_pstFn = nullptr;
     VarTable *x_pstVar = nullptr;
+    VfTable *x_pstVf = nullptr;
     ClassDef *x_pClass = nullptr;
     FnDef *x_pFn = nullptr;
     NodeBase *x_pLoop = nullptr;

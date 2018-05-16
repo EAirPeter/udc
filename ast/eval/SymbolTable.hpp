@@ -7,68 +7,64 @@
 
 namespace udc::ast::eval {
 
-namespace _impl_SymbolTable {
-
-template<class tSymbol>
+template<class tSymPtr, tSymPtr kNull>
 class SymbolTable {
 public:
     inline SymbolTable(bool bOverridable) noexcept : x_bOverridable(bOverridable), x_pParent(nullptr) {}
 
-    constexpr void SetParent(const SymbolTable &st) {
+    constexpr void SetParent(const SymbolTable &st) noexcept {
         x_pParent = &st;
     }
 
-    inline tSymbol *LookupUntilOverridable(const std::string &sName) const noexcept {
+    inline tSymPtr LookupUntilOverridable(const std::string &sName) const noexcept {
         if (x_bOverridable)
-            return nullptr;
+            return kNull;
         auto it = x_map.find(sName);
-        return it != x_map.end() ? it->second : nullptr;
+        return it != x_map.end() ? it->second : kNull;
     }
 
-    inline tSymbol *LookupInParent(const std::string &sName) const noexcept {
-        return x_pParent ? x_pParent->Lookup(sName) : nullptr;
+    inline tSymPtr LookupInParent(const std::string &sName) const noexcept {
+        return x_pParent ? x_pParent->Lookup(sName) : kNull;
     }
 
-    inline tSymbol *Lookup(const std::string &sName) const noexcept {
+    inline tSymPtr Lookup(const std::string &sName) const noexcept {
         auto it = x_map.find(sName);
         return it != x_map.end() ? it->second : LookupInParent(sName);
     }
     
-    tSymbol *AddNoOverride(const std::string &sName, tSymbol *pSymbol) noexcept {
+    tSymPtr AddNoOverride(const std::string &sName, tSymPtr pSymbol) noexcept {
         auto pPrevious = LookupInParent(sName);
-        if (pPrevious)
+        if (pPrevious != kNull)
             return pPrevious;
         auto [it, res] = x_map.emplace(
             std::piecewise_construct,
             std::forward_as_tuple(sName),
             std::forward_as_tuple(pSymbol)
         );
-        return res ? nullptr : it->second;
+        return res ? kNull : it->second;
     }
 
-    tSymbol *Add(const std::string &sName, tSymbol *pSymbol) noexcept {
-        auto pPrevious = x_pParent ? x_pParent->LookupUntilOverridable(sName) : nullptr;
-        if (pPrevious)
+    tSymPtr Add(const std::string &sName, tSymPtr pSymbol) noexcept {
+        auto pPrevious = x_pParent ? x_pParent->LookupUntilOverridable(sName) : kNull;
+        if (pPrevious != kNull)
             return pPrevious;
         auto [it, res] = x_map.emplace(
             std::piecewise_construct,
             std::forward_as_tuple(sName),
             std::forward_as_tuple(pSymbol)
         );
-        return res ? nullptr : it->second;
+        return res ? kNull : it->second;
     }
 
 private:
     bool x_bOverridable;
     const SymbolTable *x_pParent;
-    std::unordered_map<std::string, tSymbol *> x_map;
+    std::unordered_map<std::string, tSymPtr> x_map;
 };
 
-}
-
-using ClassTable = _impl_SymbolTable::SymbolTable<ClassDef>;
-using VarTable = _impl_SymbolTable::SymbolTable<VarDef>;
-using FnTable = _impl_SymbolTable::SymbolTable<FnDef>;
+using ClassTable = SymbolTable<ClassDef *, nullptr>;
+using FnTable = SymbolTable<FnDef *, nullptr>;
+using VarTable = SymbolTable<VarDef *, nullptr>;
 
 }
 

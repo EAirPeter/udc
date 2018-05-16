@@ -7,6 +7,7 @@
 #include "NodeBase.hpp"
 #include "eval/SymbolTable.hpp"
 #include "eval/Type.hpp"
+#include "eval/VirtFnTable.hpp"
 
 namespace udc::ast {
 
@@ -50,6 +51,14 @@ public:
         return x_vecDeriveds;
     }
 
+    constexpr eval::VfTable &GetVfTable() noexcept {
+        return x_stVf;
+    }
+
+    constexpr const eval::VfTable &GetVfTable() const noexcept {
+        return x_stVf;
+    }
+
     constexpr eval::FnTable &GetFnTable() noexcept {
         return x_stFn;
     }
@@ -78,6 +87,7 @@ private:
     std::vector<ClassDef *> x_vecDeriveds;
     eval::FnTable x_stFn;
     eval::VarTable x_stVar;
+    eval::VfTable x_stVf;
 };
 
 }

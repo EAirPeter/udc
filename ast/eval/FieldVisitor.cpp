@@ -15,6 +15,9 @@ void FieldVisitor::Visit(Program &vProg) noexcept {
 void FieldVisitor::Visit(ClassDef &vClass) noexcept {
     ENTER_SCOPE(x_pstFn, &vClass.GetFnTable());
     ENTER_SCOPE(x_pstVar, &vClass.GetVarTable());
+    if (x_pstVf)
+        vClass.GetVfTable().SetParent(*x_pstVf);
+    ENTER_SCOPE(x_pstVf, &vClass.GetVfTable());
     for (auto &upField : vClass.GetFields())
         upField->AcceptVisitor(*this);
     for (auto &pDerived : vClass.GetDeriveds())
@@ -29,36 +32,45 @@ void FieldVisitor::Visit(FnDef &vFn) noexcept {
     for (auto &upPar : vFn.GetPars())
         upPar->AcceptVisitor(*this);
     auto &sName = vFn.GetName();
-    auto pPrevious = x_pstFn->LookupInParent(sName);
-    if (pPrevious) {
-        if (vFn.IsStatic()) {
-            Y_RjRedefinition(vFn.GetLocation(), "function", sName, pPrevious->GetLocation());
+    auto pPrevStatic = x_pstFn->Lookup(sName);
+    if (pPrevStatic) {
+        if (vFn.IsStatic())
+            Y_RjRedefinition(vFn.GetLocation(), "static function", sName, pPrevStatic->GetLocation());
+        else
+            Y_RjOverride(vFn.GetLocation(), sName, pPrevStatic->GetLocation());
+        return;
+    }
+    auto pPrevVirt = x_pstVf->LookupInParent(sName);
+    if (vFn.IsStatic()) {
+        if (pPrevVirt) {
+            Y_RjOverride(vFn.GetLocation(), sName, pPrevStatic->GetLocation());
             return;
         }
-        if (pPrevious->IsStatic()) {
-            Y_RjOverride(vFn.GetLocation(), sName, pPrevious->GetLocation());
-            return;
-        }
-        if (pPrevious->GetType() != vFn.GetType()) {
-            Y_RjOverride(vFn.GetLocation(), sName, pPrevious->GetLocation());
-            return;
-        }
-        if (pPrevious->GetPars().size() != vFn.GetPars().size()) {
-            Y_RjOverride(vFn.GetLocation(), sName, pPrevious->GetLocation());
-            return;
-        }
-        std::size_t i = 0;
-        for (auto &upPar : vFn.GetPars())
-            if (upPar->GetType() != pPrevious->GetPars()[i]->GetType()) {
-                Y_RjOverride(vFn.GetLocation(), sName, pPrevious->GetLocation());
+        pPrevStatic = x_pstFn->AddNoOverride(sName, &vFn);
+        assert(!pPrevStatic);
+    }
+    else {
+        if (pPrevVirt) {
+            if (pPrevVirt->GetType() != vFn.GetType()) {
+                Y_RjOverride(vFn.GetLocation(), sName, pPrevVirt->GetLocation());
                 return;
             }
-        // TODO: vtable
-    }
-    pPrevious = x_pstFn->Add(sName, &vFn);
-    if (pPrevious) {
-        Y_RjRedefinition(vFn.GetLocation(), "function", sName, pPrevious->GetLocation());
-        return;
+            if (pPrevVirt->GetPars().size() != vFn.GetPars().size()) {
+                Y_RjOverride(vFn.GetLocation(), sName, pPrevVirt->GetLocation());
+                return;
+            }
+            std::size_t i = 0;
+            for (auto &upPar : vFn.GetPars())
+                if (upPar->GetType() != pPrevVirt->GetPars()[i]->GetType()) {
+                    Y_RjOverride(vFn.GetLocation(), sName, pPrevVirt->GetLocation());
+                    return;
+                }
+        }
+        pPrevVirt = x_pstVf->Add(sName, &vFn);
+        if (pPrevVirt) {
+            Y_RjRedefinition(vFn.GetLocation(), "function", sName, pPrevVirt->GetLocation());
+            return;
+        }
     }
 }
 

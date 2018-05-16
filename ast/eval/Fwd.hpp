@@ -28,14 +28,14 @@ using IntType = _impl_BuiltinType::BuiltinType<_impl_BuiltinType::BuiltinTypeId:
 using BoolType = _impl_BuiltinType::BuiltinType<_impl_BuiltinType::BuiltinTypeId::kBool>;
 using StringType = _impl_BuiltinType::BuiltinType<_impl_BuiltinType::BuiltinTypeId::kString>;
 
-namespace _impl_SymbolTable {
-template<class tSymbol>
+template<class tSymPtr, tSymPtr kNull>
 class SymbolTable;
-}
 
-using ClassTable = _impl_SymbolTable::SymbolTable<ClassDef>;
-using VarTable = _impl_SymbolTable::SymbolTable<VarDef>;
-using FnTable = _impl_SymbolTable::SymbolTable<FnDef>;
+using ClassTable = SymbolTable<ClassDef *, nullptr>;
+using FnTable = SymbolTable<FnDef *, nullptr>;
+using VarTable = SymbolTable<VarDef *, nullptr>;
+
+class VfTable;
 
 }
 
