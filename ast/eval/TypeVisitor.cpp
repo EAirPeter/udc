@@ -206,20 +206,36 @@ void TypeVisitor::Visit(CallExpr &expr) noexcept {
     auto pstFn = (const FnTable *) x_pstFn;
     auto pstVf = (const VfTable *) x_pstVf;
     bool bArray = false;
+    bool bStatic = false;
     if (expr.GetExpr()) {
-        expr.GetExpr()->AcceptVisitor(*this);
-        auto &tyExpr = expr.GetExpr()->GetType();
-        if (tyExpr.IsArray())
-            bArray = true;
-        else {
-            auto pClass = dynamic_cast<const ClassDef *>(&tyExpr.GetElemType());
-            if (!pClass) {
-                Y_RjNotWhat(expr.GetExpr()->GetLocation(), "a class or array", tyExpr);
-                return;
+        if (auto pVarAcc = dynamic_cast<VarAccess *>(expr.GetExpr()); pVarAcc && !pVarAcc->GetExpr()) {
+            // check if it is a class name
+            auto pClass = x_pstClass->Lookup(pVarAcc->GetName());
+            if (pClass) {
+                pstFn = &pClass->GetFnTable();
+                pstVf = &pClass->GetVfTable();
+                bStatic = true;
             }
-            pstFn = &pClass->GetFnTable();
-            pstVf = &pClass->GetVfTable();
         }
+        else {
+            expr.GetExpr()->AcceptVisitor(*this);
+            auto &tyExpr = expr.GetExpr()->GetType();
+            if (tyExpr.IsArray())
+                bArray = true;
+            else {
+                auto pClass = dynamic_cast<const ClassDef *>(&tyExpr.GetElemType());
+                if (!pClass) {
+                    Y_RjNotWhat(expr.GetExpr()->GetLocation(), "a class or array", tyExpr);
+                    return;
+                }
+                pstFn = &pClass->GetFnTable();
+                pstVf = &pClass->GetVfTable();
+            }
+        }
+    }
+    else {
+        assert(x_pFn);
+        bStatic = x_pFn->IsStatic();
     }
     if (bArray) {
         if (expr.GetName() != "length") {
@@ -241,6 +257,10 @@ void TypeVisitor::Visit(CallExpr &expr) noexcept {
             return;
         }
         expr.SetType(pFn->GetType());
+        if (bStatic && !pFn->IsStatic()) {
+            Y_RjNonStaticCall(expr.GetLocation(), pFn->GetName());
+            return;
+        }
         if (expr.GetArgs().size() != pFn->GetPars().size()) {
             Y_RjArgNumber(expr.GetLocation(), pFn->GetName(), pFn->GetPars().size(), expr.GetArgs().size());
             return;
@@ -261,7 +281,6 @@ void TypeVisitor::Visit(CallExpr &expr) noexcept {
         }
         expr.SetFn(*pFn);
     }
-    // TODO: fix non-static function call in static function 
 }
 
 void TypeVisitor::Visit(CastExpr &expr) noexcept {
@@ -368,12 +387,13 @@ void TypeVisitor::Visit(This &expr) noexcept {
     assert(x_pFn);
     expr.SetType(*x_pClass);
     if (x_pFn->IsStatic()) {
-        Y_RJThisInStatic(expr.GetLocation(), x_pFn->GetName());
+        Y_RjThisInStatic(expr.GetLocation(), x_pFn->GetName());
         return;
     }
 }
 
 void TypeVisitor::Visit(VarAccess &expr) noexcept {
+    assert(x_pFn);
     auto pstVar = (const VarTable *) x_pstVar;
     if (expr.GetExpr()) {
         expr.GetExpr()->AcceptVisitor(*this);
@@ -384,6 +404,10 @@ void TypeVisitor::Visit(VarAccess &expr) noexcept {
             return;
         }
         pstVar = &pClass->GetVarTable();
+    }
+    else if (x_pFn->IsStatic()) {
+        Y_RjNonStaticVar(expr.GetLocation(), expr.GetName());
+        return;
     }
     auto pVar = pstVar->Lookup(expr.GetName());
     if (!pVar) {

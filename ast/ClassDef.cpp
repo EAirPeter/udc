@@ -30,6 +30,8 @@ void ClassDef::Print(std::ostream &os, std::uint32_t cIndent) const {
 }
 
 bool ClassDef::Accepts(const INonArrayType &ty) const noexcept {
+    if (ty == eval::NullType::vInstance)
+        return true;
     auto pCls = dynamic_cast<const ClassDef *>(&ty);
     if (!pCls)
         return false;

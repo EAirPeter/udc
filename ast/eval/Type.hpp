@@ -83,7 +83,7 @@ public:
     constexpr bool Accepts(const Type &vt) const noexcept {
         return IsArray() ?
             vt.GetElemType() == NullType::vInstance || *this == vt :
-            GetElemType().Accepts(vt.GetElemType());
+            !vt.IsArray() && GetElemType().Accepts(vt.GetElemType());
     }
 
     constexpr bool operator ==(const Type &ty) const noexcept {

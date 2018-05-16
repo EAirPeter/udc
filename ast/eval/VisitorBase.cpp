@@ -2,11 +2,20 @@
 #include "VisitorBase.hpp"
 
 namespace udc::ast::eval {
-
-
-void VisitorBase::Y_RJThisInStatic(const Location &vLoc, const std::string &sName) noexcept {
+void VisitorBase::Y_RjNonStaticVar(const Location &vLoc, const std::string &sName) noexcept {
     Y_Reject();
-    y_vDriver.PrintError(vLoc, "invalid use of 'this' in a static function");
+    y_vDriver.PrintError(vLoc, "invalid use of variable '", sName, "' in static function");
+}
+
+void VisitorBase::Y_RjNonStaticCall(const Location &vLoc, const std::string &sName) noexcept
+{
+    Y_Reject();
+    y_vDriver.PrintError(vLoc, "call to non-static function '", sName, "' without an object argument");
+}
+
+void VisitorBase::Y_RjThisInStatic(const Location &vLoc, const std::string &sName) noexcept {
+    Y_Reject();
+    y_vDriver.PrintError(vLoc, "invalid use of 'this' in static function");
 }
 
 void VisitorBase::Y_RjOverride(const Location &vLoc, const std::string &sName, const Location &vPrevious) noexcept {
