@@ -234,10 +234,8 @@ void TypeVisitor::Visit(CallExpr &expr) noexcept {
     }
     else {
         auto pFn = pstFn->Lookup(expr.GetName());
-        auto idx = pstVf->IndexOf(expr.GetName());
-        assert(!pFn || !~idx);
         if (!pFn)
-            pFn = pstVf->At(idx);
+            pFn = pstVf->Lookup(expr.GetName());
         if (!pFn) {
             Y_RjNotFound(expr.GetLocation(), "function", expr.GetName());
             return;
@@ -261,8 +259,9 @@ void TypeVisitor::Visit(CallExpr &expr) noexcept {
             }
             ++i;
         }
-        expr.SetCallee(*pFn, idx);
+        expr.SetFn(*pFn);
     }
+    // TODO: fix non-static function call in static function 
 }
 
 void TypeVisitor::Visit(CastExpr &expr) noexcept {

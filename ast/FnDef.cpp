@@ -19,7 +19,8 @@ FnDef::FnDef(
     x_sName(std::move(sName)),
     x_vecPars(std::move(vecPars)),
     x_upBody(std::move(upBody)),
-    x_stVar(false)
+    x_stVar(false),
+    x_idx(~std::size_t {})
 {}
 
 FnDef::~FnDef() {}

@@ -36,21 +36,12 @@ public:
         return x_vecArgs;
     }
 
-    constexpr bool IsVirtual() const noexcept {
-        return ~x_idx;
-    }
-
     constexpr const FnDef &GetFn() const noexcept {
         return *x_pFn;
     }
 
-    constexpr std::size_t GetIdx() const noexcept {
-        return x_idx;
-    }
-
-    constexpr void SetCallee(const FnDef &vFn, std::size_t idx) noexcept {
+    constexpr void SetFn(const FnDef &vFn) noexcept {
         x_pFn = &vFn;
-        x_idx = idx;
     }
 
 private:
@@ -58,7 +49,6 @@ private:
     std::string x_sName;
     std::vector<std::unique_ptr<ExprBase>> x_vecArgs;
     const FnDef *x_pFn = nullptr;
-    std::size_t x_idx = ~std::size_t {};
 };
 
 }

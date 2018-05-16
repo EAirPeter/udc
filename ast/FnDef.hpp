@@ -57,6 +57,14 @@ public:
         return x_stVar;
     }
 
+    constexpr std::size_t GetIdx() const noexcept {
+        return x_idx;
+    }
+
+    constexpr void SetIdx(std::size_t idx) noexcept {
+        x_idx = idx;
+    }
+
 private:
     bool x_bStatic;
     std::unique_ptr<TypeName> x_upType;
@@ -65,6 +73,7 @@ private:
     std::unique_ptr<BlockStmt> x_upBody;
     eval::Type x_vType;
     eval::VarTable x_stVar;
+    std::size_t x_idx;
 };
 
 }

@@ -71,6 +71,7 @@ void FieldVisitor::Visit(FnDef &vFn) noexcept {
             Y_RjRedefinition(vFn.GetLocation(), "function", sName, pPrevVirt->GetLocation());
             return;
         }
+        vFn.SetIdx(x_pstVf->IndexOf(sName));
     }
 }
 
