@@ -217,7 +217,7 @@ void TypeVisitor::Visit(CallExpr &expr) noexcept {
                 bStatic = true;
             }
         }
-        else {
+        if (!bStatic) {
             expr.GetExpr()->AcceptVisitor(*this);
             auto &tyExpr = expr.GetExpr()->GetType();
             if (tyExpr.IsArray())
@@ -395,6 +395,7 @@ void TypeVisitor::Visit(This &expr) noexcept {
 void TypeVisitor::Visit(VarAccess &expr) noexcept {
     assert(x_pFn);
     auto pstVar = (const VarTable *) x_pstVar;
+    bool bStatic = false;
     if (expr.GetExpr()) {
         expr.GetExpr()->AcceptVisitor(*this);
         auto &tyExpr = expr.GetExpr()->GetType();
@@ -405,16 +406,18 @@ void TypeVisitor::Visit(VarAccess &expr) noexcept {
         }
         pstVar = &pClass->GetVarTable();
     }
-    else if (x_pFn->IsStatic()) {
-        Y_RjNonStaticVar(expr.GetLocation(), expr.GetName());
-        return;
-    }
+    else if (x_pFn->IsStatic())
+        bStatic = true;
     auto pVar = pstVar->Lookup(expr.GetName());
     if (!pVar) {
         Y_RjNotFound(expr.GetLocation(), "variable", expr.GetName());
         return;
     }
     expr.SetType(pVar->GetType());
+    if (bStatic && pVar->IsField()) {
+        Y_RjNonStaticVar(expr.GetLocation(), expr.GetName());
+        return;
+    }
 }
 
 void TypeVisitor::Visit(BoolLit &expr) noexcept {

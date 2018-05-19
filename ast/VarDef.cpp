@@ -4,7 +4,7 @@
 namespace udc::ast {
 
 VarDef::VarDef(const Location &vLocation, std::unique_ptr<TypeName> &&upType, std::string &&sName) noexcept :
-    NodeBase(vLocation), x_upType(std::move(upType)), x_sName(std::move(sName))
+    NodeBase(vLocation), x_upType(std::move(upType)), x_sName(std::move(sName)), x_idx(~std::size_t {})
 {}
 
 VarDef::~VarDef() {}

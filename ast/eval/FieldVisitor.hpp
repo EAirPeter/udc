@@ -4,10 +4,6 @@
 #include "Fwd.hpp"
 #include "VisitorBase.hpp"
 
-namespace udc {
-class Driver;
-}
-
 namespace udc::ast::eval {
 
 class FieldVisitor : public VisitorBase {
@@ -24,6 +20,7 @@ public:
 private:
     ClassTable *x_pstClass = nullptr;
     FnTable *x_pstFn = nullptr;
+    std::vector<VarDef *> *x_pVars = nullptr;
     VarTable *x_pstVar = nullptr;
     VfTable *x_pstVf = nullptr;
     bool x_bPar = false;

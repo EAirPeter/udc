@@ -9,6 +9,11 @@
 #include "eval/Type.hpp"
 #include "eval/VirtFnTable.hpp"
 
+namespace llvm {
+class StructType;
+class GlobalVariable;
+}
+
 namespace udc::ast {
 
 class ClassDef : public NodeBase, public eval::INonArrayType {
@@ -67,12 +72,44 @@ public:
         return x_stFn;
     }
 
+    constexpr std::vector<VarDef *> &GetVars() noexcept {
+        return x_vecVars;
+    }
+
+    constexpr const std::vector<VarDef *> &GetVars() const noexcept {
+        return x_vecVars;
+    }
+    
     constexpr eval::VarTable &GetVarTable() noexcept {
         return x_stVar;
     }
 
     constexpr const eval::VarTable &GetVarTable() const noexcept {
         return x_stVar;
+    }
+
+    constexpr std::size_t GetIdx() const noexcept {
+        return x_idx;
+    }
+    
+    constexpr void SetIdx(std::size_t idx) noexcept {
+        x_idx = idx;
+    }
+
+    constexpr llvm::StructType *GetLlvmType() const noexcept {
+        return x_pLlvmType;
+    }
+
+    constexpr void SetLlvmType(llvm::StructType *pLlvmType) noexcept {
+        x_pLlvmType = pLlvmType;
+    }
+
+    constexpr llvm::GlobalVariable *GetLlvmVTable() const noexcept {
+        return x_pLlvmVTable;
+    }
+
+    constexpr void SetLlvmVTable(llvm::GlobalVariable *pLlvmVTable) noexcept {
+        x_pLlvmVTable = pLlvmVTable;
     }
 
 private:
@@ -86,8 +123,12 @@ private:
     const ClassDef *x_pBase;
     std::vector<ClassDef *> x_vecDeriveds;
     eval::FnTable x_stFn;
+    std::vector<VarDef *> x_vecVars;
     eval::VarTable x_stVar;
     eval::VfTable x_stVf;
+    std::size_t x_idx;
+    llvm::StructType *x_pLlvmType;
+    llvm::GlobalVariable *x_pLlvmVTable;
 };
 
 }

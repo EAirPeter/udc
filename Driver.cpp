@@ -1,8 +1,12 @@
+#include <llvm/IR/Module.h>
+
 #include "Driver.hpp"
 #include "ast/eval/ClassNameVisitor.hpp"
 #include "ast/eval/InheritVisitor.hpp"
 #include "ast/eval/FieldVisitor.hpp"
 #include "ast/eval/TypeVisitor.hpp"
+#include "cg/CodeGenManager.hpp"
+#include "cg/StaticGenVisitor.hpp"
 
 namespace udc {
 
@@ -24,8 +28,8 @@ int Driver::Parse() {
     if (visInherit.IsRejected())
         return 3;
 
-    ast::eval::FieldVisitor visStatic(*this);
-    x_upProg->AcceptVisitor(visStatic);
+    ast::eval::FieldVisitor visField(*this);
+    x_upProg->AcceptVisitor(visField);
     if (visInherit.IsRejected())
         return 4;
 
@@ -33,6 +37,15 @@ int Driver::Parse() {
     x_upProg->AcceptVisitor(visType);
     if (visType.IsRejected())
         return 5;
+
+    cg::CodeGenManager cgm(*this);
+    
+    cg::StaticGenVisitor visStaticGen(cgm);
+    x_upProg->AcceptVisitor(visStaticGen);
+    if (visStaticGen.IsRejected())
+        return 6;
+
+    cgm.mod->print(llvm::errs(), nullptr);
 
     return 0;
 }

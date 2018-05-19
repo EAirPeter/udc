@@ -4,10 +4,6 @@
 #include "Fwd.hpp"
 #include "VisitorBase.hpp"
 
-namespace udc {
-class Driver;
-}
-
 namespace udc::ast::eval {
 
 class ClassNameVisitor : public VisitorBase {

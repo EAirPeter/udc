@@ -1,3 +1,4 @@
+#include "../IndentHelper.hpp"
 #include "BlockStmt.hpp"
 #include "FnDef.hpp"
 #include "TypeName.hpp"
@@ -26,7 +27,10 @@ FnDef::FnDef(
 FnDef::~FnDef() {}
 
 void FnDef::Print(std::ostream &os, std::uint32_t cIndent) const {
-    x_upType->Print(os, cIndent);
+    if (IsStatic())
+        os << Indent(cIndent) << "static " << *x_upType;
+    else
+        x_upType->Print(os, cIndent);
     os << ' ' << x_sName << '(';
     bool bFirst = true;
     for (auto &&upVar : x_vecPars) {

@@ -6,8 +6,11 @@ namespace udc::ast::eval {
 
 void InheritVisitor::Visit(Program &vProg) noexcept {
     ENTER_SCOPE(x_pstClass, &vProg.GetClassTable());
-    for (auto &upClass : vProg.GetClasses())
+    std::size_t i = 0;
+    for (auto &upClass : vProg.GetClasses()) {
+        upClass->SetIdx(i++);
         upClass->AcceptVisitor(*this);
+    }
 }
 
 void InheritVisitor::Visit(ClassDef &vClass) noexcept {

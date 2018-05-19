@@ -14,6 +14,7 @@ void FieldVisitor::Visit(Program &vProg) noexcept {
 
 void FieldVisitor::Visit(ClassDef &vClass) noexcept {
     ENTER_SCOPE(x_pstFn, &vClass.GetFnTable());
+    ENTER_SCOPE(x_pVars, &vClass.GetVars());
     ENTER_SCOPE(x_pstVar, &vClass.GetVarTable());
     if (x_pstVf)
         vClass.GetVfTable().SetParent(*x_pstVf);
@@ -78,11 +79,23 @@ void FieldVisitor::Visit(FnDef &vFn) noexcept {
 void FieldVisitor::Visit(VarDef &vVar) noexcept {
     vVar.GetTypeName()->AcceptVisitor(*this);
     vVar.SetType(x_ty);
+    VarDef *pPrevious = nullptr;
     auto &sName = vVar.GetName();
-    auto pPrevious = x_bPar ? x_pstVar->Add(sName, &vVar) : x_pstVar->AddNoOverride(sName, &vVar);
-    if (pPrevious) {
-        Y_RjRedefinition(vVar.GetLocation(), "variable", sName, pPrevious->GetLocation());
-        return;
+    if (x_bPar) {
+        auto pPrevious = x_pstVar->Add(sName, &vVar);
+        if (pPrevious) {
+            Y_RjRedefinition(vVar.GetLocation(), "variable", sName, pPrevious->GetLocation());
+            return;
+        }
+    }
+    else {
+        auto pPrevious = x_pstVar->AddNoOverride(sName, &vVar);
+        if (pPrevious) {
+            Y_RjRedefinition(vVar.GetLocation(), "variable", sName, pPrevious->GetLocation());
+            return;
+        }
+        vVar.SetIdx(x_pVars->size());
+        x_pVars->emplace_back(&vVar);
     }
 }
 

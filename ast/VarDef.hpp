@@ -27,6 +27,18 @@ public:
         return x_sName;
     }
 
+    constexpr std::size_t GetIdx() const noexcept {
+        return x_idx;
+    }
+
+    constexpr void SetIdx(std::size_t idx) noexcept {
+        x_idx = idx;
+    }
+
+    constexpr bool IsField() const noexcept {
+        return ~x_idx;
+    }
+
     constexpr const eval::Type &GetType() const noexcept {
         return x_vType;
     }
@@ -38,6 +50,7 @@ public:
 private:
     std::unique_ptr<TypeName> x_upType;
     std::string x_sName;
+    std::size_t x_idx;
     eval::Type x_vType;
 };
 

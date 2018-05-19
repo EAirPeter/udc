@@ -1,9 +1,17 @@
 #ifndef UDC_AST_EVAL_TYPE_HPP_
 #define UDC_AST_EVAL_TYPE_HPP_
 
-#include "Fwd.hpp"
 #include "../NodeBase.hpp"
 #include "../TypeName.hpp"
+#include "Fwd.hpp"
+
+namespace llvm {
+class Type;
+}
+
+namespace udc::cg {
+class CodeGenManager;
+}
 
 namespace udc::ast::eval {
 
@@ -94,9 +102,16 @@ public:
         return !(*this == ty);
     }
 
+    constexpr llvm::Type *GetLlvmType() const noexcept {
+        return x_pLlvmType;
+    }
+
+    void MakeLlvmType(cg::CodeGenManager &cgm) noexcept;
+
 private:
     std::reference_wrapper<const INonArrayType> x_tyElem;
     std::uint32_t x_cDimension;
+    llvm::Type *x_pLlvmType;
 };
 
 inline std::ostream &operator <<(std::ostream &os, const Type &ty) {

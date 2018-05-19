@@ -45,6 +45,10 @@ public:
         return nullptr;
     }
 
+    constexpr const std::vector<FnDef *> &GetVec() const noexcept {
+        return x_vec;
+    }
+
 private:
     std::vector<FnDef *> x_vec;
     SymbolTable<std::size_t, ~std::size_t {}> x_st {true};
