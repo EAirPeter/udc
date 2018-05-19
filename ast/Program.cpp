@@ -1,10 +1,12 @@
+#include <llvm/IR/Module.h>
+
 #include "ClassDef.hpp"
 #include "Program.hpp"
 
 namespace udc::ast {
 
-Program::Program(const Location &vLocation, std::vector<std::unique_ptr<ClassDef>> &&vecClasses) noexcept :
-    NodeBase(vLocation), x_vecClasses(std::move(vecClasses)), x_stClass(false)
+Program::Program(Driver &drv, const Location &loc, std::vector<std::unique_ptr<ClassDef>> &&vecClasses) noexcept :
+    NodeBase(drv, loc), x_vTyReg(drv), x_vecClasses(std::move(vecClasses)), x_stClass(false)
 {}
 
 Program::~Program() {}

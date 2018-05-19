@@ -4,11 +4,12 @@
 namespace udc::ast {
 
 CastExpr::CastExpr(
-    const Location &vLocation,
+    Driver &drv,
+    const Location &loc,
     std::string &&sName,
     std::unique_ptr<ExprBase> &&upExpr
 ) noexcept :
-    ExprBase(vLocation), x_sName(std::move(sName)), x_upExpr(std::move(upExpr))
+    ExprBase(drv, loc), x_sName(std::move(sName)), x_upExpr(std::move(upExpr))
 {}
 
 CastExpr::~CastExpr() {}

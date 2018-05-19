@@ -7,21 +7,21 @@
 namespace udc::ast {
 
 FnDef::FnDef(
-    const Location &vLocation,
+    Driver &drv,
+    const Location &loc,
     bool bStatic,
     std::unique_ptr<TypeName> &&upType,
     std::string &&sName,
     std::vector<std::unique_ptr<VarDef>> &&vecPars,
     std::unique_ptr<BlockStmt> &&upBody
 ) noexcept :
-    NodeBase(vLocation),
+    NodeBase(drv, loc),
     x_bStatic(bStatic),
     x_upType(std::move(upType)),
     x_sName(std::move(sName)),
     x_vecPars(std::move(vecPars)),
     x_upBody(std::move(upBody)),
-    x_stVar(false),
-    x_idx(~std::size_t {})
+    x_stVar(false)
 {}
 
 FnDef::~FnDef() {}

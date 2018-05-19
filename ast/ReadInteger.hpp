@@ -7,7 +7,7 @@ namespace udc::ast {
 
 class ReadInteger : public ExprBase {
 public:
-    ReadInteger(const Location &vLocation) noexcept;
+    ReadInteger(Driver &drv, const Location &loc) noexcept;
     virtual ~ReadInteger();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;

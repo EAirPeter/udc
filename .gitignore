@@ -5,6 +5,7 @@
 !ast/eval/
 !bison/
 !bison/*
+!cg/
 !*.cpp
 !*.hpp
 !*.l

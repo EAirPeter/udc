@@ -15,8 +15,8 @@ enum class TypeId {
 
 class TypeName : public NodeBase {
 public:
-    TypeName(const Location &vLocation, TypeId vId) noexcept;
-    TypeName(const Location &vLocation, std::string &&sName) noexcept;
+    TypeName(Driver &drv, const Location &loc, TypeId vId) noexcept;
+    TypeName(Driver &drv, const Location &loc, std::string &&sName) noexcept;
     virtual ~TypeName();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;

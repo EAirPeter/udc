@@ -15,7 +15,7 @@ namespace udc::ast::eval {
 
 class VisitorBase {
 public:
-    constexpr VisitorBase(Driver &vDriver) noexcept : y_vDriver(vDriver) {}
+    constexpr VisitorBase(Driver &drv) noexcept : y_drv(drv) {}
     virtual inline ~VisitorBase() = default;
 
     constexpr bool IsRejected() const noexcept {
@@ -66,12 +66,13 @@ public:
     virtual inline void Visit(TypeName &) noexcept {}
 
 protected:
+    void Y_RjDimTooLarge(const Location &vLoc) noexcept;
     void Y_RjNonStaticVar(const Location &vLoc, const std::string &sName) noexcept;
     void Y_RjNonStaticCall(const Location &vLoc, const std::string &sName) noexcept;
     void Y_RjThisInStatic(const Location &vLoc, const std::string &sName) noexcept;
     void Y_RjOverride(const Location &vLoc, const std::string &sName, const Location &vPrevious) noexcept;
     void Y_RjInheritCycle(const Location &vLoc) noexcept;
-    void Y_RjIllegalType(const Location &vLoc, const Type &ty) noexcept;
+    void Y_RjVoidArray(const Location &vLoc) noexcept;
     void Y_RjNotFound(const Location &vLoc, const char *pszWhat, const std::string &sName) noexcept;
     void Y_RjTypeMissMatch(const Location &vLoc, const Type &tyExpected, const Type &tyUnexpected) noexcept;
     void Y_RjNoConversion(const Location &vLoc, const Type &tyTo, const Type &tyFrom) noexcept;
@@ -97,7 +98,7 @@ protected:
     ) noexcept;
 
 protected:
-    Driver &y_vDriver;
+    Driver &y_drv;
 private:
     bool x_bRejected = false;
 };

@@ -10,7 +10,8 @@ namespace udc::ast {
 class ArrayAccess : public ExprBase {
 public:
     ArrayAccess(
-        const Location &vLocation,
+        Driver &drv,
+        const Location &loc,
         std::unique_ptr<ExprBase> &&upExpr,
         std::unique_ptr<ExprBase> &&upSub
     ) noexcept;

@@ -7,7 +7,7 @@ namespace udc::ast {
 
 class BoolLit : public ExprBase {
 public:
-    BoolLit(const Location &vLocation, bool bVal) noexcept;
+    BoolLit(Driver &drv, const Location &loc, bool bVal) noexcept;
     virtual ~BoolLit();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;

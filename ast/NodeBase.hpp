@@ -4,11 +4,15 @@
 #include "../Location.hpp"
 #include "eval/VisitorBase.hpp"
 
+namespace udc {
+class Driver;
+}
+
 namespace udc::ast {
 
 class NodeBase {
 public:
-    inline NodeBase(const Location &vLocation) noexcept : x_vLocation(vLocation) {}
+    inline NodeBase(Driver &drv, const Location &vLoc) noexcept : y_drv(drv), x_vLocation(vLoc) {}
     NodeBase(const NodeBase &) = delete;
     NodeBase(NodeBase &&) = delete;
     virtual inline ~NodeBase() = default;
@@ -24,6 +28,9 @@ public:
     constexpr const Location &GetLocation() const noexcept {
         return x_vLocation;
     }
+
+protected:
+    Driver &y_drv;
 
 private:
     const Location x_vLocation;

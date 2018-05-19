@@ -3,7 +3,7 @@
 
 namespace udc::ast {
 
-IntLit::IntLit(const Location &vLocation, int nVal) noexcept : ExprBase(vLocation), x_nVal(nVal) {}
+IntLit::IntLit(Driver &drv, const Location &loc, int nVal) noexcept : ExprBase(drv, loc), x_nVal(nVal) {}
 
 IntLit::~IntLit() {}
 

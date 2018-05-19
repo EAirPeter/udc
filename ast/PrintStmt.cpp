@@ -4,8 +4,8 @@
 
 namespace udc::ast {
 
-PrintStmt::PrintStmt(const Location &vLocation, std::vector<std::unique_ptr<ExprBase>> &&vecArgs) noexcept :
-    NodeBase(vLocation), x_vecArgs(std::move(vecArgs))
+PrintStmt::PrintStmt(Driver &drv, const Location &loc, std::vector<std::unique_ptr<ExprBase>> &&vecArgs) noexcept :
+    NodeBase(drv, loc), x_vecArgs(std::move(vecArgs))
 {}
 
 PrintStmt::~PrintStmt() {}

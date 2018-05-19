@@ -10,7 +10,8 @@ namespace udc::ast {
 class FnDef : public NodeBase {
 public:
     FnDef(
-        const Location &vLocation,
+        Driver &drv,
+        const Location &loc,
         bool bStatic,
         std::unique_ptr<TypeName> &&upType,
         std::string &&sName,
@@ -46,11 +47,11 @@ public:
     }
     
     constexpr const eval::Type &GetType() const noexcept {
-        return x_vType;
+        return *x_pty;
     }
 
-    constexpr void SetType(const eval::Type &vType) noexcept {
-        x_vType = vType;
+    constexpr void SetType(const eval::Type &ty) noexcept {
+        x_pty = &ty;
     }
 
     constexpr eval::VarTable &GetVarTable() noexcept {
@@ -59,6 +60,14 @@ public:
 
     constexpr std::size_t GetIdx() const noexcept {
         return x_idx;
+    }
+
+    constexpr ClassDef &GetClass() const noexcept {
+        return *x_pClass;
+    }
+
+    constexpr void SetClass(ClassDef &vClass) noexcept {
+        x_pClass = &vClass;
     }
 
     constexpr void SetIdx(std::size_t idx) noexcept {
@@ -71,9 +80,10 @@ private:
     std::string x_sName;
     std::vector<std::unique_ptr<VarDef>> x_vecPars;
     std::unique_ptr<BlockStmt> x_upBody;
-    eval::Type x_vType;
+    const eval::Type *x_pty;
     eval::VarTable x_stVar;
-    std::size_t x_idx;
+    ClassDef *x_pClass = nullptr;
+    std::size_t x_idx = ~std::size_t {};
 };
 
 }

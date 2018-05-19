@@ -7,6 +7,8 @@ namespace udc::ast::eval {
 
 class VisitorBase;
 
+class TypeRegistry;
+
 struct INonArrayType;
 class Type;
 

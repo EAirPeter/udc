@@ -4,11 +4,12 @@
 namespace udc::ast {
 
 ArrayAccess::ArrayAccess(
-    const Location &vLocation,
+    Driver &drv,
+    const Location &loc,
     std::unique_ptr<ExprBase> &&upExpr,
     std::unique_ptr<ExprBase> &&upSub
 ) noexcept :
-    ExprBase(vLocation, true), x_upExpr(std::move(upExpr)), x_upSub(std::move(upSub))
+    ExprBase(drv, loc, true), x_upExpr(std::move(upExpr)), x_upSub(std::move(upSub))
 {}
 
 ArrayAccess::~ArrayAccess() {}

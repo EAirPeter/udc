@@ -1,11 +1,24 @@
-#include "Driver.hpp"
-
 #include <iostream>
 
+#include <llvm/Support/TargetSelect.h>
+
+#include "Driver.hpp"
+
+
 int main() {
-    udc::Driver vDriver;
-    //vDriver.PrintSymbols();
-    auto res = vDriver.Parse();
-    std::cout << "Result: " << res << std::endl;
+    llvm::InitializeAllTargetInfos();
+    llvm::InitializeAllTargets();
+    llvm::InitializeAllTargetMCs();
+    llvm::InitializeAllAsmParsers();
+    llvm::InitializeAllAsmPrinters();
+    try {
+        udc::Driver vDriver;
+        //vDriver.PrintSymbols();
+        auto res = vDriver.Parse();
+        std::cout << "Result: " << res << std::endl;
+    }
+    catch (std::exception &e) {
+        std::cerr << e.what() << std::endl;
+    }
     return 0;
 }

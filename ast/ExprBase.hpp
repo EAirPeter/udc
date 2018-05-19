@@ -8,15 +8,17 @@ namespace udc::ast {
 
 class ExprBase : public NodeBase {
 public:
-    inline ExprBase(const Location &vLocation, bool bLvalue = false) : NodeBase(vLocation), x_bLvalue(bLvalue) {}
+    inline ExprBase(Driver &drv, const Location &loc, bool bLvalue = false) noexcept :
+        NodeBase(drv, loc), x_bLvalue(bLvalue)
+    {}
     virtual inline ~ExprBase() = default;
 
     constexpr const eval::Type &GetType() const noexcept {
-        return x_vType;
+        return *x_pty;
     }
 
-    constexpr void SetType(const eval::Type &vType) noexcept {
-        x_vType = vType;
+    constexpr void SetType(const eval::Type &ty) noexcept {
+        x_pty = &ty;
     }
 
     constexpr bool IsLvalue() const noexcept {
@@ -24,7 +26,7 @@ public:
     }
 
 private:
-    eval::Type x_vType;
+    const eval::Type *x_pty = nullptr;
     bool x_bLvalue;
 };
 

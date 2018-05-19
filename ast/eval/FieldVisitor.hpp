@@ -18,13 +18,15 @@ public:
     virtual void Visit(TypeName &vTypeName) noexcept override;
 
 private:
+    TypeRegistry *x_pTyReg = nullptr;
     ClassTable *x_pstClass = nullptr;
     FnTable *x_pstFn = nullptr;
     std::vector<VarDef *> *x_pVars = nullptr;
     VarTable *x_pstVar = nullptr;
     VfTable *x_pstVf = nullptr;
+    ClassDef *x_pClass = nullptr;
     bool x_bPar = false;
-    Type x_ty;
+    const Type *x_pty = nullptr;
 };
 
 }

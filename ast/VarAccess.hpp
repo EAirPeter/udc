@@ -10,7 +10,8 @@ namespace udc::ast {
 class VarAccess : public ExprBase {
 public:
     VarAccess(
-        const Location &vLocation,
+        Driver &drv,
+        const Location &loc,
         std::unique_ptr<ExprBase> &&upExpr,
         std::string &&sName
     ) noexcept;
@@ -30,9 +31,18 @@ public:
         return x_sName;
     }
 
+    constexpr VarDef &GetVar() const noexcept {
+        return *x_pVar;
+    }
+
+    constexpr void SetVar(VarDef &vVar) noexcept {
+        x_pVar = &vVar;
+    }
+
 private:
     std::unique_ptr<ExprBase> x_upExpr;
     std::string x_sName;
+    VarDef *x_pVar;
 };
 
 }

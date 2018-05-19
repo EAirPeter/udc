@@ -4,11 +4,12 @@
 namespace udc::ast {
 
 VarAccess::VarAccess(
-    const Location &vLocation,
+    Driver &drv,
+    const Location &loc,
     std::unique_ptr<ExprBase> &&upExpr,
     std::string &&sName
 ) noexcept :
-    ExprBase(vLocation, true), x_upExpr(std::move(upExpr)), x_sName(std::move(sName))
+    ExprBase(drv, loc, true), x_upExpr(std::move(upExpr)), x_sName(std::move(sName))
 {}
 
 VarAccess::~VarAccess() {}

@@ -7,7 +7,7 @@ namespace udc::ast {
 
 class BreakStmt : public NodeBase {
 public:
-    BreakStmt(const Location &vLocation) noexcept;
+    BreakStmt(Driver &drv, const Location &loc) noexcept;
     virtual ~BreakStmt();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;

@@ -10,7 +10,8 @@ namespace udc::ast {
 class IfStmt : public NodeBase {
 public:
     IfStmt(
-        const Location &vLocation,
+        Driver &drv,
+        const Location &loc,
         std::unique_ptr<ExprBase> &&upCond,
         std::unique_ptr<NodeBase> &&upThen,
         std::unique_ptr<NodeBase> &&upElse

@@ -3,7 +3,7 @@
 
 namespace udc::ast {
 
-This::This(const Location &vLocation) noexcept : ExprBase(vLocation) {}
+This::This(Driver &drv, const Location &loc) noexcept : ExprBase(drv, loc) {}
 
 This::~This() {}
 

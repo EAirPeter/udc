@@ -4,8 +4,8 @@
 
 namespace udc::ast {
 
-ExprStmt::ExprStmt(const Location &vLocation, std::unique_ptr<ExprBase> &&upExpr) noexcept :
-    NodeBase(vLocation), x_upExpr(std::move(upExpr))
+ExprStmt::ExprStmt(Driver &drv, const Location &loc, std::unique_ptr<ExprBase> &&upExpr) noexcept :
+    NodeBase(drv, loc), x_upExpr(std::move(upExpr))
 {}
 
 ExprStmt::~ExprStmt() {}

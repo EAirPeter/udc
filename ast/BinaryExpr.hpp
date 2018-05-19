@@ -26,7 +26,8 @@ enum class BinOp {
 class BinaryExpr : public ExprBase {
 public:
     BinaryExpr(
-        const Location &vLocation,
+        Driver &drv,
+        const Location &loc,
         BinOp vOp,
         std::unique_ptr<ExprBase> &&upLhs,
         std::unique_ptr<ExprBase> &&upRhs

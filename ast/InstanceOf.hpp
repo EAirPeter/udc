@@ -9,7 +9,7 @@ namespace udc::ast {
 
 class InstanceOf : public ExprBase {
 public:
-    InstanceOf(const Location &vLocation, std::unique_ptr<ExprBase> &&upExpr, std::string &&sName) noexcept;
+    InstanceOf(Driver &drv, const Location &loc, std::unique_ptr<ExprBase> &&upExpr, std::string &&sName) noexcept;
     virtual ~InstanceOf();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;

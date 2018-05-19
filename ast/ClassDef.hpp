@@ -19,7 +19,8 @@ namespace udc::ast {
 class ClassDef : public NodeBase, public eval::INonArrayType {
 public:
     ClassDef(
-        const Location &vLocation,
+        Driver &drv,
+        const Location &loc,
         std::string &&sName,
         std::optional<std::string> &&soBase,
         std::vector<std::unique_ptr<NodeBase>> &&vecFields
@@ -44,6 +45,14 @@ public:
 
     constexpr const std::vector<std::unique_ptr<NodeBase>> &GetFields() const noexcept {
         return x_vecFields;
+    }
+
+    constexpr const eval::Type &GetType() const noexcept {
+        return *x_pty;
+    }
+
+    constexpr void SetType(const eval::Type &ty) noexcept {
+        x_pty = &ty;
     }
 
     constexpr const ClassDef *GetBase() const noexcept {
@@ -96,20 +105,20 @@ public:
         x_idx = idx;
     }
 
-    constexpr llvm::StructType *GetLlvmType() const noexcept {
-        return x_pLlvmType;
+    constexpr llvm::StructType *GetLvType() const noexcept {
+        return x_plvType;
     }
 
-    constexpr void SetLlvmType(llvm::StructType *pLlvmType) noexcept {
-        x_pLlvmType = pLlvmType;
+    constexpr void SetLvType(llvm::StructType *plvType) noexcept {
+        x_plvType = plvType;
     }
 
     constexpr llvm::GlobalVariable *GetLlvmVTable() const noexcept {
         return x_pLlvmVTable;
     }
 
-    constexpr void SetLlvmVTable(llvm::GlobalVariable *pLlvmVTable) noexcept {
-        x_pLlvmVTable = pLlvmVTable;
+    constexpr void SetLlvmVTable(llvm::GlobalVariable *plvType) noexcept {
+        x_pLlvmVTable = plvType;
     }
 
 private:
@@ -119,6 +128,7 @@ private:
     std::string x_sName;
     std::optional<std::string> x_soBase;
     std::vector<std::unique_ptr<NodeBase>> x_vecFields;
+    const eval::Type *x_pty;
     ClassDef *x_pRoot = nullptr;
     const ClassDef *x_pBase;
     std::vector<ClassDef *> x_vecDeriveds;
@@ -127,7 +137,7 @@ private:
     eval::VarTable x_stVar;
     eval::VfTable x_stVf;
     std::size_t x_idx;
-    llvm::StructType *x_pLlvmType;
+    llvm::StructType *x_plvType;
     llvm::GlobalVariable *x_pLlvmVTable;
 };
 

@@ -3,12 +3,12 @@
 
 namespace udc::ast {
 
-TypeName::TypeName(const Location &vLocation, TypeId vId) noexcept :
-    NodeBase(vLocation), x_vId(vId), x_sName(), x_cDimension(0)
+TypeName::TypeName(Driver &drv, const Location &loc, TypeId vId) noexcept :
+    NodeBase(drv, loc), x_vId(vId), x_sName(), x_cDimension(0)
 {}
 
-TypeName::TypeName(const Location &vLocation, std::string &&sName) noexcept :
-    NodeBase(vLocation), x_vId(TypeId::kClass), x_sName(std::move(sName)), x_cDimension(0)
+TypeName::TypeName(Driver &drv, const Location &loc, std::string &&sName) noexcept :
+    NodeBase(drv, loc), x_vId(TypeId::kClass), x_sName(std::move(sName)), x_cDimension(0)
 {}
 
 TypeName::~TypeName() {}

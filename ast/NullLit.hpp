@@ -7,7 +7,7 @@ namespace udc::ast {
 
 class NullLit : public ExprBase {
 public:
-    NullLit(const Location &vLocation) noexcept;
+    NullLit(Driver &drv, const Location &loc) noexcept;
     virtual ~NullLit();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;

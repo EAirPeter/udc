@@ -2,10 +2,12 @@
 #include "../../ScopeHelper.hpp"
 #include "../All.hpp"
 #include "FieldVisitor.hpp"
+#include "TypeRegistry.hpp"
 
 namespace udc::ast::eval {
 
 void FieldVisitor::Visit(Program &vProg) noexcept {
+    ENTER_SCOPE(x_pTyReg, &vProg.GetTyReg());
     ENTER_SCOPE(x_pstClass, &vProg.GetClassTable());
     for (auto &upClass : vProg.GetClasses())
         if (!upClass->GetBaseName())
@@ -19,6 +21,7 @@ void FieldVisitor::Visit(ClassDef &vClass) noexcept {
     if (x_pstVf)
         vClass.GetVfTable().SetParent(*x_pstVf);
     ENTER_SCOPE(x_pstVf, &vClass.GetVfTable());
+    ENTER_SCOPE(x_pClass, &vClass);
     for (auto &upField : vClass.GetFields())
         upField->AcceptVisitor(*this);
     for (auto &pDerived : vClass.GetDeriveds())
@@ -26,8 +29,10 @@ void FieldVisitor::Visit(ClassDef &vClass) noexcept {
 }
 
 void FieldVisitor::Visit(FnDef &vFn) noexcept {
+    assert(x_pClass);
     vFn.GetTypeName()->AcceptVisitor(*this);
-    vFn.SetType(x_ty);
+    vFn.SetType(*x_pty);
+    vFn.SetClass(*x_pClass);
     ENTER_SCOPE(x_pstVar, &vFn.GetVarTable());
     ENTER_SCOPE(x_bPar, true);
     for (auto &upPar : vFn.GetPars())
@@ -77,8 +82,10 @@ void FieldVisitor::Visit(FnDef &vFn) noexcept {
 }
 
 void FieldVisitor::Visit(VarDef &vVar) noexcept {
+    assert(x_pClass);
     vVar.GetTypeName()->AcceptVisitor(*this);
-    vVar.SetType(x_ty);
+    vVar.SetType(*x_pty);
+    vVar.SetClass(*x_pClass);
     VarDef *pPrevious = nullptr;
     auto &sName = vVar.GetName();
     if (x_bPar) {
@@ -100,32 +107,37 @@ void FieldVisitor::Visit(VarDef &vVar) noexcept {
 }
 
 void FieldVisitor::Visit(TypeName &vTypeName) noexcept {
+    if (vTypeName.GetDimension() > kDimMax) {
+        Y_RjDimTooLarge(vTypeName.GetLocation());
+        x_pty = &x_pTyReg->tyVoid;
+        return;
+    }
     switch (vTypeName.GetId()) {
     case TypeId::kVoid:
         if (vTypeName.GetDimension()) {
-            Y_RjIllegalType(vTypeName.GetLocation(), {VoidType::vInstance, vTypeName.GetDimension()});
-            x_ty = Type::tyVoid;
+            Y_RjVoidArray(vTypeName.GetLocation());
+            x_pty = &x_pTyReg->tyVoid;
             return;
         }
-        x_ty = Type::tyVoid;
+        x_pty = &x_pTyReg->tyVoid;
         break;
     case TypeId::kInt:
-        x_ty = {IntType::vInstance, vTypeName.GetDimension()};
+        x_pty = &x_pTyReg->Get(IntType::vInstance, vTypeName.GetDimension());
         break;
     case TypeId::kBool:
-        x_ty = {BoolType::vInstance, vTypeName.GetDimension()};
+        x_pty = &x_pTyReg->Get(BoolType::vInstance, vTypeName.GetDimension());
         break;
     case TypeId::kString:
-        x_ty = {StringType::vInstance, vTypeName.GetDimension()};
+        x_pty = &x_pTyReg->Get(StringType::vInstance, vTypeName.GetDimension());
         break;
     case TypeId::kClass: {
         auto pClass = x_pstClass->Lookup(vTypeName.GetName());
         if (!pClass) {
             Y_RjNotFound(vTypeName.GetLocation(), "class", vTypeName.GetName());
-            x_ty = Type::tyVoid;
+            x_pty = &x_pTyReg->tyVoid;
             break;
         }
-        x_ty = {*pClass, vTypeName.GetDimension()};
+        x_pty = &x_pTyReg->Get(*pClass, vTypeName.GetDimension());
         break;
     }
     }

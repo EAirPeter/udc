@@ -15,6 +15,7 @@ public:
     virtual void Visit(ClassDef &vClass) noexcept override;
 
 private:
+    TypeRegistry *x_pTyReg = nullptr;
     ClassTable *x_pstClass = nullptr;
 };
 

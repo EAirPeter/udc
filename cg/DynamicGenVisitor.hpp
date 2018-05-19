@@ -1,16 +1,28 @@
-#ifndef UDC_AST_EVAL_TYPE_VISITOR_HPP_
-#define UDC_AST_EVLA_TYPE_VISITOR_HPP_
+#ifndef UDC_CG_DYNAMIC_GEN_VISITOR_HPP_
+#define UDC_CG_DYNAMIC_GEN_VISITOR_HPP_
 
-#include "Fwd.hpp"
-#include "VisitorBase.hpp"
+#include "../ast/Fwd.hpp"
+#include "../ast/eval/VisitorBase.hpp"
 
-namespace udc::ast::eval {
+namespace llvm {
+class Module;
+}
 
-class TypeVisitor : public VisitorBase {
+namespace udc {
+class Driver;
+}
+
+namespace udc::cg {
+
+using namespace udc::ast;
+using namespace udc::ast::eval;
+
+class DynamicGenVisitor : public VisitorBase {
 public:
-    using VisitorBase::VisitorBase;
-    virtual inline ~TypeVisitor() = default;
+    DynamicGenVisitor(Driver &drv) noexcept;
+    virtual inline ~DynamicGenVisitor() = default;
 
+public:
     virtual void Visit(Program &vProg) noexcept override;
 
     virtual void Visit(ClassDef &vClass) noexcept override;
@@ -46,18 +58,9 @@ public:
     virtual void Visit(NullLit &expr) noexcept override;
     virtual void Visit(StrLit &expr) noexcept override;
 
-    virtual void Visit(TypeName &vTypeName) noexcept override;
-
 private:
-    TypeRegistry *x_pTyReg = nullptr;
-    ClassTable *x_pstClass = nullptr;
-    FnTable *x_pstFn = nullptr;
-    VarTable *x_pstVar = nullptr;
-    VfTable *x_pstVf = nullptr;
+    llvm::Module *x_plvMod = nullptr;
     ClassDef *x_pClass = nullptr;
-    FnDef *x_pFn = nullptr;
-    NodeBase *x_pLoop = nullptr;
-    const Type *x_pty = nullptr;
 };
 
 }

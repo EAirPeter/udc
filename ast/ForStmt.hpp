@@ -10,7 +10,8 @@ namespace udc::ast {
 class ForStmt : public NodeBase {
 public:
     ForStmt(
-        const Location &vLocation,
+        Driver &drv,
+        const Location &loc,
         std::unique_ptr<ExprBase> &&upInit,
         std::unique_ptr<ExprBase> &&upCond,
         std::unique_ptr<ExprBase> &&upIncr,

@@ -3,12 +3,13 @@
 namespace udc::ast {
 
 BinaryExpr::BinaryExpr(
-    const Location &vLocation,
+    Driver &drv,
+    const Location &loc,
     BinOp vOp,
     std::unique_ptr<ExprBase> &&upLhs,
     std::unique_ptr<ExprBase> &&upRhs
 ) noexcept :
-    ExprBase(vLocation), x_vOp(vOp), x_upLhs(std::move(upLhs)), x_upRhs(std::move(upRhs))
+    ExprBase(drv, loc), x_vOp(vOp), x_upLhs(std::move(upLhs)), x_upRhs(std::move(upRhs))
 {}
 
 BinaryExpr::~BinaryExpr() {}

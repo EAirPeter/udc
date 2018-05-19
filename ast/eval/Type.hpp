@@ -65,19 +65,12 @@ using StringType = _impl_BuiltinType::BuiltinType<_impl_BuiltinType::BuiltinType
 
 class Type {
 public:
-    const static Type tyNull;
-    const static Type tyVoid;
-    const static Type tyInt;
-    const static Type tyBool;
-    const static Type tyString;
-
-public:
-    inline Type(const INonArrayType &tyElem = VoidType::vInstance, std::uint32_t cDimension = 0) noexcept :
-        x_tyElem(tyElem), x_cDimension(cDimension)
+    inline Type(const INonArrayType &vElem, std::uint32_t cDimension) noexcept :
+        x_vElem(vElem), x_cDimension(cDimension)
     {}
     
     inline const INonArrayType &GetElemType() const noexcept {
-        return x_tyElem;
+        return x_vElem;
     }
 
     constexpr std::uint32_t GetDimension() const noexcept {
@@ -88,30 +81,32 @@ public:
         return x_cDimension;
     }
 
-    constexpr bool Accepts(const Type &vt) const noexcept {
+    constexpr bool Accepts(const Type &ty) const noexcept {
         return IsArray() ?
-            vt.GetElemType() == NullType::vInstance || *this == vt :
-            !vt.IsArray() && GetElemType().Accepts(vt.GetElemType());
+            ty.GetElemType() == NullType::vInstance || *this == ty :
+            !ty.IsArray() && GetElemType().Accepts(ty.GetElemType());
     }
 
     constexpr bool operator ==(const Type &ty) const noexcept {
-        return GetElemType() == ty.GetElemType() && GetDimension() == ty.GetDimension();
+        return this == &ty;
     }
     
     constexpr bool operator !=(const Type &ty) const noexcept {
-        return !(*this == ty);
+        return this != &ty;
     }
 
-    constexpr llvm::Type *GetLlvmType() const noexcept {
-        return x_pLlvmType;
+    constexpr llvm::Type *GetLvType() const noexcept {
+        return x_plvType;
     }
 
-    void MakeLlvmType(cg::CodeGenManager &cgm) noexcept;
+    constexpr void SetLvType(llvm::Type *plvType) const noexcept {
+        x_plvType = plvType;
+    }
 
 private:
-    std::reference_wrapper<const INonArrayType> x_tyElem;
+    const INonArrayType &x_vElem;
     std::uint32_t x_cDimension;
-    llvm::Type *x_pLlvmType;
+    mutable llvm::Type *x_plvType;
 };
 
 inline std::ostream &operator <<(std::ostream &os, const Type &ty) {

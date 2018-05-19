@@ -9,7 +9,7 @@ namespace udc::ast {
 
 class ExprStmt : public NodeBase {
 public:
-    ExprStmt(const Location &vLocation, std::unique_ptr<ExprBase> &&upExpr) noexcept;
+    ExprStmt(Driver &drv, const Location &loc, std::unique_ptr<ExprBase> &&upExpr) noexcept;
     virtual ~ExprStmt();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;

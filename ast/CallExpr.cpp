@@ -4,12 +4,13 @@
 namespace udc::ast {
 
 CallExpr::CallExpr(
-    const Location &vLocation,
+    Driver &drv,
+    const Location &loc,
     std::unique_ptr<ExprBase> &&upExpr,
     std::string &&sName,
     std::vector<std::unique_ptr<ExprBase>> &&vecArgs
 ) noexcept :
-    ExprBase(vLocation),
+    ExprBase(drv, loc),
     x_upExpr(std::move(upExpr)),
     x_sName(std::move(sName)),
     x_vecArgs(std::move(vecArgs))

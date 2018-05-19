@@ -6,13 +6,12 @@
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
 
+#include "Common.hpp"
 #include "Driver.hpp"
+#include "Print.hpp"
 #include "Scanner.hpp"
 
 #include <string>
-
-#define CONCAT_(a_, b_) a_ ## b_
-#define CONCAT(a_, b_) a_ ## b_
 
 #define MkComment() (x_bPrint ? [] (const Location &l, std::string s) { \
     while (!s.empty() && (s.back() == '\r' || s.back() == '\n')) \
@@ -27,8 +26,8 @@
 
 #define MkKeyword(type_) (x_bPrint ? [] (const Location &l, const std::string &s) { \
     std::cout << l << ": Keyword[" << s << "]" << std::endl; \
-    return ::udc::Parser::CONCAT(make_Kw, type_)(l); \
-}(x_vLocation, YYText()) : ::udc::Parser::CONCAT(make_Kw, type_)(x_vLocation))
+    return ::udc::Parser::CAT(make_Kw, type_)(l); \
+}(x_vLocation, YYText()) : ::udc::Parser::CAT(make_Kw, type_)(x_vLocation))
 
 #define MkIdentifier(val_) (x_bPrint ? [] (const Location &l, const std::string &s) { \
     std::cout << l << ": Identifier[" << s << "]" << std::endl; \
@@ -52,15 +51,15 @@
 
 #define MkOperator(type_) (x_bPrint ? [] (const Location &l, const std::string &s) { \
     std::cout << l << ": Operator[" << s << "]" << std::endl; \
-    return ::udc::Parser::CONCAT(make_Op, type_)(l); \
-}(x_vLocation, YYText()) : ::udc::Parser::CONCAT(make_Op, type_)(x_vLocation))
+    return ::udc::Parser::CAT(make_Op, type_)(l); \
+}(x_vLocation, YYText()) : ::udc::Parser::CAT(make_Op, type_)(x_vLocation))
 
 #define MkPunctuation(type_) (x_bPrint ? [] (const Location &l, const std::string &s) { \
     std::cout << l << ": Punctuation[" << s << "]" << std::endl; \
-    return ::udc::Parser::CONCAT(make_Pu, type_)(l); \
-}(x_vLocation, YYText()) : ::udc::Parser::CONCAT(make_Pu, type_)(x_vLocation))
+    return ::udc::Parser::CAT(make_Pu, type_)(l); \
+}(x_vLocation, YYText()) : ::udc::Parser::CAT(make_Pu, type_)(x_vLocation))
 
-#define Complain(...) (x_vDriver.PrintError(x_vLocation, __VA_ARGS__))
+#define Complain(...) (::udc::PrintError(x_vLocation, __VA_ARGS__))
 
 #ifdef YY_DECL
 #undef YY_DECL

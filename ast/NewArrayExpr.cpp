@@ -5,10 +5,11 @@
 namespace udc::ast {
 
 NewArrayExpr::NewArrayExpr(
-    const Location &vLocation,
+    Driver &drv,
+    const Location &loc,
     std::unique_ptr<TypeName> &&upType,
     std::unique_ptr<ExprBase> &&upExpr
-) noexcept : ExprBase(vLocation), x_upType(std::move(upType)), x_upExpr(std::move(upExpr))
+) noexcept : ExprBase(drv, loc), x_upType(std::move(upType)), x_upExpr(std::move(upExpr))
 {}
 
 NewArrayExpr::~NewArrayExpr() {}

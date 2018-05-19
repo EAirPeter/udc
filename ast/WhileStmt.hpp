@@ -10,7 +10,8 @@ namespace udc::ast {
 class WhileStmt : public NodeBase {
 public:
     WhileStmt(
-        const Location &vLocation,
+        Driver &drv,
+        const Location &loc,
         std::unique_ptr<ExprBase> &&upCond,
         std::unique_ptr<NodeBase> &&upBody
     ) noexcept;

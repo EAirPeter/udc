@@ -3,8 +3,8 @@
 
 namespace udc::ast {
 
-VarDef::VarDef(const Location &vLocation, std::unique_ptr<TypeName> &&upType, std::string &&sName) noexcept :
-    NodeBase(vLocation), x_upType(std::move(upType)), x_sName(std::move(sName)), x_idx(~std::size_t {})
+VarDef::VarDef(Driver &drv, const Location &loc, std::unique_ptr<TypeName> &&upType, std::string &&sName) noexcept :
+    NodeBase(drv, loc), x_upType(std::move(upType)), x_sName(std::move(sName))
 {}
 
 VarDef::~VarDef() {}

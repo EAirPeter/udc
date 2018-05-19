@@ -1,16 +1,52 @@
 #include <llvm/IR/Module.h>
+#include <llvm/Support/TargetRegistry.h>
+#include <llvm/Target/TargetMachine.h>
 
 #include "Driver.hpp"
 #include "ast/eval/ClassNameVisitor.hpp"
 #include "ast/eval/InheritVisitor.hpp"
 #include "ast/eval/FieldVisitor.hpp"
 #include "ast/eval/TypeVisitor.hpp"
-#include "cg/CodeGenManager.hpp"
 #include "cg/StaticGenVisitor.hpp"
 
 namespace udc {
 
-Driver::Driver() : x_vScanner(*this, false), x_vParser(*this, x_vScanner) {}
+inline std::string Driver::X_InitTriple() {
+    return llvm::sys::getDefaultTargetTriple();
+}
+
+inline const llvm::Target *Driver::X_InitTarget() {
+    std::string sError;
+    auto pTarget = llvm::TargetRegistry::lookupTarget(sTriple, sError);
+    if (!pTarget)
+        throw std::runtime_error(sError);
+    return pTarget;
+}
+
+inline llvm::TargetMachine *Driver::X_InitTargetMachine() {
+    return plvTarget->createTargetMachine(sTriple, {}, {}, {}, {});
+}
+
+inline llvm::DataLayout Driver::X_InitDataLayout() {
+    return plvTargetMachine->createDataLayout();
+}
+
+Driver::Driver() :
+    sTriple(X_InitTriple()),
+    plvTarget(X_InitTarget()),
+    plvTargetMachine(X_InitTargetMachine()), lvDataLayout(X_InitDataLayout()),
+    tyVoid(llvm::Type::getVoidTy(lvCtx)),
+    tyI1(llvm::Type::getInt1Ty(lvCtx)),
+    tyI8(llvm::Type::getInt8Ty(lvCtx)),
+    tyI32(llvm::Type::getInt32Ty(lvCtx)),
+    tySize(lvDataLayout.getIntPtrType(lvCtx)),
+    tyI1Ptr(tyI1->getPointerTo()),
+    tyI8Ptr(tyI8->getPointerTo()),
+    tyI32Ptr(tyI32->getPointerTo()),
+    tyI8PtrPtr(tyI8Ptr->getPointerTo()),
+    x_vScanner(*this, false), x_vParser(*this, x_vScanner) {}
+
+Driver::~Driver() {}
 
 int Driver::Parse() {
     if (x_vParser.parse())
@@ -37,15 +73,13 @@ int Driver::Parse() {
     x_upProg->AcceptVisitor(visType);
     if (visType.IsRejected())
         return 5;
-
-    cg::CodeGenManager cgm(*this);
     
-    cg::StaticGenVisitor visStaticGen(cgm);
+    cg::StaticGenVisitor visStaticGen(*this);
     x_upProg->AcceptVisitor(visStaticGen);
     if (visStaticGen.IsRejected())
         return 6;
 
-    cgm.mod->print(llvm::errs(), nullptr);
+    x_upProg->GetLvMod()->print(llvm::errs(), nullptr);
 
     return 0;
 }
