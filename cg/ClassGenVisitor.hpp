@@ -1,5 +1,5 @@
-#ifndef UDC_CG_STATIC_GEN_VISITOR_HPP_
-#define UDC_CG_STATIC_GEN_VISITOR_HPP_
+#ifndef UDC_CG_CLASS_GEN_VISITOR_HPP_
+#define UDC_CG_CLASS_GEN_VISITOR_HPP_
 
 #include "../ast/eval/VisitorBase.hpp"
 
@@ -12,10 +12,10 @@ namespace udc::cg {
 using namespace udc::ast;
 using namespace udc::ast::eval;
 
-class StaticGenVisitor : public VisitorBase {
+class ClassGenVisitor : public VisitorBase {
 public:
-    StaticGenVisitor(Driver &drv) noexcept;
-    virtual inline ~StaticGenVisitor() = default;
+    ClassGenVisitor(Driver &drv) noexcept;
+    virtual inline ~ClassGenVisitor() = default;
 
 public:
     virtual void Visit(Program &vProg) noexcept override;

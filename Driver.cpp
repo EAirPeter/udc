@@ -7,7 +7,9 @@
 #include "ast/eval/InheritVisitor.hpp"
 #include "ast/eval/FieldVisitor.hpp"
 #include "ast/eval/TypeVisitor.hpp"
-#include "cg/StaticGenVisitor.hpp"
+#include "cg/ClassGenVisitor.hpp"
+#include "cg/CodeGenVisitor.hpp"
+#include "cg/FnGenVisitor.hpp"
 
 namespace udc {
 
@@ -74,10 +76,20 @@ int Driver::Parse() {
     if (visType.IsRejected())
         return 5;
     
-    cg::StaticGenVisitor visStaticGen(*this);
-    x_upProg->AcceptVisitor(visStaticGen);
-    if (visStaticGen.IsRejected())
+    cg::ClassGenVisitor visClassGen(*this);
+    x_upProg->AcceptVisitor(visClassGen);
+    if (visClassGen.IsRejected())
         return 6;
+
+    cg::FnGenVisitor visFnGen(*this);
+    x_upProg->AcceptVisitor(visFnGen);
+    if (visFnGen.IsRejected())
+        return 7;
+
+    cg::CodeGenVisitor visCodeGen(*this);
+    x_upProg->AcceptVisitor(visCodeGen);
+    if (visCodeGen.IsRejected())
+        return 8;
 
     x_upProg->GetLvMod()->print(llvm::errs(), nullptr);
 

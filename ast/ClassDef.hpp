@@ -113,12 +113,12 @@ public:
         x_plvType = plvType;
     }
 
-    constexpr llvm::GlobalVariable *GetLlvmVTable() const noexcept {
-        return x_pLlvmVTable;
+    constexpr llvm::GlobalVariable *GetLvVTable() const noexcept {
+        return x_plvVTable;
     }
 
-    constexpr void SetLlvmVTable(llvm::GlobalVariable *plvType) noexcept {
-        x_pLlvmVTable = plvType;
+    constexpr void SetLvVTable(llvm::GlobalVariable *plvVTable) noexcept {
+        x_plvVTable = plvVTable;
     }
 
 private:
@@ -138,7 +138,7 @@ private:
     eval::VfTable x_stVf;
     std::size_t x_idx;
     llvm::StructType *x_plvType;
-    llvm::GlobalVariable *x_pLlvmVTable;
+    llvm::GlobalVariable *x_plvVTable;
 };
 
 }

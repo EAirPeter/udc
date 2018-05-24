@@ -6,6 +6,7 @@
 #include "eval/TypeRegistry.hpp"
 
 namespace llvm {
+class GlobalVariable;
 class Module;
 }
 
@@ -50,11 +51,20 @@ public:
         return x_uplvMod.get();
     }
 
+    constexpr llvm::GlobalVariable *GetLvClassIdx() const noexcept {
+        return x_plvClassIdx;
+    }
+
+    constexpr void SetLvClassIdx(llvm::GlobalVariable *plvClassIdx) noexcept {
+        x_plvClassIdx = plvClassIdx;
+    }
+
 private:
     eval::TypeRegistry x_vTyReg;
     std::vector<std::unique_ptr<ClassDef>> x_vecClasses;
     eval::ClassTable x_stClass;
     std::unique_ptr<llvm::Module> x_uplvMod;
+    llvm::GlobalVariable *x_plvClassIdx;
 };
 
 }

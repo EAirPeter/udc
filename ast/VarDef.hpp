@@ -6,6 +6,10 @@
 #include "NodeBase.hpp"
 #include "eval/Type.hpp"
 
+namespace llvm {
+class Value;
+}
+
 namespace udc::ast {
 
 class VarDef : public NodeBase {
@@ -55,12 +59,21 @@ public:
         return ~x_idx;
     }
 
+    constexpr llvm::Value *GetLvPtr() const noexcept {
+        return x_plvPtr;
+    }
+
+    constexpr void SetLvPtr(llvm::Value *plvPtr) noexcept {
+        x_plvPtr = plvPtr;
+    }
+
 private:
     std::unique_ptr<TypeName> x_upType;
     std::string x_sName;
     const eval::Type *x_pty;
     ClassDef *x_pClass = nullptr;
     std::size_t x_idx = ~std::size_t {};
+    llvm::Value *x_plvPtr;
 };
 
 }

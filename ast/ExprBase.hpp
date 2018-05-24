@@ -25,8 +25,17 @@ public:
         return x_bLvalue;
     }
 
+    constexpr bool IsGenPtr() const noexcept {
+        return x_bGenPtr;
+    }
+
+    constexpr void SetGenPtr(bool bGenPtr) noexcept {
+        x_bGenPtr = x_bGenPtr;
+    }
+
 private:
     const eval::Type *x_pty = nullptr;
+    bool x_bGenPtr = false;
     bool x_bLvalue;
 };
 

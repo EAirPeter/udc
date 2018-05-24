@@ -32,6 +32,7 @@ public:
     const llvm::DataLayout lvDataLayout;
 
 public:
+    const unsigned uPtrSize = lvDataLayout.getPointerSize();
     llvm::Type *const tyVoid;
     llvm::IntegerType *const tyI1;
     llvm::IntegerType *const tyI8;

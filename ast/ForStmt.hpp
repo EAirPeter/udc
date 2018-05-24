@@ -41,12 +41,12 @@ public:
         return x_upBody.get();
     }
 
-
 private:
     std::unique_ptr<ExprBase> x_upInit;
     std::unique_ptr<ExprBase> x_upCond;
     std::unique_ptr<ExprBase> x_upIncr;
     std::unique_ptr<NodeBase> x_upBody;
+
 };
 
 }

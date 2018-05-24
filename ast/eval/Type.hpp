@@ -106,7 +106,7 @@ public:
 private:
     const INonArrayType &x_vElem;
     std::uint32_t x_cDimension;
-    mutable llvm::Type *x_plvType;
+    mutable llvm::Type *x_plvType = nullptr;
 };
 
 inline std::ostream &operator <<(std::ostream &os, const Type &ty) {

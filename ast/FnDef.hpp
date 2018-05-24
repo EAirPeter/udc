@@ -5,6 +5,11 @@
 #include "eval/Type.hpp"
 #include "eval/SymbolTable.hpp"
 
+namespace llvm {
+class Argument;
+class Function;
+}
+
 namespace udc::ast {
 
 class FnDef : public NodeBase {
@@ -74,6 +79,14 @@ public:
         x_idx = idx;
     }
 
+    constexpr llvm::Function *GetLvFn() const noexcept {
+        return x_plvFn;
+    }
+
+    constexpr void SetLvFn(llvm::Function *plvFn) noexcept {
+        x_plvFn = plvFn;
+    }
+
 private:
     bool x_bStatic;
     std::unique_ptr<TypeName> x_upType;
@@ -84,6 +97,7 @@ private:
     eval::VarTable x_stVar;
     ClassDef *x_pClass = nullptr;
     std::size_t x_idx = ~std::size_t {};
+    llvm::Function *x_plvFn = nullptr;
 };
 
 }

@@ -1,5 +1,6 @@
 #include <cassert>
 
+#include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Type.h>
 
 #include "TypeRegistry.hpp"
@@ -67,7 +68,9 @@ const Type &TypeRegistry::IncDim(const Type &ty) noexcept {
 }
 
 void TypeRegistry::MakeLvTypes() noexcept {
-    // TODO
+    for (std::size_t i = 1; i <= kDimMax; ++i)
+        for (auto &[_, ty] : x_maps[i])
+            ty.SetLvType(DecDim(ty).GetLvType()->getPointerTo());
 }
 
 }
