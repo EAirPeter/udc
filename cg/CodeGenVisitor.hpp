@@ -1,6 +1,8 @@
 #ifndef UDC_CG_CODE_GEN_VISITOR_HPP_
 #define UDC_CG_CODE_GEN_VISITOR_HPP_
 
+#include <unordered_map>
+
 #include <llvm/IR/IRBuilder.h>
 
 #include "../ast/Fwd.hpp"
@@ -64,14 +66,40 @@ public:
     virtual void Visit(StrLit &expr) noexcept override;
     
 private:
+    llvm::Constant *X_EmitStringLiteral(const char *psz) noexcept;
+
+private:
     llvm::IRBuilder<> x_lvBld {y_drv.lvCtx};
     llvm::Function *x_plvCrtCalloc = nullptr;
+    llvm::Function *x_plvCrtExit = nullptr;
+    llvm::Function *x_plvCrtGetchar = nullptr;
+    llvm::Function *x_plvCrtPrintf = nullptr;
+    llvm::Function *x_plvCrtPuts = nullptr;
+    llvm::Function *x_plvCrtRealloc = nullptr;
+    llvm::Function *x_plvCrtScanf = nullptr;
+    llvm::Function *x_plvCrtStrcmp = nullptr;
+    llvm::Function *x_plvRtlFatal = nullptr;
+    llvm::Function *x_plvRtlAlloc = nullptr;
+    llvm::Function *x_plvRtlReAlloc = nullptr;
+    llvm::Function *x_plvRtlAllocArray = nullptr;
+    llvm::Function *x_plvRtlInstanceOf = nullptr;
+    llvm::Function *x_plvRtlCheckCast = nullptr;
+    llvm::Function *x_plvRtlCheckBound = nullptr;
+    llvm::Function *x_plvRtlReadInteger = nullptr;
+    llvm::Function *x_plvRtlReadLine = nullptr;
+    llvm::Function *x_plvRtlStrCmp = nullptr;
     TypeRegistry *x_pTyReg = nullptr;
     llvm::Module *x_plvMod = nullptr;
+    llvm::Constant *x_plvClassIdx = nullptr;
+    llvm::Constant *x_plvBoolStr = nullptr;
     ClassDef *x_pClass = nullptr;
     llvm::Argument *x_plvThis = nullptr;
     llvm::BasicBlock *x_plvPost = nullptr;
     llvm::Value *x_plvRet = nullptr;
+    std::unordered_map<std::string, llvm::Constant *> x_mapStrLits {};
+    unsigned x_uForStmtCnt = 0;
+    unsigned x_uIfStmtCnt = 0;
+    unsigned x_uWhileStmtCnt = 0;
 };
 
 }

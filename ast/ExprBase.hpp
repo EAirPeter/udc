@@ -30,7 +30,7 @@ public:
     }
 
     constexpr void SetGenPtr(bool bGenPtr) noexcept {
-        x_bGenPtr = x_bGenPtr;
+        x_bGenPtr = bGenPtr;
     }
 
 private:

@@ -14,8 +14,7 @@ void ClassNameVisitor::Visit(Program &vProg) noexcept {
 
 void ClassNameVisitor::Visit(ClassDef &vClass) noexcept {
     auto &sName = vClass.GetName();
-    auto pPrevious = x_pstClass->Add(sName, &vClass);
-    if (pPrevious) {
+    if (auto pPrevious = x_pstClass->Add(sName, &vClass)) {
         Y_RjRedefinition(vClass.GetLocation(), "class", sName, pPrevious->GetLocation());
         return;
     }

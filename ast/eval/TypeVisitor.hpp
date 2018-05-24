@@ -58,6 +58,7 @@ private:
     FnDef *x_pFn = nullptr;
     NodeBase *x_pLoop = nullptr;
     const Type *x_pty = nullptr;
+    FnDef *x_pMain = nullptr;
 };
 
 }

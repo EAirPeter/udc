@@ -11,6 +11,7 @@
 #include "ast/Fwd.hpp"
 
 namespace llvm{
+class ConstantPointerNull;
 class Target;
 class TargetMachine;
 }
@@ -32,7 +33,7 @@ public:
     const llvm::DataLayout lvDataLayout;
 
 public:
-    const unsigned uPtrSize = lvDataLayout.getPointerSize();
+    const unsigned uPtrSize;
     llvm::Type *const tyVoid;
     llvm::IntegerType *const tyI1;
     llvm::IntegerType *const tyI8;
@@ -48,6 +49,7 @@ public:
         llvm::PointerType *const tyI8PtrPtr;
         llvm::PointerType *const tyVoidPtrPtr;
     };
+    llvm::ConstantPointerNull *const ptrVoidNull;
 
 public:
     Driver();

@@ -29,6 +29,10 @@ public:
         return x_upExpr.get();
     }
 
+    inline void RemoveExpr() noexcept {
+        x_upExpr.reset();
+    }
+
     constexpr const std::string &GetName() const noexcept {
         return x_sName;
     }
@@ -45,11 +49,20 @@ public:
         x_pFn = &vFn;
     }
 
+    constexpr bool IsArrayLength() const noexcept {
+        return x_bArrayLength;
+    }
+
+    constexpr void SetArrayLength(bool bArrayLength) noexcept {
+        x_bArrayLength = bArrayLength;
+    }
+
 private:
     std::unique_ptr<ExprBase> x_upExpr;
     std::string x_sName;
     std::vector<std::unique_ptr<ExprBase>> x_vecArgs;
     const FnDef *x_pFn = nullptr;
+    bool x_bArrayLength = false;
 };
 
 }

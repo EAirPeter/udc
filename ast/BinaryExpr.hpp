@@ -49,7 +49,7 @@ public:
     }
 
     inline ExprBase *GetRhs() const noexcept {
-        return x_upLhs.get();
+        return x_upRhs.get();
     }
 
 private:

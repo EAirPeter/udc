@@ -3,6 +3,7 @@
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Type.h>
 
+#include "../../Driver.hpp"
 #include "TypeRegistry.hpp"
 
 namespace udc::ast::eval {
@@ -67,10 +68,21 @@ const Type &TypeRegistry::IncDim(const Type &ty) noexcept {
     ).first->second;
 }
 
-void TypeRegistry::MakeLvTypes() noexcept {
+void TypeRegistry::MakeArrays() noexcept {
+    // make only array types
+    // all non-array types should be prepared by ClassGenVisitor
+    // 
+    // template<class ElemT>
+    // struct Array {
+    //     int len; 
+    //     ElemT data[];
+    // };
     for (std::size_t i = 1; i <= kDimMax; ++i)
-        for (auto &[_, ty] : x_maps[i])
-            ty.SetLvType(DecDim(ty).GetLvType()->getPointerTo());
+        for (auto &[_, ty] : x_maps[i]) {
+            auto lvarray = llvm::ArrayType::get(DecDim(ty).GetLvType(), 0);
+            auto lvty = llvm::StructType::get(x_drv.lvCtx, {x_drv.tyI32, lvarray});
+            ty.SetLvType(lvty->getPointerTo());
+        }
 }
 
 }

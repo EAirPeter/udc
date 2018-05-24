@@ -14,6 +14,9 @@ ClassGenVisitor::ClassGenVisitor(Driver &drv) noexcept : VisitorBase(drv) {}
 
 void ClassGenVisitor::Visit(Program &vProg) noexcept {
     vProg.GetUplvMod() = std::make_unique<llvm::Module>("poi?", y_drv.lvCtx);
+    auto plvMod = vProg.GetLvMod();
+    plvMod->setDataLayout(y_drv.lvDataLayout);
+    plvMod->setTargetTriple(y_drv.sTriple);
     auto &vTyReg = vProg.GetTyReg();
     vTyReg.tyNull.SetLvType(y_drv.tyI8Ptr);
     vTyReg.tyVoid.SetLvType(y_drv.tyVoid);
@@ -29,15 +32,15 @@ void ClassGenVisitor::Visit(Program &vProg) noexcept {
         gv->setAlignment(y_drv.lvDataLayout.getPrefTypeAlignment(ty));
         gv->setConstant(true);
         gv->setDSOLocal(true);
-        gv->setLinkage(llvm::GlobalValue::LinkageTypes::PrivateLinkage);
-        auto i8p = llvm::ConstantExpr::getBitCast(gv, y_drv.tyI8Ptr);
+        gv->setLinkage(llvm::GlobalValue::PrivateLinkage);
+        auto i8p = llvm::ConstantExpr::getPointerCast(gv, y_drv.tyI8Ptr);
         llvm::SmallVector<llvm::Constant *, 64> vec;
         for (auto &upClass : vProg.GetClasses()) {
             auto pBase = upClass->GetBase();
             auto idxBase = pBase ? pBase->GetIdx() : ~std::size_t {};
             if (~idxBase) {
                 auto ciIdx = llvm::ConstantInt::get(y_drv.tySize, idxBase * y_drv.uPtrSize);
-                vec.emplace_back(llvm::ConstantExpr::getGetElementPtr(y_drv.tyI8, i8p, {ciIdx}));
+                vec.emplace_back(llvm::ConstantExpr::getGetElementPtr(y_drv.tyI8, i8p, ciIdx));
             }
             else {
                 vec.emplace_back(llvm::ConstantPointerNull::get(y_drv.tyVoidPtr));
@@ -48,7 +51,7 @@ void ClassGenVisitor::Visit(Program &vProg) noexcept {
         gv->setInitializer(llvm::ConstantArray::get(ty, vec));
         vProg.SetLvClassIdx(gv);
     }
-    x_pTyReg->MakeLvTypes();
+    x_pTyReg->MakeArrays();
     for (auto &upClass : vProg.GetClasses())
         if (!upClass->GetBase())
             upClass->AcceptVisitor(*this);

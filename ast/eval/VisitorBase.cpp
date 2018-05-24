@@ -4,6 +4,14 @@
 
 namespace udc::ast::eval {
 
+void VisitorBase::Y_RjLocalShadow(
+    const Location &vLoc, const std::string &sName, const Location &vPrevious
+) noexcept {
+    Y_Reject();
+    PrintError(vLoc, "local variable shadows class name");
+    PrintNote(vPrevious, "previous definition is here");
+}
+
 void VisitorBase::Y_RjDimTooLarge(const Location &vLoc) noexcept {
     Y_Reject();
     PrintError(vLoc, "too many dimensions");

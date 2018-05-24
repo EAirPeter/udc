@@ -86,18 +86,19 @@ void FieldVisitor::Visit(VarDef &vVar) noexcept {
     vVar.GetTypeName()->AcceptVisitor(*this);
     vVar.SetType(*x_pty);
     vVar.SetClass(*x_pClass);
-    VarDef *pPrevious = nullptr;
     auto &sName = vVar.GetName();
     if (x_bPar) {
-        auto pPrevious = x_pstVar->Add(sName, &vVar);
-        if (pPrevious) {
+        if (auto pClass = x_pstClass->Lookup(sName)) {
+            Y_RjLocalShadow(vVar.GetLocation(), sName, pClass->GetLocation());
+            return;
+        }
+        if (auto pPrevious = x_pstVar->Add(sName, &vVar)) {
             Y_RjRedefinition(vVar.GetLocation(), "variable", sName, pPrevious->GetLocation());
             return;
         }
     }
     else {
-        auto pPrevious = x_pstVar->AddNoOverride(sName, &vVar);
-        if (pPrevious) {
+        if (auto pPrevious = x_pstVar->AddNoOverride(sName, &vVar)) {
             Y_RjRedefinition(vVar.GetLocation(), "variable", sName, pPrevious->GetLocation());
             return;
         }

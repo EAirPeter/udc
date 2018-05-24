@@ -33,16 +33,16 @@ void FnGenVisitor::Visit(ClassDef &vClass) noexcept {
         gv->setAlignment(y_drv.lvDataLayout.getPrefTypeAlignment(ty));
         gv->setConstant(true);
         gv->setDSOLocal(true);
-        gv->setLinkage(llvm::GlobalValue::LinkageTypes::PrivateLinkage);
+        gv->setLinkage(llvm::GlobalValue::PrivateLinkage);
         llvm::SmallVector<llvm::Constant *, 64> vec;
         {
             // emit class index
-            auto i8p = llvm::ConstantExpr::getBitCast(x_plvClassIdx, y_drv.tyI8Ptr);
+            auto i8p = llvm::ConstantExpr::getPointerCast(x_plvClassIdx, y_drv.tyI8Ptr);
             auto ciIdx = llvm::ConstantInt::get(y_drv.tySize, vClass.GetIdx() * y_drv.uPtrSize);
-            vec.emplace_back(llvm::ConstantExpr::getGetElementPtr(y_drv.tyI8, i8p, {ciIdx}));
+            vec.emplace_back(llvm::ConstantExpr::getGetElementPtr(y_drv.tyI8, i8p, ciIdx));
         }
         for (auto &pFn : vClass.GetVfTable().GetVec())
-            vec.emplace_back(llvm::ConstantExpr::getBitCast(pFn->GetLvFn(), y_drv.tyVoidPtr));
+            vec.emplace_back(llvm::ConstantExpr::getPointerCast(pFn->GetLvFn(), y_drv.tyVoidPtr));
         gv->setInitializer(llvm::ConstantArray::get(ty, vec));
         vClass.SetLvVTable(gv);
     }
@@ -55,12 +55,12 @@ void FnGenVisitor::Visit(FnDef &vFn) noexcept {
     {
         llvm::SmallVector<llvm::Type *, 64> vec;
         if (!vFn.IsStatic())
-            vec.emplace_back(vFn.GetClass().GetType().GetLvType()->getPointerTo());
+            vec.emplace_back(vFn.GetClass().GetType().GetLvType());
         for (auto &upPar : vFn.GetPars())
             vec.emplace_back(upPar->GetType().GetLvType());
         auto ty = llvm::FunctionType::get(vFn.GetType().GetLvType(), vec, false);
         auto fn = llvm::cast<llvm::Function>(x_plvMod->getOrInsertFunction(
-            std::string {'#'} + x_pClass->GetName() + '.' + vFn.GetName(),
+            std::string {"#Class."} + x_pClass->GetName() + '.' + vFn.GetName(),
             ty
         ));
         fn->setCallingConv(llvm::CallingConv::Fast);

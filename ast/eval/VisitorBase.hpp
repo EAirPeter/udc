@@ -66,6 +66,7 @@ public:
     virtual inline void Visit(TypeName &) noexcept {}
 
 protected:
+    void Y_RjLocalShadow(const Location &vLoc, const std::string &sName, const Location &vPrevious) noexcept;
     void Y_RjDimTooLarge(const Location &vLoc) noexcept;
     void Y_RjNonStaticVar(const Location &vLoc, const std::string &sName) noexcept;
     void Y_RjNonStaticCall(const Location &vLoc, const std::string &sName) noexcept;

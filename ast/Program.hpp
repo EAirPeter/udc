@@ -6,7 +6,7 @@
 #include "eval/TypeRegistry.hpp"
 
 namespace llvm {
-class GlobalVariable;
+class Constant;
 class Module;
 }
 
@@ -35,6 +35,14 @@ public:
         return x_vecClasses;
     }
 
+    constexpr FnDef *GetMain() const noexcept {
+        return x_pMain;
+    }
+
+    constexpr void SetMain(FnDef *pMain) noexcept {
+        x_pMain = pMain;
+    }
+
     constexpr eval::ClassTable &GetClassTable() noexcept {
         return x_stClass;
     }
@@ -51,20 +59,21 @@ public:
         return x_uplvMod.get();
     }
 
-    constexpr llvm::GlobalVariable *GetLvClassIdx() const noexcept {
+    constexpr llvm::Constant *GetLvClassIdx() const noexcept {
         return x_plvClassIdx;
     }
 
-    constexpr void SetLvClassIdx(llvm::GlobalVariable *plvClassIdx) noexcept {
+    constexpr void SetLvClassIdx(llvm::Constant *plvClassIdx) noexcept {
         x_plvClassIdx = plvClassIdx;
     }
 
 private:
     eval::TypeRegistry x_vTyReg;
     std::vector<std::unique_ptr<ClassDef>> x_vecClasses;
+    FnDef *x_pMain;
     eval::ClassTable x_stClass;
     std::unique_ptr<llvm::Module> x_uplvMod;
-    llvm::GlobalVariable *x_plvClassIdx;
+    llvm::Constant *x_plvClassIdx;
 };
 
 }

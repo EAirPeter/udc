@@ -4,7 +4,6 @@
 
 #include "Driver.hpp"
 
-
 int main() {
     llvm::InitializeAllTargetInfos();
     llvm::InitializeAllTargets();
@@ -15,7 +14,7 @@ int main() {
         udc::Driver vDriver;
         //vDriver.PrintSymbols();
         auto res = vDriver.Parse();
-        std::cout << "Result: " << res << std::endl;
+        std::cerr << "Result: " << res << std::endl;
     }
     catch (std::exception &e) {
         std::cerr << e.what() << std::endl;

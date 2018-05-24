@@ -11,6 +11,7 @@ void TypeVisitor::Visit(Program &vProg) noexcept {
     ENTER_SCOPE(x_pstClass, &vProg.GetClassTable());
     for (auto &upClass : vProg.GetClasses())
         upClass->AcceptVisitor(*this);
+    vProg.SetMain(x_pMain);
 }
 
 void TypeVisitor::Visit(ClassDef &vClass) noexcept {
@@ -27,13 +28,24 @@ void TypeVisitor::Visit(FnDef &vFn) noexcept {
     vFn.GetVarTable().SetParent(*x_pstVar);
     ENTER_SCOPE(x_pstVar, &vFn.GetVarTable());
     ENTER_SCOPE(x_pFn, &vFn);
+    if (
+        x_pClass->GetName() == "Main" && vFn.IsStatic() &&
+        vFn.GetType() == x_pTyReg->tyVoid &&
+        vFn.GetName() == "main" && vFn.GetPars().empty()
+    ) {
+        assert(!x_pMain);
+        x_pMain = &vFn;
+    }
     vFn.GetBody()->AcceptVisitor(*this);
 }
 
 void TypeVisitor::Visit(VarDef &vVar) noexcept {
     auto &sName = vVar.GetName();
-    auto pPrevious = x_pstVar->Add(sName, &vVar);
-    if (pPrevious) {
+    if (auto pClass = x_pstClass->Lookup(sName)) {
+        Y_RjLocalShadow(vVar.GetLocation(), sName, pClass->GetLocation());
+        return;
+    }
+    if (auto pPrevious = x_pstVar->Add(sName, &vVar)) {
         Y_RjRedefinition(vVar.GetLocation(), "variable", sName, pPrevious->GetLocation());
         return;
     }
@@ -215,6 +227,7 @@ void TypeVisitor::Visit(CallExpr &expr) noexcept {
             if (pClass) {
                 pstFn = &pClass->GetFnTable();
                 pstVf = &pClass->GetVfTable();
+                expr.RemoveExpr();
                 bStatic = true;
             }
         }
@@ -248,6 +261,7 @@ void TypeVisitor::Visit(CallExpr &expr) noexcept {
             Y_RjArgNumber(expr.GetLocation(), "length", 0, expr.GetArgs().size());
             return;
         }
+        expr.SetArrayLength(true);
     }
     else {
         auto pFn = pstFn->Lookup(expr.GetName());

@@ -31,7 +31,7 @@ public:
 private:
     llvm::Module *x_plvMod = nullptr;
     ClassDef *x_pClass = nullptr;
-    llvm::GlobalVariable *x_plvClassIdx = nullptr;
+    llvm::Constant *x_plvClassIdx = nullptr;
 };
 
 }

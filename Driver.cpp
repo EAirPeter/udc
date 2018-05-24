@@ -36,7 +36,9 @@ inline llvm::DataLayout Driver::X_InitDataLayout() {
 Driver::Driver() :
     sTriple(X_InitTriple()),
     plvTarget(X_InitTarget()),
-    plvTargetMachine(X_InitTargetMachine()), lvDataLayout(X_InitDataLayout()),
+    plvTargetMachine(X_InitTargetMachine()),
+    lvDataLayout(X_InitDataLayout()),
+    uPtrSize(lvDataLayout.getPointerSize()),
     tyVoid(llvm::Type::getVoidTy(lvCtx)),
     tyI1(llvm::Type::getInt1Ty(lvCtx)),
     tyI8(llvm::Type::getInt8Ty(lvCtx)),
@@ -46,15 +48,16 @@ Driver::Driver() :
     tyI8Ptr(tyI8->getPointerTo()),
     tyI32Ptr(tyI32->getPointerTo()),
     tyI8PtrPtr(tyI8Ptr->getPointerTo()),
-    x_vScanner(*this, false), x_vParser(*this, x_vScanner) {}
+    ptrVoidNull(llvm::ConstantPointerNull::get(tyVoidPtr)),
+    x_vScanner(*this, false),
+    x_vParser(*this, x_vScanner)
+{}
 
 Driver::~Driver() {}
 
 int Driver::Parse() {
     if (x_vParser.parse())
         return 1;
-    if (x_upProg)
-        std::cout << *x_upProg << std::endl;
     
     ast::eval::ClassNameVisitor visClassName(*this);
     x_upProg->AcceptVisitor(visClassName);
@@ -68,7 +71,7 @@ int Driver::Parse() {
 
     ast::eval::FieldVisitor visField(*this);
     x_upProg->AcceptVisitor(visField);
-    if (visInherit.IsRejected())
+    if (visField.IsRejected())
         return 4;
 
     ast::eval::TypeVisitor visType(*this);
@@ -91,7 +94,7 @@ int Driver::Parse() {
     if (visCodeGen.IsRejected())
         return 8;
 
-    x_upProg->GetLvMod()->print(llvm::errs(), nullptr);
+    x_upProg->GetLvMod()->print(llvm::outs(), nullptr);
 
     return 0;
 }

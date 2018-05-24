@@ -19,7 +19,7 @@ public:
     const Type &Get(const INonArrayType &vType, std::size_t cDim = 0) noexcept;
     const Type &DecDim(const Type &ty) const noexcept;
     const Type &IncDim(const Type &ty) noexcept;
-    void MakeLvTypes() noexcept;
+    void MakeArrays() noexcept;
 
 private:
     Driver &x_drv;
