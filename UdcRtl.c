@@ -8,6 +8,9 @@
 
 #ifndef _MSC_VER
 #define __declspec(...)
+#ifndef __STDC_LIB_EXT1__
+#define scanf_s scanf
+#endif
 #endif
 
 void UdcRtlPrintf(const char *fmt, ...) {
@@ -76,15 +79,15 @@ int UdcRtlReadInteger() {
 char *UdcRtlReadLine() {
     size_t len = 0;
     size_t cap = 256;
-    char *buf = UdcRtlReAlloc(0, cap);
-    int ch = getchar();
+    char *buf = (char *) UdcRtlReAlloc(0, cap);
+    int ch = fgetc(stdin);
     while (ch != EOF && ch != '\0' && ch != '\n') {
         if (len + 1 >= cap) {
             cap <<= 1;
-            buf = UdcRtlReAlloc(buf, cap);
+            buf = (char *) UdcRtlReAlloc(buf, cap);
         }
         buf[len++] = (char) ch;
-        ch = getchar();
+        ch = fgetc(stdin);
     }
     buf[len] = '\0';
     return buf;
