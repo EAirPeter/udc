@@ -70,15 +70,7 @@ private:
 
 private:
     llvm::IRBuilder<> x_lvBld {y_drv.lvCtx};
-    llvm::Function *x_plvCrtCalloc = nullptr;
-    llvm::Function *x_plvCrtExit = nullptr;
-    llvm::Function *x_plvCrtGetchar = nullptr;
-    llvm::Function *x_plvCrtPrintf = nullptr;
-    llvm::Function *x_plvCrtPuts = nullptr;
-    llvm::Function *x_plvCrtRealloc = nullptr;
-    llvm::Function *x_plvCrtScanf = nullptr;
-    llvm::Function *x_plvCrtStrcmp = nullptr;
-    llvm::Function *x_plvRtlFatal = nullptr;
+    llvm::Function *x_plvRtlPrintf = nullptr;
     llvm::Function *x_plvRtlAlloc = nullptr;
     llvm::Function *x_plvRtlReAlloc = nullptr;
     llvm::Function *x_plvRtlAllocArray = nullptr;

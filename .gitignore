@@ -6,6 +6,7 @@
 !bison/
 !bison/*
 !cg/
+!*.c
 !*.cpp
 !*.hpp
 !*.l
