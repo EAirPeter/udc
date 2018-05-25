@@ -23,7 +23,7 @@ enum class BinOp {
     kMod,
 };
 
-class BinaryExpr : public ExprBase {
+class BinaryExpr final : public ExprBase {
 public:
     BinaryExpr(
         const location &loc,

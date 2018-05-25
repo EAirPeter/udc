@@ -7,7 +7,7 @@
 
 namespace udc::ast {
 
-class ForStmt : public NodeBase {
+class ForStmt final : public NodeBase {
 public:
     ForStmt(
         const location &loc,

@@ -7,7 +7,7 @@
 
 namespace udc::ast {
 
-class CastExpr : public ExprBase {
+class CastExpr final : public ExprBase {
 public:
     CastExpr(
         const location &loc,

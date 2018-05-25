@@ -7,7 +7,7 @@
 
 namespace udc::ast {
 
-class IfStmt : public NodeBase {
+class IfStmt final : public NodeBase {
 public:
     IfStmt(
         const location &loc,

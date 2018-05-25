@@ -13,7 +13,7 @@ class CGContext;
 
 using namespace udc::ast;
 
-class FnGenVisitor : public eval::VisitorBase {
+class FnGenVisitor final : public eval::VisitorBase {
 public:
     FnGenVisitor(CGContext &ctx) noexcept;
     virtual inline ~FnGenVisitor() = default;

@@ -7,7 +7,7 @@
 
 namespace udc::ast {
 
-class NewArrayExpr : public ExprBase {
+class NewArrayExpr final : public ExprBase {
 public:
     NewArrayExpr(
         const location &loc,

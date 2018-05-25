@@ -5,7 +5,7 @@
 
 namespace udc::ast {
 
-class ReadInteger : public ExprBase {
+class ReadInteger final : public ExprBase {
 public:
     ReadInteger(const location &loc) noexcept;
     virtual ~ReadInteger();

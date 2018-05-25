@@ -7,7 +7,7 @@
 
 namespace udc::ast {
 
-class ArrayAccess : public ExprBase {
+class ArrayAccess final : public ExprBase {
 public:
     ArrayAccess(
         const location &loc,

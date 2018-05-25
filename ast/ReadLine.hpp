@@ -5,7 +5,7 @@
 
 namespace udc::ast {
 
-class ReadLine : public ExprBase {
+class ReadLine final : public ExprBase {
 public:
     ReadLine(const location &loc) noexcept;
     virtual ~ReadLine();

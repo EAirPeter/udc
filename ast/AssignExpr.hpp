@@ -7,7 +7,7 @@
 
 namespace udc::ast {
 
-class AssignExpr : public ExprBase {
+class AssignExpr final : public ExprBase {
 public:
     AssignExpr(
         const location &loc,

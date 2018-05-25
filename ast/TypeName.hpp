@@ -13,7 +13,7 @@ enum class TypeId {
     kClass
 };
 
-class TypeName : public NodeBase {
+class TypeName final : public NodeBase {
 public:
     TypeName(const location &loc, TypeId vId) noexcept;
     TypeName(const location &loc, std::string &&sName) noexcept;

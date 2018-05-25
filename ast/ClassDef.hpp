@@ -16,7 +16,7 @@ class GlobalVariable;
 
 namespace udc::ast {
 
-class ClassDef : public NodeBase, public eval::INonArrayType {
+class ClassDef final : public NodeBase, public eval::INonArrayType {
 public:
     ClassDef(
         const location &loc,

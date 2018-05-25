@@ -12,7 +12,7 @@ class Value;
 
 namespace udc::ast {
 
-class VarDef : public NodeBase {
+class VarDef final : public NodeBase {
 public:
     VarDef(const location &loc, std::unique_ptr<TypeName> &&upType, std::string &&sName) noexcept;
     virtual ~VarDef();

@@ -8,7 +8,7 @@
 
 namespace udc::ast {
 
-class PrintStmt : public NodeBase {
+class PrintStmt final : public NodeBase {
 public:
     PrintStmt(const location &loc, std::vector<std::unique_ptr<ExprBase>> &&vecArgs) noexcept;
     virtual ~PrintStmt();

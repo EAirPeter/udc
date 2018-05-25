@@ -5,7 +5,7 @@
 
 namespace udc::ast {
 
-class StrLit : public ExprBase {
+class StrLit final : public ExprBase {
 public:
     StrLit(const location &loc, std::string &&sVal) noexcept;
     virtual ~StrLit();

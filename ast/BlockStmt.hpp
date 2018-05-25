@@ -9,7 +9,7 @@
 
 namespace udc::ast {
 
-class BlockStmt : public NodeBase {
+class BlockStmt final : public NodeBase {
 public:
     BlockStmt(const location &loc, std::vector<std::unique_ptr<NodeBase>> &&vecItems) noexcept;
     virtual ~BlockStmt();

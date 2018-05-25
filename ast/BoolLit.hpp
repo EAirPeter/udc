@@ -5,7 +5,7 @@
 
 namespace udc::ast {
 
-class BoolLit : public ExprBase {
+class BoolLit final : public ExprBase {
 public:
     BoolLit(const location &loc, bool bVal) noexcept;
     virtual ~BoolLit();

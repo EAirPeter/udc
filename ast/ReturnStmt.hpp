@@ -7,7 +7,7 @@
 
 namespace udc::ast {
 
-class ReturnStmt : public NodeBase {
+class ReturnStmt final : public NodeBase {
 public:
     ReturnStmt(const location &loc, std::unique_ptr<ExprBase> &&upExpr) noexcept;
     virtual ~ReturnStmt();

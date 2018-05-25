@@ -8,7 +8,7 @@
 
 namespace udc::ast {
 
-class CallExpr : public ExprBase {
+class CallExpr final : public ExprBase {
 public:
     CallExpr(
         const location &loc,

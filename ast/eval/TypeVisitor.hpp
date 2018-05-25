@@ -6,7 +6,7 @@
 
 namespace udc::ast::eval {
 
-class TypeVisitor : public VisitorBase {
+class TypeVisitor final : public VisitorBase {
 public:
     using VisitorBase::VisitorBase;
     virtual ~TypeVisitor() = default;

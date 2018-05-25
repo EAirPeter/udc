@@ -5,7 +5,7 @@
 
 namespace udc::ast {
 
-class NewClassExpr : public ExprBase {
+class NewClassExpr final : public ExprBase {
 public:
     NewClassExpr(
         const location &loc,

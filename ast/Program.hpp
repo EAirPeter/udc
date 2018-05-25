@@ -12,7 +12,7 @@ class Module;
 
 namespace udc::ast {
 
-class Program : public NodeBase {
+class Program final : public NodeBase {
 public:
     Program(const location &loc, std::vector<std::unique_ptr<ClassDef>> &&vecClasses) noexcept;
     virtual ~Program();

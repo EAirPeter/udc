@@ -7,7 +7,7 @@
 
 namespace udc::ast {
 
-class VarAccess : public ExprBase {
+class VarAccess final : public ExprBase {
 public:
     VarAccess(
         const location &loc,

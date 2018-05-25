@@ -5,7 +5,7 @@
 
 namespace udc::ast {
 
-class This : public ExprBase {
+class This final : public ExprBase {
 public:
     This(const location &loc) noexcept;
     virtual ~This();

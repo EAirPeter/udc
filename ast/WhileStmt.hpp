@@ -7,7 +7,7 @@
 
 namespace udc::ast {
 
-class WhileStmt : public NodeBase {
+class WhileStmt final : public NodeBase {
 public:
     WhileStmt(
         const location &loc,

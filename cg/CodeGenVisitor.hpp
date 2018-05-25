@@ -20,7 +20,7 @@ class CGContext;
 
 using namespace udc::ast;
 
-class CodeGenVisitor : public eval::VisitorBase {
+class CodeGenVisitor final : public eval::VisitorBase {
 public:
     CodeGenVisitor(CGContext &ctx) noexcept;
     virtual inline ~CodeGenVisitor() = default;

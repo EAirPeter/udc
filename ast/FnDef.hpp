@@ -12,7 +12,7 @@ class Function;
 
 namespace udc::ast {
 
-class FnDef : public NodeBase {
+class FnDef final : public NodeBase {
 public:
     FnDef(
         const location &loc,

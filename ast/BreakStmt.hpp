@@ -5,7 +5,7 @@
 
 namespace udc::ast {
 
-class BreakStmt : public NodeBase {
+class BreakStmt final : public NodeBase {
 public:
     BreakStmt(const location &loc) noexcept;
     virtual ~BreakStmt();

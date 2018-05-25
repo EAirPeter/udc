@@ -6,7 +6,7 @@
 
 namespace udc::ast::eval {
 
-class InheritVisitor : public VisitorBase {
+class InheritVisitor final : public VisitorBase {
 public:
     using VisitorBase::VisitorBase;
     virtual ~InheritVisitor() = default;

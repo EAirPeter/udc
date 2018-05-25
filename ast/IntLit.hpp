@@ -5,7 +5,7 @@
 
 namespace udc::ast {
 
-class IntLit : public ExprBase {
+class IntLit final : public ExprBase {
 public:
     IntLit(const location &loc, int nVal) noexcept;
     virtual ~IntLit();

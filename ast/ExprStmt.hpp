@@ -7,7 +7,7 @@
 
 namespace udc::ast {
 
-class ExprStmt : public NodeBase {
+class ExprStmt final : public NodeBase {
 public:
     ExprStmt(const location &loc, std::unique_ptr<ExprBase> &&upExpr) noexcept;
     virtual ~ExprStmt();

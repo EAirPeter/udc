@@ -7,7 +7,7 @@
 
 namespace udc::ast {
 
-class InstanceOf : public ExprBase {
+class InstanceOf final : public ExprBase {
 public:
     InstanceOf(const location &loc, std::unique_ptr<ExprBase> &&upExpr, std::string &&sName) noexcept;
     virtual ~InstanceOf();

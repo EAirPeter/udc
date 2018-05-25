@@ -12,7 +12,7 @@ enum class UnaOp {
     kNot,
 };
 
-class UnaryExpr : public ExprBase {
+class UnaryExpr final : public ExprBase {
 public:
     UnaryExpr(
         const location &loc,

@@ -5,7 +5,7 @@
 
 namespace udc::ast {
 
-class NullLit : public ExprBase {
+class NullLit final : public ExprBase {
 public:
     NullLit(const location &loc) noexcept;
     virtual ~NullLit();
