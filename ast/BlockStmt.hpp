@@ -11,7 +11,7 @@ namespace udc::ast {
 
 class BlockStmt : public NodeBase {
 public:
-    BlockStmt(Driver &drv, const Location &loc, std::vector<std::unique_ptr<NodeBase>> &&vecItems) noexcept;
+    BlockStmt(const location &loc, std::vector<std::unique_ptr<NodeBase>> &&vecItems) noexcept;
     virtual ~BlockStmt();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;

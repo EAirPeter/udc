@@ -1,121 +1,122 @@
-#include "../../Driver.hpp"
+#include "../../Location.hpp"
 #include "../../Print.hpp"
+#include "Type.hpp"
 #include "VisitorBase.hpp"
 
 namespace udc::ast::eval {
 
 void VisitorBase::Y_RjLocalShadow(
-    const Location &vLoc, const std::string &sName, const Location &vPrevious
+    const location &loc, const std::string &sName, const location &vPrevious
 ) noexcept {
     Y_Reject();
-    PrintError(vLoc, "local variable shadows class name");
+    PrintError(loc, "local variable shadows class name");
     PrintNote(vPrevious, "previous definition is here");
 }
 
-void VisitorBase::Y_RjDimTooLarge(const Location &vLoc) noexcept {
+void VisitorBase::Y_RjDimTooLarge(const location &loc) noexcept {
     Y_Reject();
-    PrintError(vLoc, "too many dimensions");
+    PrintError(loc, "too many dimensions");
 }
 
-void VisitorBase::Y_RjNonStaticVar(const Location &vLoc, const std::string &sName) noexcept {
+void VisitorBase::Y_RjNonStaticVar(const location &loc, const std::string &sName) noexcept {
     Y_Reject();
-    PrintError(vLoc, "invalid use of variable '", sName, "' in static function");
+    PrintError(loc, "invalid use of variable '", sName, "' in static function");
 }
 
-void VisitorBase::Y_RjNonStaticCall(const Location &vLoc, const std::string &sName) noexcept
+void VisitorBase::Y_RjNonStaticCall(const location &loc, const std::string &sName) noexcept
 {
     Y_Reject();
-    PrintError(vLoc, "call to non-static function '", sName, "' without an object argument");
+    PrintError(loc, "call to non-static function '", sName, "' without an object argument");
 }
 
-void VisitorBase::Y_RjThisInStatic(const Location &vLoc, const std::string &sName) noexcept {
+void VisitorBase::Y_RjThisInStatic(const location &loc, const std::string &sName) noexcept {
     Y_Reject();
-    PrintError(vLoc, "invalid use of 'this' in static function");
+    PrintError(loc, "invalid use of 'this' in static function");
 }
 
-void VisitorBase::Y_RjOverride(const Location &vLoc, const std::string &sName, const Location &vPrevious) noexcept {
+void VisitorBase::Y_RjOverride(const location &loc, const std::string &sName, const location &vPrevious) noexcept {
     Y_Reject();
-    PrintError(vLoc, "overriding function '", sName, "' with different signature");
+    PrintError(loc, "overriding function '", sName, "' with different signature");
     PrintNote(vPrevious, "previous definition is here");
 }
 
-void VisitorBase::Y_RjInheritCycle(const Location &vLoc) noexcept {
+void VisitorBase::Y_RjInheritCycle(const location &loc) noexcept {
     Y_Reject();
-    PrintError(vLoc, "cyclic inheritance hierarchy is forbiddened");
-    PrintNote(vLoc, "the cycle is detected here");
+    PrintError(loc, "cyclic inheritance hierarchy is forbiddened");
+    PrintNote(loc, "the cycle is detected here");
 }
 
-void VisitorBase::Y_RjVoidArray(const Location &vLoc) noexcept {
+void VisitorBase::Y_RjVoidArray(const location &loc) noexcept {
     Y_Reject();
-    PrintError(vLoc, "array of 'void' is not allowed");
+    PrintError(loc, "array of 'void' is not allowed");
 }
 
-void VisitorBase::Y_RjNotFound(const Location &vLoc, const char *pszWhat, const std::string &sName) noexcept {
+void VisitorBase::Y_RjNotFound(const location &loc, const char *pszWhat, const std::string &sName) noexcept {
     Y_Reject();
-    PrintError(vLoc, "no ", pszWhat, " named '", sName, "' found");
+    PrintError(loc, "no ", pszWhat, " named '", sName, "' found");
 }
 
-void VisitorBase::Y_RjTypeMissMatch(const Location &vLoc, const Type &tyExpected, const Type &tyUnexpected) noexcept {
+void VisitorBase::Y_RjTypeMissMatch(const location &loc, const Type &tyExpected, const Type &tyUnexpected) noexcept {
     Y_Reject();
-    PrintError(vLoc, "expected '", tyExpected, "', but '", tyUnexpected, "' encountered");
+    PrintError(loc, "expected '", tyExpected, "', but '", tyUnexpected, "' encountered");
 }
 
-void VisitorBase::Y_RjNoConversion(const Location &vLoc, const Type &tyTo, const Type &tyFrom) noexcept {
+void VisitorBase::Y_RjNoConversion(const location &loc, const Type &tyTo, const Type &tyFrom) noexcept {
     Y_Reject();
-    PrintError(vLoc, "no viable conversion from '", tyFrom, "' to '", tyTo, "'");
+    PrintError(loc, "no viable conversion from '", tyFrom, "' to '", tyTo, "'");
 }
 
-void VisitorBase::Y_RjNoComparison(const Location &vLoc, const Type &tyLhs, const Type &tyRhs) noexcept {
+void VisitorBase::Y_RjNoComparison(const location &loc, const Type &tyLhs, const Type &tyRhs) noexcept {
     Y_Reject();
-    PrintError(vLoc, "cannot compare between '", tyLhs, "' and '", tyRhs, "'");
+    PrintError(loc, "cannot compare between '", tyLhs, "' and '", tyRhs, "'");
 }
 
-void VisitorBase::Y_RjReturnForVoid(const Location &vLoc, const std::string &sName) noexcept {
+void VisitorBase::Y_RjReturnForVoid(const location &loc, const std::string &sName) noexcept {
     Y_Reject();
-    PrintError(vLoc, "cannot return a value for 'void' function '", sName, "'");
+    PrintError(loc, "cannot return a value for 'void' function '", sName, "'");
 }
 
-void VisitorBase::Y_RjNoReturnVal(const Location &vLoc, const Type &tyExpected, const std::string &sName) noexcept {
+void VisitorBase::Y_RjNoReturnVal(const location &loc, const Type &tyExpected, const std::string &sName) noexcept {
     Y_Reject();
-    PrintError(vLoc, "must return a value for '", tyExpected, "' function '", sName, "'");
+    PrintError(loc, "must return a value for '", tyExpected, "' function '", sName, "'");
 }
 
 void VisitorBase::Y_RjRedefinition(
-    const Location &vLoc, const char *pszWhat,
-    const std::string &sName, const Location &vPrevious
+    const location &loc, const char *pszWhat,
+    const std::string &sName, const location &vPrevious
 ) noexcept {
     Y_Reject();
-    PrintError(vLoc, "redefinition of ", pszWhat, " '", sName, "'");
+    PrintError(loc, "redefinition of ", pszWhat, " '", sName, "'");
     PrintNote(vPrevious, "previous definition is here");
 }
 
-void VisitorBase::Y_RjIllegalBreak(const Location &vLoc) noexcept {
+void VisitorBase::Y_RjIllegalBreak(const location &loc) noexcept {
     Y_Reject();
-    PrintError(vLoc, "break statement not in loop statement");
+    PrintError(loc, "break statement not in loop statement");
 }
 
-void VisitorBase::Y_RjNotPrintable(const Location &vLoc, const Type &ty) noexcept {
+void VisitorBase::Y_RjNotPrintable(const location &loc, const Type &ty) noexcept {
     Y_Reject();
-    PrintError(vLoc, "cannot print '", ty, "'");
+    PrintError(loc, "cannot print '", ty, "'");
 }
 
-void VisitorBase::Y_RjAssignNonLval(const Location &vLoc) noexcept {
+void VisitorBase::Y_RjAssignNonLval(const location &loc) noexcept {
     Y_Reject();
-    PrintError(vLoc, "expression not assignable");
+    PrintError(loc, "expression not assignable");
 }
 
-void VisitorBase::Y_RjNotWhat(const Location &vLoc, const char *pszWhat, const Type &ty) noexcept {
+void VisitorBase::Y_RjNotWhat(const location &loc, const char *pszWhat, const Type &ty) noexcept {
     Y_Reject();
-    PrintError(vLoc, "'", ty, "' is not ", pszWhat);
+    PrintError(loc, "'", ty, "' is not ", pszWhat);
 }
 
 void VisitorBase::Y_RjArgNumber(
-    const Location &vLoc, const std::string &sName,
+    const location &loc, const std::string &sName,
     std::size_t cExpected, std::size_t cUnexpected
 ) noexcept {
     Y_Reject();
     PrintError(
-        vLoc, "function '", sName, "' requires ", cExpected,
+        loc, "function '", sName, "' requires ", cExpected,
         " arguments, but ", cUnexpected, " were provided"
     );
 }
@@ -136,13 +137,13 @@ constexpr const char *OrderSuffixNtmbs(std::size_t idx) {
 }
 
 void VisitorBase::Y_RjArgType(
-    const Location &vLoc, const std::string &sName,
+    const location &loc, const std::string &sName,
     std::size_t idx, const std::string &sArg,
     const Type &tyExpected, const Type &tyUnexpected
 ) noexcept {
     Y_Reject();
     PrintError(
-        vLoc, "no viable conversion from '", tyUnexpected, "' to '", tyExpected,
+        loc, "no viable conversion from '", tyUnexpected, "' to '", tyExpected,
         "' for ", idx, OrderSuffixNtmbs(idx), " argument of function '", sName, "'"
     );
 }

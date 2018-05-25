@@ -4,12 +4,11 @@
 namespace udc::ast {
 
 InstanceOf::InstanceOf(
-    Driver &drv,
-    const Location &loc,
+    const location &loc,
     std::unique_ptr<ExprBase> &&upExpr,
     std::string &&sName
 ) noexcept :
-    ExprBase(drv, loc), x_upExpr(std::move(upExpr)), x_sName(std::move(sName))
+    ExprBase(loc), x_upExpr(std::move(upExpr)), x_sName(std::move(sName))
 {}
 
 InstanceOf::~InstanceOf() {}

@@ -10,7 +10,7 @@ namespace udc::ast {
 
 class PrintStmt : public NodeBase {
 public:
-    PrintStmt(Driver &drv, const Location &loc, std::vector<std::unique_ptr<ExprBase>> &&vecArgs) noexcept;
+    PrintStmt(const location &loc, std::vector<std::unique_ptr<ExprBase>> &&vecArgs) noexcept;
     virtual ~PrintStmt();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;

@@ -3,13 +3,12 @@
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Type.h>
 
-#include "../../Driver.hpp"
+#include "../../cg/CGContext.hpp"
 #include "TypeRegistry.hpp"
 
 namespace udc::ast::eval {
 
-TypeRegistry::TypeRegistry(Driver &drv) noexcept :
-    x_drv(drv),
+TypeRegistry::TypeRegistry() noexcept :
     tyNull(Put(NullType::vInstance)),
     tyVoid(Put(VoidType::vInstance)),
     tyInt(Put(IntType::vInstance)),
@@ -68,7 +67,7 @@ const Type &TypeRegistry::IncDim(const Type &ty) noexcept {
     ).first->second;
 }
 
-void TypeRegistry::MakeArrays() noexcept {
+void TypeRegistry::MakeArrays(cg::CGContext &ctx) noexcept {
     // make only array types
     // all non-array types should be prepared by ClassGenVisitor
     // 
@@ -79,9 +78,9 @@ void TypeRegistry::MakeArrays() noexcept {
     // };
     for (std::size_t i = 1; i <= kDimMax; ++i)
         for (auto &[_, ty] : x_maps[i]) {
-            auto lvarray = llvm::ArrayType::get(DecDim(ty).GetLvType(), 0);
-            auto lvty = llvm::StructType::get(x_drv.lvCtx, {x_drv.tyI32, lvarray});
-            ty.SetLvType(lvty->getPointerTo());
+            auto lvArray = llvm::ArrayType::get(DecDim(ty).GetLvType(), 0);
+            auto lvType = llvm::StructType::get(ctx.lvCtx, {ctx.tyI32, lvArray});
+            ty.SetLvType(lvType->getPointerTo());
         }
 }
 

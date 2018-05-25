@@ -14,7 +14,7 @@ namespace udc::ast {
 
 class VarDef : public NodeBase {
 public:
-    VarDef(Driver &drv, const Location &loc, std::unique_ptr<TypeName> &&upType, std::string &&sName) noexcept;
+    VarDef(const location &loc, std::unique_ptr<TypeName> &&upType, std::string &&sName) noexcept;
     virtual ~VarDef();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;

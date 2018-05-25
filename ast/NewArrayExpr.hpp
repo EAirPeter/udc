@@ -10,8 +10,7 @@ namespace udc::ast {
 class NewArrayExpr : public ExprBase {
 public:
     NewArrayExpr(
-        Driver &drv,
-        const Location &loc,
+        const location &loc,
         std::unique_ptr<TypeName> &&upType,
         std::unique_ptr<ExprBase> &&upExpr
     ) noexcept;

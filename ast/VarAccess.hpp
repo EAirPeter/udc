@@ -10,8 +10,7 @@ namespace udc::ast {
 class VarAccess : public ExprBase {
 public:
     VarAccess(
-        Driver &drv,
-        const Location &loc,
+        const location &loc,
         std::unique_ptr<ExprBase> &&upExpr,
         std::string &&sName
     ) noexcept;

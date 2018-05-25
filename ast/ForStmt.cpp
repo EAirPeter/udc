@@ -5,14 +5,13 @@
 namespace udc::ast {
 
 ForStmt::ForStmt(
-    Driver &drv,
-    const Location &loc,
+    const location &loc,
     std::unique_ptr<ExprBase> &&upInit,
     std::unique_ptr<ExprBase> &&upCond,
     std::unique_ptr<ExprBase> &&upIncr,
     std::unique_ptr<NodeBase> &&upBody
 ) noexcept :
-    NodeBase(drv, loc),
+    NodeBase(loc),
     x_upInit(std::move(upInit)),
     x_upCond(std::move(upCond)),
     x_upIncr(std::move(upIncr)),

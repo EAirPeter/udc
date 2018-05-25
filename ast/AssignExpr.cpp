@@ -3,12 +3,11 @@
 namespace udc::ast {
 
 AssignExpr::AssignExpr(
-    Driver &drv,
-    const Location &loc,
+    const location &loc,
     std::unique_ptr<ExprBase> &&upLhs,
     std::unique_ptr<ExprBase> &&upRhs
 ) noexcept :
-    ExprBase(drv, loc), x_upLhs(std::move(upLhs)), x_upRhs(std::move(upRhs))
+    ExprBase(loc), x_upLhs(std::move(upLhs)), x_upRhs(std::move(upRhs))
 {}
 
 AssignExpr::~AssignExpr() {}

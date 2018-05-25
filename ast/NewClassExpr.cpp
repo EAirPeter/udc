@@ -3,8 +3,8 @@
 
 namespace udc::ast {
 
-NewClassExpr::NewClassExpr(Driver &drv, const Location &loc, std::string &&sName) noexcept :
-    ExprBase(drv, loc), x_sName(std::move(sName))
+NewClassExpr::NewClassExpr(const location &loc, std::string &&sName) noexcept :
+    ExprBase(loc), x_sName(std::move(sName))
 {}
 
 NewClassExpr::~NewClassExpr() {}

@@ -15,8 +15,7 @@ namespace udc::ast {
 class FnDef : public NodeBase {
 public:
     FnDef(
-        Driver &drv,
-        const Location &loc,
+        const location &loc,
         bool bStatic,
         std::unique_ptr<TypeName> &&upType,
         std::string &&sName,

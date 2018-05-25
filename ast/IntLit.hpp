@@ -7,7 +7,7 @@ namespace udc::ast {
 
 class IntLit : public ExprBase {
 public:
-    IntLit(Driver &drv, const Location &loc, int nVal) noexcept;
+    IntLit(const location &loc, int nVal) noexcept;
     virtual ~IntLit();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;

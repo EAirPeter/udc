@@ -8,13 +8,13 @@ class Module;
 }
 
 namespace udc::cg {
+class CGContext;
 
 using namespace udc::ast;
-using namespace udc::ast::eval;
 
-class ClassGenVisitor : public VisitorBase {
+class ClassGenVisitor : public eval::VisitorBase {
 public:
-    ClassGenVisitor(Driver &drv) noexcept;
+    ClassGenVisitor(CGContext &ctx) noexcept;
     virtual inline ~ClassGenVisitor() = default;
 
 public:
@@ -22,8 +22,9 @@ public:
     virtual void Visit(ClassDef &vClass) noexcept override;
 
 private:
+    CGContext &x_ctx;
     llvm::Module *x_plvMod = nullptr;
-    ast::eval::TypeRegistry *x_pTyReg = nullptr;
+    eval::TypeRegistry *x_pTyReg = nullptr;
 };
 
 }

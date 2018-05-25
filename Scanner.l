@@ -7,64 +7,63 @@
 #endif
 
 #include "Common.hpp"
-#include "Driver.hpp"
 #include "Print.hpp"
 #include "Scanner.hpp"
 
 #include <string>
 
-#define MkComment() (x_bPrint ? [] (const Location &l, std::string s) { \
+#define MkComment() (x_bPrint ? [] (const location &l, std::string s) { \
     while (!s.empty() && (s.back() == '\r' || s.back() == '\n')) \
         s.pop_back(); \
     std::cout << l << ": Comment[" << s << "]" << std::endl; \
-}(x_vLocation, YYText()) : (void) 0)
+}(x_loc, YYText()) : (void) 0)
 
-#define MkEnd() (x_bPrint ? [] (const Location &l) { \
+#define MkEnd() (x_bPrint ? [] (const location &l) { \
     std::cout << l << ": EndOfFile" << std::endl; \
     return ::udc::Parser::make_End(l); \
-}(x_vLocation) : ::udc::Parser::make_End(x_vLocation))
+}(x_loc) : ::udc::Parser::make_End(x_loc))
 
-#define MkKeyword(type_) (x_bPrint ? [] (const Location &l, const std::string &s) { \
+#define MkKeyword(type_) (x_bPrint ? [] (const location &l, const std::string &s) { \
     std::cout << l << ": Keyword[" << s << "]" << std::endl; \
     return ::udc::Parser::CAT(make_Kw, type_)(l); \
-}(x_vLocation, YYText()) : ::udc::Parser::CAT(make_Kw, type_)(x_vLocation))
+}(x_loc, YYText()) : ::udc::Parser::CAT(make_Kw, type_)(x_loc))
 
-#define MkIdentifier(val_) (x_bPrint ? [] (const Location &l, const std::string &s) { \
+#define MkIdentifier(val_) (x_bPrint ? [] (const location &l, const std::string &s) { \
     std::cout << l << ": Identifier[" << s << "]" << std::endl; \
     return ::udc::Parser::make_Identifier(s, l); \
-}(x_vLocation, (val_)) : ::udc::Parser::make_Identifier((val_), x_vLocation))
+}(x_loc, (val_)) : ::udc::Parser::make_Identifier((val_), x_loc))
 
-#define MkBoolLit(val_) (x_bPrint ? [] (const Location &l, const std::string &s, bool b) { \
+#define MkBoolLit(val_) (x_bPrint ? [] (const location &l, const std::string &s, bool b) { \
     std::cout << l << ": BoolLit[" << s << "]" << std::endl; \
     return ::udc::Parser::make_BoolLit(b, l); \
-}(x_vLocation, YYText(), (val_)) : ::udc::Parser::make_BoolLit((val_), x_vLocation))
+}(x_loc, YYText(), (val_)) : ::udc::Parser::make_BoolLit((val_), x_loc))
 
-#define MkIntLit(val_) (x_bPrint ? [] (const Location &l, const std::string &s, int n) { \
+#define MkIntLit(val_) (x_bPrint ? [] (const location &l, const std::string &s, int n) { \
     std::cout << l << ": IntLit[" << s << "]" << std::endl; \
     return ::udc::Parser::make_IntLit(n, l); \
-}(x_vLocation, YYText(), (val_)) : ::udc::Parser::make_IntLit((val_), x_vLocation))
+}(x_loc, YYText(), (val_)) : ::udc::Parser::make_IntLit((val_), x_loc))
 
-#define MkStrLit(val_) (x_bPrint ? [] (const Location &l, const std::string &org, const std::string &s) { \
+#define MkStrLit(val_) (x_bPrint ? [] (const location &l, const std::string &org, const std::string &s) { \
     std::cout << l << ": StrLit[" << org << "]" << std::endl; \
     return ::udc::Parser::make_StrLit(s, l); \
-}(x_vLocation, sOrg, (val_)) : ::udc::Parser::make_StrLit((val_), x_vLocation))
+}(x_loc, sOrg, (val_)) : ::udc::Parser::make_StrLit((val_), x_loc))
 
-#define MkOperator(type_) (x_bPrint ? [] (const Location &l, const std::string &s) { \
+#define MkOperator(type_) (x_bPrint ? [] (const location &l, const std::string &s) { \
     std::cout << l << ": Operator[" << s << "]" << std::endl; \
     return ::udc::Parser::CAT(make_Op, type_)(l); \
-}(x_vLocation, YYText()) : ::udc::Parser::CAT(make_Op, type_)(x_vLocation))
+}(x_loc, YYText()) : ::udc::Parser::CAT(make_Op, type_)(x_loc))
 
-#define MkPunctuation(type_) (x_bPrint ? [] (const Location &l, const std::string &s) { \
+#define MkPunctuation(type_) (x_bPrint ? [] (const location &l, const std::string &s) { \
     std::cout << l << ": Punctuation[" << s << "]" << std::endl; \
     return ::udc::Parser::CAT(make_Pu, type_)(l); \
-}(x_vLocation, YYText()) : ::udc::Parser::CAT(make_Pu, type_)(x_vLocation))
+}(x_loc, YYText()) : ::udc::Parser::CAT(make_Pu, type_)(x_loc))
 
-#define Complain(...) (::udc::PrintError(x_vLocation, __VA_ARGS__))
+#define Complain(...) (::udc::PrintError(x_loc, __VA_ARGS__))
 
 #ifdef YY_DECL
 #undef YY_DECL
 #endif
-#define YY_DECL ::udc::Token udc::Scanner::NextToken() noexcept
+#define YY_DECL ::udc::Parser::symbol_type udc::Scanner::NextToken() noexcept
 
 #ifdef yyterminate
 #undef yyterminate
@@ -74,7 +73,7 @@
 #ifdef YY_USER_ACTION
 #undef YY_USER_ACTION
 #endif
-#define YY_USER_ACTION x_vLocation.columns(YYLeng());
+#define YY_USER_ACTION x_loc.columns(YYLeng());
 %}
 
 %option batch
@@ -98,18 +97,18 @@ LineBreak (\r|\n|\r\n)
 %}
 
 {LineBreak}+ {
-    x_vLocation.lines(YYLeng());
-    x_vLocation.step();
+    x_loc.lines(YYLeng());
+    x_loc.step();
 }
 
 [ \t]+ {
-    x_vLocation.step();
+    x_loc.step();
 }
 
 "//"[^\r\n]*{LineBreak} {
     MkComment();
-    x_vLocation.lines();
-    x_vLocation.step();
+    x_loc.lines();
+    x_loc.step();
 }
 
 "bool"          return MkKeyword(Bool);
@@ -207,3 +206,9 @@ LineBreak (\r|\n|\r\n)
 .   Complain("Unexpected character [", YYText(), "].");
 
 %%
+
+namespace udc {
+
+Scanner::Scanner(std::istream &is) : UdcFlexLexer(is, std::cout) {}
+
+}

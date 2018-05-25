@@ -3,7 +3,7 @@
 
 namespace udc::ast {
 
-ReadLine::ReadLine(Driver &drv, const Location &loc) noexcept : ExprBase(drv, loc) {}
+ReadLine::ReadLine(const location &loc) noexcept : ExprBase(loc) {}
 
 ReadLine::~ReadLine() {}
 

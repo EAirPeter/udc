@@ -4,13 +4,12 @@
 namespace udc::ast {
 
 ClassDef::ClassDef(
-    Driver &drv,
-    const Location &loc,
+    const location &loc,
     std::string &&sName,
     std::optional<std::string> &&soBase,
     std::vector<std::unique_ptr<NodeBase>> &&vecFields
 ) noexcept :
-    NodeBase(drv, loc),
+    NodeBase(loc),
     x_sName(std::move(sName)),
     x_soBase(std::move(soBase)),
     x_vecFields(std::move(vecFields)),

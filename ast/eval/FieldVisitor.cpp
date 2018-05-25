@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include "../../Driver.hpp"
 #include "../../ScopeHelper.hpp"
 #include "../All.hpp"

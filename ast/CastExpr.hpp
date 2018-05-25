@@ -10,8 +10,7 @@ namespace udc::ast {
 class CastExpr : public ExprBase {
 public:
     CastExpr(
-        Driver &drv,
-        const Location &loc,
+        const location &loc,
         std::string &&sName,
         std::unique_ptr<ExprBase> &&upExpr
     ) noexcept;

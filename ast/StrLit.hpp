@@ -7,7 +7,7 @@ namespace udc::ast {
 
 class StrLit : public ExprBase {
 public:
-    StrLit(Driver &drv, const Location &loc, std::string &&sVal) noexcept;
+    StrLit(const location &loc, std::string &&sVal) noexcept;
     virtual ~StrLit();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;

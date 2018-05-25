@@ -10,8 +10,7 @@ namespace udc::ast {
 class AssignExpr : public ExprBase {
 public:
     AssignExpr(
-        Driver &drv,
-        const Location &loc,
+        const location &loc,
         std::unique_ptr<ExprBase> &&upLhs,
         std::unique_ptr<ExprBase> &&upRhs
     ) noexcept;

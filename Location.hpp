@@ -3,10 +3,4 @@
 
 #include "location.hh"
 
-namespace udc {
-
-using Location = location;
-
-}
-
 #endif

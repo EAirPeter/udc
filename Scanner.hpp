@@ -1,7 +1,8 @@
 #ifndef UDC_SCANNER_HPP_
 #define UDC_SCANNER_HPP_
 
-#include "Location.hpp"
+#include <iosfwd>
+
 #include "Parser.hpp"
 
 #if !defined(yyFlexLexerOnce)
@@ -16,20 +17,18 @@ namespace udc {
 
 class Scanner : public UdcFlexLexer {
 public:
-    inline Scanner(Driver &vDriver, bool bPrint) noexcept : x_vDriver {vDriver}, x_bPrint {bPrint} {};
-
+    Scanner(std::istream &is);
     virtual ~Scanner() = default;
 
 public:
     constexpr void SetPrint(bool bPrint) noexcept {
         x_bPrint = bPrint;
     }
-    Token NextToken() noexcept;
+    Parser::symbol_type NextToken() noexcept;
 
 private:
-    Driver &x_vDriver;
-    Location x_vLocation;
-    bool x_bPrint;
+    location x_loc;
+    bool x_bPrint = false;
 
 };
 

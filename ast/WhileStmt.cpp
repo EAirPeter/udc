@@ -5,12 +5,11 @@
 namespace udc::ast {
 
 WhileStmt::WhileStmt(
-    Driver &drv,
-    const Location &loc,
+    const location &loc,
     std::unique_ptr<ExprBase> &&upCond,
     std::unique_ptr<NodeBase> &&upBody
 ) noexcept :
-    NodeBase(drv, loc), x_upCond(std::move(upCond)), x_upBody(std::move(upBody))
+    NodeBase(loc), x_upCond(std::move(upCond)), x_upBody(std::move(upBody))
 {}
 
 udc::ast::WhileStmt::~WhileStmt() {}

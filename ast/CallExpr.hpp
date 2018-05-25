@@ -11,8 +11,7 @@ namespace udc::ast {
 class CallExpr : public ExprBase {
 public:
     CallExpr(
-        Driver &drv,
-        const Location &loc,
+        const location &loc,
         std::unique_ptr<ExprBase> &&upExpr,
         std::string &&sName,
         std::vector<std::unique_ptr<ExprBase>> &&vecArgs

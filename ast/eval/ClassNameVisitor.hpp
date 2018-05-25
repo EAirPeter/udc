@@ -9,7 +9,7 @@ namespace udc::ast::eval {
 class ClassNameVisitor : public VisitorBase {
 public:
     using VisitorBase::VisitorBase;
-    virtual inline ~ClassNameVisitor() = default;
+    virtual ~ClassNameVisitor() = default;
 
     virtual void Visit(Program &vProg) noexcept override;
     virtual void Visit(ClassDef &vClass) noexcept override;

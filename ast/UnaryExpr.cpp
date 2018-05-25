@@ -4,12 +4,11 @@
 namespace udc::ast {
 
 UnaryExpr::UnaryExpr(
-    Driver &drv,
-    const Location &loc,
+    const location &loc,
     UnaOp vOp,
     std::unique_ptr<ExprBase> &&upExpr
 ) noexcept :
-    ExprBase(drv, loc), x_vOp(vOp), x_upExpr(std::move(upExpr))
+    ExprBase(loc), x_vOp(vOp), x_upExpr(std::move(upExpr))
 {}
 
 UnaryExpr::~UnaryExpr() {}

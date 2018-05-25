@@ -8,18 +8,14 @@ namespace llvm {
 class Module;
 }
 
-namespace udc {
-class Driver;
-}
-
 namespace udc::cg {
+class CGContext;
 
 using namespace udc::ast;
-using namespace udc::ast::eval;
 
-class FnGenVisitor : public VisitorBase {
+class FnGenVisitor : public eval::VisitorBase {
 public:
-    FnGenVisitor(Driver &drv) noexcept;
+    FnGenVisitor(CGContext &ctx) noexcept;
     virtual inline ~FnGenVisitor() = default;
 
 public:
@@ -29,6 +25,7 @@ public:
     virtual void Visit(FnDef &vFn) noexcept override;
 
 private:
+    CGContext &x_ctx;
     llvm::Module *x_plvMod = nullptr;
     ClassDef *x_pClass = nullptr;
     llvm::Constant *x_plvClassIdx = nullptr;

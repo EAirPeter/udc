@@ -2,56 +2,55 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
 
-#include "../Driver.hpp"
 #include "../ScopeHelper.hpp"
 #include "../ast/All.hpp"
-#include "../ast/eval/Type.hpp"
+#include "CGContext.hpp"
 #include "ClassGenVisitor.hpp"
 
 namespace udc::cg {
 
-ClassGenVisitor::ClassGenVisitor(Driver &drv) noexcept : VisitorBase(drv) {}
+ClassGenVisitor::ClassGenVisitor(CGContext &ctx) noexcept : x_ctx(ctx) {}
 
 void ClassGenVisitor::Visit(Program &vProg) noexcept {
-    vProg.GetUplvMod() = std::make_unique<llvm::Module>("poi?", y_drv.lvCtx);
+    vProg.GetUplvMod() = std::make_unique<llvm::Module>("poi?", x_ctx.lvCtx);
     auto plvMod = vProg.GetLvMod();
-    plvMod->setDataLayout(y_drv.lvDataLayout);
-    plvMod->setTargetTriple(y_drv.sTriple);
+    plvMod->setDataLayout(x_ctx.lvDataLayout);
+    plvMod->setTargetTriple(x_ctx.sTriple);
     auto &vTyReg = vProg.GetTyReg();
-    vTyReg.tyNull.SetLvType(y_drv.tyI8Ptr);
-    vTyReg.tyVoid.SetLvType(y_drv.tyVoid);
-    vTyReg.tyInt.SetLvType(y_drv.tyI32);
-    vTyReg.tyBool.SetLvType(y_drv.tyI1);
-    vTyReg.tyString.SetLvType(y_drv.tyI8Ptr);
+    vTyReg.tyNull.SetLvType(x_ctx.tyI8Ptr);
+    vTyReg.tyVoid.SetLvType(x_ctx.tyVoid);
+    vTyReg.tyInt.SetLvType(x_ctx.tyI32);
+    vTyReg.tyBool.SetLvType(x_ctx.tyI1);
+    vTyReg.tyString.SetLvType(x_ctx.tyI8Ptr);
     ENTER_SCOPE(x_plvMod, vProg.GetLvMod());
     ENTER_SCOPE(x_pTyReg, &vProg.GetTyReg());
     // emit RTTI, #ClassIdx
     {
-        auto ty = llvm::ArrayType::get(y_drv.tyVoidPtr, (std::uint64_t) vProg.GetClasses().size());
+        auto ty = llvm::ArrayType::get(x_ctx.tyVoidPtr, (std::uint64_t) vProg.GetClasses().size());
         auto gv = llvm::cast<llvm::GlobalVariable>(x_plvMod->getOrInsertGlobal("#ClassIdx", ty));
-        gv->setAlignment(y_drv.lvDataLayout.getPrefTypeAlignment(ty));
+        gv->setAlignment(x_ctx.lvDataLayout.getPrefTypeAlignment(ty));
         gv->setConstant(true);
         gv->setDSOLocal(true);
         gv->setLinkage(llvm::GlobalValue::PrivateLinkage);
-        auto i8p = llvm::ConstantExpr::getPointerCast(gv, y_drv.tyI8Ptr);
+        auto i8p = llvm::ConstantExpr::getPointerCast(gv, x_ctx.tyI8Ptr);
         llvm::SmallVector<llvm::Constant *, 64> vec;
         for (auto &upClass : vProg.GetClasses()) {
             auto pBase = upClass->GetBase();
             auto idxBase = pBase ? pBase->GetIdx() : ~std::size_t {};
             if (~idxBase) {
-                auto ciIdx = llvm::ConstantInt::get(y_drv.tySize, idxBase * y_drv.uPtrSize);
-                vec.emplace_back(llvm::ConstantExpr::getGetElementPtr(y_drv.tyI8, i8p, ciIdx));
+                auto ciIdx = llvm::ConstantInt::get(x_ctx.tySize, idxBase * x_ctx.uPtrSize);
+                vec.emplace_back(llvm::ConstantExpr::getGetElementPtr(x_ctx.tyI8, i8p, ciIdx));
             }
             else {
-                vec.emplace_back(llvm::ConstantPointerNull::get(y_drv.tyVoidPtr));
+                vec.emplace_back(llvm::ConstantPointerNull::get(x_ctx.tyVoidPtr));
             }
-            upClass->SetLvType(llvm::StructType::create(y_drv.lvCtx, std::string {"#Class."} + upClass->GetName()));
+            upClass->SetLvType(llvm::StructType::create(x_ctx.lvCtx, std::string {"#Class."} + upClass->GetName()));
             upClass->GetType().SetLvType(upClass->GetLvType()->getPointerTo());
         }
         gv->setInitializer(llvm::ConstantArray::get(ty, vec));
         vProg.SetLvClassIdx(gv);
     }
-    x_pTyReg->MakeArrays();
+    x_pTyReg->MakeArrays(x_ctx);
     for (auto &upClass : vProg.GetClasses())
         if (!upClass->GetBase())
             upClass->AcceptVisitor(*this);
@@ -67,7 +66,7 @@ void ClassGenVisitor::Visit(ClassDef &vClass) noexcept {
         if (pBase)
             vec.emplace_back(pBase->GetLvType());
         else
-            vec.emplace_back(y_drv.tyVoidPtr);
+            vec.emplace_back(x_ctx.tyVoidPtr);
         for (auto pVar : vClass.GetVars())
             vec.emplace_back(pVar->GetType().GetLvType());
         vClass.GetLvType()->setBody(vec);

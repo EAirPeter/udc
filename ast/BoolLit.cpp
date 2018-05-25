@@ -3,7 +3,7 @@
 
 namespace udc::ast {
 
-BoolLit::BoolLit(Driver &drv, const Location &loc, bool bVal) noexcept : ExprBase(drv, loc), x_bVal(bVal) {}
+BoolLit::BoolLit(const location &loc, bool bVal) noexcept : ExprBase(loc), x_bVal(bVal) {}
 
 BoolLit::~BoolLit() {}
 

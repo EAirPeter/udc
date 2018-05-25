@@ -9,10 +9,6 @@ namespace llvm {
 class Type;
 }
 
-namespace udc::cg {
-class CodeGenManager;
-}
-
 namespace udc::ast::eval {
 
 struct INonArrayType {

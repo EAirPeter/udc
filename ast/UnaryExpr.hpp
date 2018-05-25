@@ -15,8 +15,7 @@ enum class UnaOp {
 class UnaryExpr : public ExprBase {
 public:
     UnaryExpr(
-        Driver &drv,
-        const Location &loc,
+        const location &loc,
         UnaOp vOp,
         std::unique_ptr<ExprBase> &&upExpr
     ) noexcept;

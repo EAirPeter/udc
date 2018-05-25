@@ -4,8 +4,8 @@
 
 namespace udc::ast {
 
-ReturnStmt::ReturnStmt(Driver &drv, const Location &loc, std::unique_ptr<ExprBase> &&upExpr) noexcept :
-    NodeBase(drv, loc), x_upExpr(std::move(upExpr))
+ReturnStmt::ReturnStmt(const location &loc, std::unique_ptr<ExprBase> &&upExpr) noexcept :
+    NodeBase(loc), x_upExpr(std::move(upExpr))
 {}
 
 ReturnStmt::~ReturnStmt() {}

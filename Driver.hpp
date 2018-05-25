@@ -1,68 +1,50 @@
 #ifndef UDC_DRIVER_HPP_
 #define UDC_DRIVER_HPP_
 
-#include <llvm/IR/DataLayout.h>
-#include <llvm/IR/LLVMContext.h>
+#include <memory>
 
-#include "Location.hpp"
-#include "Parser.hpp"
-#include "Scanner.hpp"
+namespace std::filesystem {
+class path;
+}
 
-#include "ast/Fwd.hpp"
-
-namespace llvm{
+namespace llvm {
 class ConstantPointerNull;
 class Target;
 class TargetMachine;
 }
 
+namespace udc::ast {
+class Program;
+}
+
+namespace udc::cg {
+class CGContext;
+}
+
 namespace udc {
 
-class Driver {
-private:
-    std::string X_InitTriple();
-    const llvm::Target *X_InitTarget();
-    llvm::TargetMachine *X_InitTargetMachine();
-    llvm::DataLayout X_InitDataLayout();
+struct Options {
+    unsigned uOptimization;
+    unsigned uFlags;
+    constexpr static unsigned kCompile = 1 << 0;
+    constexpr static unsigned kAssembly = 1 << 1;
+    constexpr static unsigned kLLVM = 1 << 2;
+    constexpr static unsigned kAST = 1 << 3;
+    constexpr static unsigned kSymbol = 1 << 4;
+    constexpr static unsigned kHelp = 1 << 5;
+};
 
+class Driver : private Options {
 public:
-    llvm::LLVMContext lvCtx;
-    const std::string sTriple;
-    const llvm::Target *const plvTarget;
-    llvm::TargetMachine *const plvTargetMachine;
-    const llvm::DataLayout lvDataLayout;
-
-public:
-    const unsigned uPtrSize;
-    llvm::Type *const tyVoid;
-    llvm::IntegerType *const tyI1;
-    llvm::IntegerType *const tyI8;
-    llvm::IntegerType *const tyI32;
-    llvm::IntegerType *const tySize;
-    llvm::PointerType *const tyI1Ptr;
-    union {
-        llvm::PointerType *const tyI8Ptr;
-        llvm::PointerType *const tyVoidPtr;
-    };
-    llvm::PointerType *const tyI32Ptr;
-    union {
-        llvm::PointerType *const tyI8PtrPtr;
-        llvm::PointerType *const tyVoidPtrPtr;
-    };
-    llvm::ConstantPointerNull *const ptrVoidNull;
-
-public:
-    Driver();
+    Driver(const Options &vOpts) noexcept;
     ~Driver();
 
 public:
-    int Parse();
-    void PrintSymbols();
+    int Run(const std::filesystem::path &paInput);
     void SetProgram(std::unique_ptr<ast::Program> &&upProg) noexcept;
     
 private:
-    Scanner x_vScanner;
-    Parser x_vParser;
+    std::unique_ptr<cg::CGContext> x_upCgCtx;
     std::unique_ptr<ast::Program> x_upProg;
 
 };

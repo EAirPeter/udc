@@ -1,4 +1,6 @@
-#define __STDC_WANT_LIB_EXT1__ 1
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 
 #include <stdarg.h>
 #include <stdbool.h>
@@ -8,9 +10,6 @@
 
 #ifndef _MSC_VER
 #define __declspec(...)
-#ifndef __STDC_LIB_EXT1__
-#define scanf_s scanf
-#endif
 #endif
 
 void UdcRtlPrintf(const char *fmt, ...) {
@@ -69,7 +68,7 @@ void UdcRtlCheckBound(int len, int idx) {
 
 int UdcRtlReadInteger() {
     int val;
-    if (scanf_s("%d", &val) != 1) {
+    if (scanf("%d", &val) != 1) {
         fputs("[FATAL] Invalid integer.\n", stderr);
         exit(-1);
     }

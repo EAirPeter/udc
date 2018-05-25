@@ -2,14 +2,14 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
 
-#include "../Driver.hpp"
 #include "../ScopeHelper.hpp"
 #include "../ast/All.hpp"
+#include "CGContext.hpp"
 #include "FnGenVisitor.hpp"
 
 namespace udc::cg {
 
-FnGenVisitor::FnGenVisitor(Driver &drv) noexcept : VisitorBase(drv) {}
+FnGenVisitor::FnGenVisitor(CGContext &ctx) noexcept : x_ctx(ctx) {}
 
 void FnGenVisitor::Visit(Program &vProg) noexcept {
     ENTER_SCOPE(x_plvMod, vProg.GetLvMod());
@@ -26,23 +26,23 @@ void FnGenVisitor::Visit(ClassDef &vClass) noexcept {
     // emit vtable, #VTable.Name
     // index, vfn0, vfn1, ...
     {
-        auto ty = llvm::ArrayType::get(y_drv.tyVoidPtr, (std::uint64_t) vClass.GetVfTable().GetVec().size() + 1);
+        auto ty = llvm::ArrayType::get(x_ctx.tyVoidPtr, (std::uint64_t) vClass.GetVfTable().GetVec().size() + 1);
         auto gv = llvm::cast<llvm::GlobalVariable>(
             x_plvMod->getOrInsertGlobal(std::string {"#VTable."} + vClass.GetName(), ty)
         );
-        gv->setAlignment(y_drv.lvDataLayout.getPrefTypeAlignment(ty));
+        gv->setAlignment(x_ctx.lvDataLayout.getPrefTypeAlignment(ty));
         gv->setConstant(true);
         gv->setDSOLocal(true);
         gv->setLinkage(llvm::GlobalValue::PrivateLinkage);
         llvm::SmallVector<llvm::Constant *, 64> vec;
         {
             // emit class index
-            auto i8p = llvm::ConstantExpr::getPointerCast(x_plvClassIdx, y_drv.tyI8Ptr);
-            auto ciIdx = llvm::ConstantInt::get(y_drv.tySize, vClass.GetIdx() * y_drv.uPtrSize);
-            vec.emplace_back(llvm::ConstantExpr::getGetElementPtr(y_drv.tyI8, i8p, ciIdx));
+            auto i8p = llvm::ConstantExpr::getPointerCast(x_plvClassIdx, x_ctx.tyI8Ptr);
+            auto ciIdx = llvm::ConstantInt::get(x_ctx.tySize, vClass.GetIdx() * x_ctx.uPtrSize);
+            vec.emplace_back(llvm::ConstantExpr::getGetElementPtr(x_ctx.tyI8, i8p, ciIdx));
         }
         for (auto &pFn : vClass.GetVfTable().GetVec())
-            vec.emplace_back(llvm::ConstantExpr::getPointerCast(pFn->GetLvFn(), y_drv.tyVoidPtr));
+            vec.emplace_back(llvm::ConstantExpr::getPointerCast(pFn->GetLvFn(), x_ctx.tyVoidPtr));
         gv->setInitializer(llvm::ConstantArray::get(ty, vec));
         vClass.SetLvVTable(gv);
     }

@@ -1,21 +1,16 @@
 #ifndef UDC_AST_NODE_BASE_HPP_
 #define UDC_AST_NODE_BASE_HPP_
 
-#include "../Location.hpp"
 #include "eval/VisitorBase.hpp"
-
-namespace udc {
-class Driver;
-}
 
 namespace udc::ast {
 
 class NodeBase {
 public:
-    inline NodeBase(Driver &drv, const Location &vLoc) noexcept : y_drv(drv), x_vLocation(vLoc) {}
+    NodeBase(const location &loc) noexcept;
     NodeBase(const NodeBase &) = delete;
     NodeBase(NodeBase &&) = delete;
-    virtual inline ~NodeBase() = default;
+    virtual inline ~NodeBase();
 
     NodeBase &operator =(const NodeBase &) = delete;
     NodeBase &operator =(NodeBase &&) = delete;
@@ -25,15 +20,12 @@ public:
     virtual inline void AcceptVisitor(eval::VisitorBase &vis) noexcept = 0;
 
 public:
-    constexpr const Location &GetLocation() const noexcept {
-        return x_vLocation;
+    inline const location &GetLocation() const noexcept {
+        return *x_upLoc.get();
     }
 
-protected:
-    Driver &y_drv;
-
 private:
-    const Location x_vLocation;
+    const std::unique_ptr<const location> x_upLoc;
 };
 
 inline std::ostream &operator <<(std::ostream &os, const NodeBase &ast) {

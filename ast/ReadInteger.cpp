@@ -3,7 +3,7 @@
 
 namespace udc::ast {
 
-ReadInteger::ReadInteger(Driver &drv, const Location &loc) noexcept : ExprBase(drv, loc) {}
+ReadInteger::ReadInteger(const location &loc) noexcept : ExprBase(loc) {}
 
 ReadInteger::~ReadInteger() {}
 

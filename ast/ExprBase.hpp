@@ -8,8 +8,8 @@ namespace udc::ast {
 
 class ExprBase : public NodeBase {
 public:
-    inline ExprBase(Driver &drv, const Location &loc, bool bLvalue = false) noexcept :
-        NodeBase(drv, loc), x_bLvalue(bLvalue)
+    inline ExprBase(const location &loc, bool bLvalue = false) noexcept :
+        NodeBase(loc), x_bLvalue(bLvalue)
     {}
     virtual inline ~ExprBase() = default;
 

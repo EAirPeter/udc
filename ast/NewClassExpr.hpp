@@ -8,8 +8,7 @@ namespace udc::ast {
 class NewClassExpr : public ExprBase {
 public:
     NewClassExpr(
-        Driver &drv,
-        const Location &loc,
+        const location &loc,
         std::string &&sName
     ) noexcept;
     virtual ~NewClassExpr();

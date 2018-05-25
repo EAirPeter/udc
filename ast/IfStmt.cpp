@@ -5,13 +5,12 @@
 namespace udc::ast {
 
 IfStmt::IfStmt(
-    Driver &drv,
-    const Location &loc,
+    const location &loc,
     std::unique_ptr<ExprBase> &&upCond,
     std::unique_ptr<NodeBase> &&upThen,
     std::unique_ptr<NodeBase> &&upElse
 ) noexcept :
-    NodeBase(drv, loc),
+    NodeBase(loc),
     x_upCond(std::move(upCond)),
     x_upThen(std::move(upThen)),
     x_upElse(std::move(upElse))

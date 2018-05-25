@@ -7,7 +7,7 @@ namespace udc::ast {
 
 class This : public ExprBase {
 public:
-    This(Driver &drv, const Location &loc) noexcept;
+    This(const location &loc) noexcept;
     virtual ~This();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;

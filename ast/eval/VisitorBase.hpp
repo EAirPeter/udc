@@ -3,20 +3,20 @@
 
 #include <string>
 
-#include "../../Location.hpp"
-#include "../Fwd.hpp"
 #include "Fwd.hpp"
 
 namespace udc {
-class Driver;
+class location;
 }
 
 namespace udc::ast::eval {
 
 class VisitorBase {
 public:
-    constexpr VisitorBase(Driver &drv) noexcept : y_drv(drv) {}
-    virtual inline ~VisitorBase() = default;
+    VisitorBase() noexcept = default;
+    VisitorBase(const VisitorBase &) = delete;
+    VisitorBase(VisitorBase &&) = delete;
+    virtual ~VisitorBase() = default;
 
     constexpr bool IsRejected() const noexcept {
         return x_bRejected;
@@ -66,40 +66,38 @@ public:
     virtual inline void Visit(TypeName &) noexcept {}
 
 protected:
-    void Y_RjLocalShadow(const Location &vLoc, const std::string &sName, const Location &vPrevious) noexcept;
-    void Y_RjDimTooLarge(const Location &vLoc) noexcept;
-    void Y_RjNonStaticVar(const Location &vLoc, const std::string &sName) noexcept;
-    void Y_RjNonStaticCall(const Location &vLoc, const std::string &sName) noexcept;
-    void Y_RjThisInStatic(const Location &vLoc, const std::string &sName) noexcept;
-    void Y_RjOverride(const Location &vLoc, const std::string &sName, const Location &vPrevious) noexcept;
-    void Y_RjInheritCycle(const Location &vLoc) noexcept;
-    void Y_RjVoidArray(const Location &vLoc) noexcept;
-    void Y_RjNotFound(const Location &vLoc, const char *pszWhat, const std::string &sName) noexcept;
-    void Y_RjTypeMissMatch(const Location &vLoc, const Type &tyExpected, const Type &tyUnexpected) noexcept;
-    void Y_RjNoConversion(const Location &vLoc, const Type &tyTo, const Type &tyFrom) noexcept;
-    void Y_RjNoComparison(const Location &vLoc, const Type &tyLhs, const Type &tyRhs) noexcept;
-    void Y_RjReturnForVoid(const Location &vLoc, const std::string &sName) noexcept;
-    void Y_RjNoReturnVal(const Location &vLoc, const Type &tyExpected, const std::string &sName) noexcept;
+    void Y_RjLocalShadow(const location &loc, const std::string &sName, const location &vPrevious) noexcept;
+    void Y_RjDimTooLarge(const location &loc) noexcept;
+    void Y_RjNonStaticVar(const location &loc, const std::string &sName) noexcept;
+    void Y_RjNonStaticCall(const location &loc, const std::string &sName) noexcept;
+    void Y_RjThisInStatic(const location &loc, const std::string &sName) noexcept;
+    void Y_RjOverride(const location &loc, const std::string &sName, const location &vPrevious) noexcept;
+    void Y_RjInheritCycle(const location &loc) noexcept;
+    void Y_RjVoidArray(const location &loc) noexcept;
+    void Y_RjNotFound(const location &loc, const char *pszWhat, const std::string &sName) noexcept;
+    void Y_RjTypeMissMatch(const location &loc, const Type &tyExpected, const Type &tyUnexpected) noexcept;
+    void Y_RjNoConversion(const location &loc, const Type &tyTo, const Type &tyFrom) noexcept;
+    void Y_RjNoComparison(const location &loc, const Type &tyLhs, const Type &tyRhs) noexcept;
+    void Y_RjReturnForVoid(const location &loc, const std::string &sName) noexcept;
+    void Y_RjNoReturnVal(const location &loc, const Type &tyExpected, const std::string &sName) noexcept;
     void Y_RjRedefinition(
-        const Location &vLoc, const char *pszWhat, 
-        const std::string &sName, const Location &vPrevious
+        const location &loc, const char *pszWhat, 
+        const std::string &sName, const location &vPrevious
     ) noexcept;
-    void Y_RjIllegalBreak(const Location &vLoc) noexcept;
-    void Y_RjNotPrintable(const Location &vLoc, const Type &ty) noexcept;
-    void Y_RjAssignNonLval(const Location &vLoc) noexcept;
-    void Y_RjNotWhat(const Location &vLoc, const char *pszWhat, const Type &ty) noexcept;
+    void Y_RjIllegalBreak(const location &loc) noexcept;
+    void Y_RjNotPrintable(const location &loc, const Type &ty) noexcept;
+    void Y_RjAssignNonLval(const location &loc) noexcept;
+    void Y_RjNotWhat(const location &loc, const char *pszWhat, const Type &ty) noexcept;
     void Y_RjArgNumber(
-        const Location &vLoc, const std::string &sName,
+        const location &loc, const std::string &sName,
         std::size_t cExpected, std::size_t cUnexpected
     ) noexcept;
     void Y_RjArgType(
-        const Location &vLoc, const std::string &sName,
+        const location &loc, const std::string &sName,
         std::size_t idx, const std::string &sArg,
         const Type &tyExpected, const Type &tyUnexpected
     ) noexcept;
 
-protected:
-    Driver &y_drv;
 private:
     bool x_bRejected = false;
 };

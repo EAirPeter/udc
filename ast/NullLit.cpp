@@ -3,7 +3,7 @@
 
 namespace udc::ast {
 
-NullLit::NullLit(Driver &drv, const Location &loc) noexcept : ExprBase(drv, loc) {}
+NullLit::NullLit(const location &loc) noexcept : ExprBase(loc) {}
 
 NullLit::~NullLit() {}
 

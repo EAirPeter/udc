@@ -7,7 +7,7 @@ namespace udc::ast {
 
 class ReadLine : public ExprBase {
 public:
-    ReadLine(Driver &drv, const Location &loc) noexcept;
+    ReadLine(const location &loc) noexcept;
     virtual ~ReadLine();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;

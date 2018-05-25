@@ -2,8 +2,8 @@
 
 namespace udc::ast {
 
-BlockStmt::BlockStmt(Driver &drv, const Location &loc, std::vector<std::unique_ptr<NodeBase>> &&vecItems) noexcept :
-    NodeBase(drv, loc), x_vecItems(std::move(vecItems)), x_stVar(false)
+BlockStmt::BlockStmt(const location &loc, std::vector<std::unique_ptr<NodeBase>> &&vecItems) noexcept :
+    NodeBase(loc), x_vecItems(std::move(vecItems)), x_stVar(false)
 {}
 
 BlockStmt::~BlockStmt() {}

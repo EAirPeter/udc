@@ -6,23 +6,22 @@
 #include "../../Common.hpp"
 #include "Type.hpp"
 
-namespace udc {
-class Driver;
+namespace udc::cg {
+class CGContext;
 }
 
 namespace udc::ast::eval {
 
 class TypeRegistry {
 public:
-    TypeRegistry(Driver &drv) noexcept;
+    TypeRegistry() noexcept;
     const Type &Put(const INonArrayType &vType) noexcept;
     const Type &Get(const INonArrayType &vType, std::size_t cDim = 0) noexcept;
     const Type &DecDim(const Type &ty) const noexcept;
     const Type &IncDim(const Type &ty) noexcept;
-    void MakeArrays() noexcept;
+    void MakeArrays(cg::CGContext &ctx) noexcept;
 
 private:
-    Driver &x_drv;
     std::unordered_map<const INonArrayType *, Type> x_maps[kDimMax + 1];
 public:
     const Type &tyNull;

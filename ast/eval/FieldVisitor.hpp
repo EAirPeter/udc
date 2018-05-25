@@ -9,7 +9,7 @@ namespace udc::ast::eval {
 class FieldVisitor : public VisitorBase {
 public:
     using VisitorBase::VisitorBase;
-    virtual inline ~FieldVisitor() = default;
+    virtual ~FieldVisitor() = default;
 
     virtual void Visit(Program &vProg) noexcept override;
     virtual void Visit(ClassDef &vClass) noexcept override;

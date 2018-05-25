@@ -3,8 +3,8 @@
 
 namespace udc::ast {
 
-StrLit::StrLit(Driver &drv, const Location &loc, std::string &&sVal) noexcept :
-    ExprBase(drv, loc), x_sVal(std::move(sVal))
+StrLit::StrLit(const location &loc, std::string &&sVal) noexcept :
+    ExprBase(loc), x_sVal(std::move(sVal))
 {}
 
 StrLit::~StrLit() {}

@@ -15,18 +15,14 @@ class Module;
 class Value;
 }
 
-namespace udc {
-class Driver;
-}
-
 namespace udc::cg {
+class CGContext;
 
 using namespace udc::ast;
-using namespace udc::ast::eval;
 
-class CodeGenVisitor : public VisitorBase {
+class CodeGenVisitor : public eval::VisitorBase {
 public:
-    CodeGenVisitor(Driver &drv) noexcept;
+    CodeGenVisitor(CGContext &ctx) noexcept;
     virtual inline ~CodeGenVisitor() = default;
 
 public:
@@ -69,7 +65,8 @@ private:
     llvm::Constant *X_EmitStringLiteral(const char *psz) noexcept;
 
 private:
-    llvm::IRBuilder<> x_lvBld {y_drv.lvCtx};
+    CGContext &x_ctx;
+    llvm::IRBuilder<> x_lvBld;
     llvm::Function *x_plvRtlPrintf = nullptr;
     llvm::Function *x_plvRtlAlloc = nullptr;
     llvm::Function *x_plvRtlReAlloc = nullptr;
@@ -80,7 +77,7 @@ private:
     llvm::Function *x_plvRtlReadInteger = nullptr;
     llvm::Function *x_plvRtlReadLine = nullptr;
     llvm::Function *x_plvRtlStrCmp = nullptr;
-    TypeRegistry *x_pTyReg = nullptr;
+    eval::TypeRegistry *x_pTyReg = nullptr;
     llvm::Module *x_plvMod = nullptr;
     llvm::Constant *x_plvClassIdx = nullptr;
     llvm::Constant *x_plvBoolStr = nullptr;

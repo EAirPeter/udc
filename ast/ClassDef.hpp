@@ -19,8 +19,7 @@ namespace udc::ast {
 class ClassDef : public NodeBase, public eval::INonArrayType {
 public:
     ClassDef(
-        Driver &drv,
-        const Location &loc,
+        const location &loc,
         std::string &&sName,
         std::optional<std::string> &&soBase,
         std::vector<std::unique_ptr<NodeBase>> &&vecFields

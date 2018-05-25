@@ -3,7 +3,7 @@
 
 namespace udc::ast {
 
-BreakStmt::BreakStmt(Driver &drv, const Location &loc) noexcept : NodeBase(drv, loc) {}
+BreakStmt::BreakStmt(const location &loc) noexcept : NodeBase(loc) {}
 
 BreakStmt::~BreakStmt() {}
 

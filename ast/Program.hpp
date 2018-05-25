@@ -14,7 +14,7 @@ namespace udc::ast {
 
 class Program : public NodeBase {
 public:
-    Program(Driver &drv, const Location &loc, std::vector<std::unique_ptr<ClassDef>> &&vecClasses) noexcept;
+    Program(const location &loc, std::vector<std::unique_ptr<ClassDef>> &&vecClasses) noexcept;
     virtual ~Program();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;

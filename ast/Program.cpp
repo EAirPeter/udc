@@ -5,8 +5,8 @@
 
 namespace udc::ast {
 
-Program::Program(Driver &drv, const Location &loc, std::vector<std::unique_ptr<ClassDef>> &&vecClasses) noexcept :
-    NodeBase(drv, loc), x_vTyReg(drv), x_vecClasses(std::move(vecClasses)), x_pMain(nullptr), x_stClass(false)
+Program::Program(const location &loc, std::vector<std::unique_ptr<ClassDef>> &&vecClasses) noexcept :
+    NodeBase(loc), x_vecClasses(std::move(vecClasses)), x_pMain(nullptr), x_stClass(false)
 {}
 
 Program::~Program() {}
