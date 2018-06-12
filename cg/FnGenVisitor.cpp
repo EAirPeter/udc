@@ -65,6 +65,7 @@ void FnGenVisitor::Visit(FnDef &vFn) noexcept {
         ));
         fn->setCallingConv(llvm::CallingConv::Fast);
         fn->setDSOLocal(true);
+        fn->setDoesNotThrow();
         fn->setLinkage(llvm::GlobalValue::InternalLinkage);
         vFn.SetLvFn(fn);
     }

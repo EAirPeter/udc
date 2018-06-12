@@ -228,7 +228,7 @@ void CodeGenVisitor::Visit(FnDef &vFn) noexcept {
     if (vFn.IsStatic())
         vFn.GetBody()->AcceptVisitor(*this);
     else {
-        ENTER_SCOPE(x_plvThis, x_lvBld.CreatePointerCast(fn->arg_begin(), x_pClass->GetType().GetLvType()));
+        ENTER_SCOPE(x_plvThis, x_lvBld.CreatePointerCast(fn->arg_begin(), x_pClass->GetType().GetLvType(), "this"));
         vFn.GetBody()->AcceptVisitor(*this);
     }
     if (!x_lvBld.GetInsertBlock()->getTerminator()) {
