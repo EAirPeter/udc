@@ -50,6 +50,12 @@ namespace udc {
 
 %parse-param {Driver &x_drv}
 %parse-param {Scanner &x_vScanner}
+%parse-param {const std::filesystem::path &x_paInput}
+%parse-param {std::string x_sFile}
+
+%initial-action {
+    @$.begin.filename = @$.end.filename = &x_sFile;
+}
 
 %token End 0 "end-of-file"
 
@@ -133,7 +139,7 @@ namespace udc {
 %%
 Program:
     ClassDefList[cdl] {
-        x_drv.SetProgram(std::make_unique<ast::Program>(@1, std::move($cdl)));
+        x_drv.SetProgram(std::make_unique<ast::Program>(@1, x_paInput, std::move($cdl)));
     };
 
 ClassDefList:

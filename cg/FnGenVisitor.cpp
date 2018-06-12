@@ -33,7 +33,7 @@ void FnGenVisitor::Visit(ClassDef &vClass) noexcept {
         gv->setAlignment(x_ctx.lvDataLayout.getPrefTypeAlignment(ty));
         gv->setConstant(true);
         gv->setDSOLocal(true);
-        gv->setLinkage(llvm::GlobalValue::PrivateLinkage);
+        gv->setLinkage(llvm::GlobalValue::InternalLinkage);
         llvm::SmallVector<llvm::Constant *, 64> vec;
         {
             // emit class index
@@ -55,7 +55,7 @@ void FnGenVisitor::Visit(FnDef &vFn) noexcept {
     {
         llvm::SmallVector<llvm::Type *, 64> vec;
         if (!vFn.IsStatic())
-            vec.emplace_back(vFn.GetClass().GetType().GetLvType());
+            vec.emplace_back(x_ctx.tyVoidPtr);
         for (auto &upPar : vFn.GetPars())
             vec.emplace_back(upPar->GetType().GetLvType());
         auto ty = llvm::FunctionType::get(vFn.GetType().GetLvType(), vec, false);
@@ -65,7 +65,7 @@ void FnGenVisitor::Visit(FnDef &vFn) noexcept {
         ));
         fn->setCallingConv(llvm::CallingConv::Fast);
         fn->setDSOLocal(true);
-        fn->setLinkage(llvm::GlobalValue::PrivateLinkage);
+        fn->setLinkage(llvm::GlobalValue::InternalLinkage);
         vFn.SetLvFn(fn);
     }
 }

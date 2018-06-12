@@ -164,8 +164,8 @@ void TypeVisitor::Visit(BinaryExpr &expr) noexcept {
     auto &tyRhs = expr.GetRhs()->GetType();
     switch (expr.GetOp()) {
     case BinOp::kIor:
-        expr.SetType(x_pTyReg->tyBool);
     case BinOp::kAnd:
+        expr.SetType(x_pTyReg->tyBool);
         if (tyLhs != x_pTyReg->tyBool) {
             Y_RjTypeMissMatch(expr.GetLhs()->GetLocation(), x_pTyReg->tyBool, tyLhs);
             return;
@@ -239,6 +239,7 @@ void TypeVisitor::Visit(CallExpr &expr) noexcept {
             else {
                 auto pClass = dynamic_cast<const ClassDef *>(&tyExpr.GetElemType());
                 if (!pClass) {
+                    expr.SetType(x_pTyReg->tyVoid);
                     Y_RjNotWhat(expr.GetExpr()->GetLocation(), "a class or array", tyExpr);
                     return;
                 }
@@ -253,6 +254,7 @@ void TypeVisitor::Visit(CallExpr &expr) noexcept {
     }
     if (bArray) {
         if (expr.GetName() != "length") {
+            expr.SetType(x_pTyReg->tyVoid);
             Y_RjNotFound(expr.GetLocation(), "function", expr.GetName());
             return;
         }
@@ -268,6 +270,7 @@ void TypeVisitor::Visit(CallExpr &expr) noexcept {
         if (!pFn)
             pFn = pstVf->Lookup(expr.GetName());
         if (!pFn) {
+            expr.SetType(x_pTyReg->tyVoid);
             Y_RjNotFound(expr.GetLocation(), "function", expr.GetName());
             return;
         }
@@ -301,6 +304,7 @@ void TypeVisitor::Visit(CallExpr &expr) noexcept {
 void TypeVisitor::Visit(CastExpr &expr) noexcept {
     auto pClass = x_pstClass->Lookup(expr.GetName());
     if (!pClass) {
+        expr.SetType(x_pTyReg->tyVoid);
         Y_RjNotFound(expr.GetLocation(), "class", expr.GetName());
         return;
     }
@@ -315,10 +319,12 @@ void TypeVisitor::Visit(CastExpr &expr) noexcept {
 void TypeVisitor::Visit(NewArrayExpr &expr) noexcept {
     expr.GetTypeName()->AcceptVisitor(*this);
     if (x_pty->GetElemType() == VoidType::vInstance) {
+        expr.SetType(x_pTyReg->tyVoid);
         Y_RjVoidArray(expr.GetLocation());
         return;
     }
     if (x_pty->GetDimension() >= kDimMax) {
+        expr.SetType(x_pTyReg->tyVoid);
         Y_RjDimTooLarge(expr.GetLocation());
         return;
     }
@@ -333,6 +339,7 @@ void TypeVisitor::Visit(NewArrayExpr &expr) noexcept {
 void TypeVisitor::Visit(NewClassExpr &expr) noexcept {
     auto pClass = x_pstClass->Lookup(expr.GetName());
     if (!pClass) {
+        expr.SetType(x_pTyReg->tyVoid);
         Y_RjNotFound(expr.GetLocation(), "class", expr.GetName());
         return;
     }
@@ -364,6 +371,7 @@ void TypeVisitor::Visit(ArrayAccess &expr) noexcept {
     expr.GetExpr()->AcceptVisitor(*this);
     auto &tyExpr = expr.GetExpr()->GetType();
     if (!tyExpr.IsArray()) {
+        expr.SetType(x_pTyReg->tyVoid);
         Y_RjNotWhat(expr.GetExpr()->GetLocation(), "an array", tyExpr);
         return;
     }
@@ -419,6 +427,7 @@ void TypeVisitor::Visit(VarAccess &expr) noexcept {
         auto &tyExpr = expr.GetExpr()->GetType();
         auto pClass = tyExpr.IsArray() ? nullptr : dynamic_cast<const ClassDef *>(&tyExpr.GetElemType());
         if (!pClass) {
+            expr.SetType(x_pTyReg->tyVoid);
             Y_RjNotWhat(expr.GetExpr()->GetLocation(), "a class", tyExpr);
             return;
         }
@@ -428,6 +437,7 @@ void TypeVisitor::Visit(VarAccess &expr) noexcept {
         bStatic = true;
     auto pVar = pstVar->Lookup(expr.GetName());
     if (!pVar) {
+        expr.SetType(x_pTyReg->tyVoid);
         Y_RjNotFound(expr.GetLocation(), "variable", expr.GetName());
         return;
     }

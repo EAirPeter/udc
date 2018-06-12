@@ -12,8 +12,9 @@ namespace udc::cg {
 ClassGenVisitor::ClassGenVisitor(CGContext &ctx) noexcept : x_ctx(ctx) {}
 
 void ClassGenVisitor::Visit(Program &vProg) noexcept {
-    vProg.GetUplvMod() = std::make_unique<llvm::Module>("poi?", x_ctx.lvCtx);
+    vProg.GetUplvMod() = std::make_unique<llvm::Module>(vProg.GetInputPath().stem().string(), x_ctx.lvCtx);
     auto plvMod = vProg.GetLvMod();
+    plvMod->setSourceFileName(vProg.GetInputPath().string());
     plvMod->setDataLayout(x_ctx.lvDataLayout);
     plvMod->setTargetTriple(x_ctx.sTriple);
     auto &vTyReg = vProg.GetTyReg();
@@ -31,7 +32,7 @@ void ClassGenVisitor::Visit(Program &vProg) noexcept {
         gv->setAlignment(x_ctx.lvDataLayout.getPrefTypeAlignment(ty));
         gv->setConstant(true);
         gv->setDSOLocal(true);
-        gv->setLinkage(llvm::GlobalValue::PrivateLinkage);
+        gv->setLinkage(llvm::GlobalValue::InternalLinkage);
         auto i8p = llvm::ConstantExpr::getPointerCast(gv, x_ctx.tyI8Ptr);
         llvm::SmallVector<llvm::Constant *, 64> vec;
         for (auto &upClass : vProg.GetClasses()) {

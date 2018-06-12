@@ -1,6 +1,8 @@
 #ifndef UDC_AST_PROGRAM_HPP_
 #define UDC_AST_PROGRAM_HPP_
 
+#include <filesystem>
+
 #include "NodeBase.hpp"
 #include "eval/SymbolTable.hpp"
 #include "eval/TypeRegistry.hpp"
@@ -14,13 +16,21 @@ namespace udc::ast {
 
 class Program final : public NodeBase {
 public:
-    Program(const location &loc, std::vector<std::unique_ptr<ClassDef>> &&vecClasses) noexcept;
+    Program(
+        const location &loc,
+        const std::filesystem::path &paInput,
+        std::vector<std::unique_ptr<ClassDef>> &&vecClasses
+    ) noexcept;
     virtual ~Program();
 
     virtual void Print(std::ostream &os, std::uint32_t cIndent) const override;
     
     virtual inline void AcceptVisitor(eval::VisitorBase &vis) noexcept override {
         vis.Visit(*this);
+    }
+
+    constexpr const std::filesystem::path &GetInputPath() noexcept {
+        return x_paInput;
     }
 
     constexpr eval::TypeRegistry &GetTyReg() noexcept {
@@ -68,6 +78,7 @@ public:
     }
 
 private:
+    std::filesystem::path x_paInput;
     eval::TypeRegistry x_vTyReg;
     std::vector<std::unique_ptr<ClassDef>> x_vecClasses;
     FnDef *x_pMain;

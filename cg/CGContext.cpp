@@ -41,8 +41,8 @@ inline llvm::TargetMachine *X_GetTargetMachine(const llvm::Target *plvTarget, co
 CGContext::CGContext() :
     sTriple(X_InitTargetsAndGetTriple()),
     plvTarget(X_GetTarget(sTriple)),
-    plvTargetMachine(X_GetTargetMachine(plvTarget, sTriple)),
-    lvDataLayout(plvTargetMachine->createDataLayout()),
+    uplvTargetMachine(X_GetTargetMachine(plvTarget, sTriple)),
+    lvDataLayout(uplvTargetMachine->createDataLayout()),
     uPtrSize(lvDataLayout.getPointerSize()),
     tyVoid(llvm::Type::getVoidTy(lvCtx)),
     tyI1(llvm::Type::getInt1Ty(lvCtx)),

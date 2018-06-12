@@ -9,10 +9,12 @@
 #include "../ast/eval/VisitorBase.hpp"
 
 namespace llvm {
-class Argument;
 class BasicBlock;
 class Module;
 class Value;
+namespace legacy {
+    class FunctionPassManager;
+}
 }
 
 namespace udc::cg {
@@ -22,7 +24,7 @@ using namespace udc::ast;
 
 class CodeGenVisitor final : public eval::VisitorBase {
 public:
-    CodeGenVisitor(CGContext &ctx) noexcept;
+    CodeGenVisitor(CGContext &ctx, bool bOptimiz) noexcept;
     virtual inline ~CodeGenVisitor() = default;
 
 public:
@@ -67,6 +69,8 @@ private:
 private:
     CGContext &x_ctx;
     llvm::IRBuilder<> x_lvBld;
+    bool x_bOptimiz;
+    llvm::legacy::FunctionPassManager *x_plvFpm = nullptr;
     llvm::Function *x_plvRtlPrintf = nullptr;
     llvm::Function *x_plvRtlAlloc = nullptr;
     llvm::Function *x_plvRtlReAlloc = nullptr;
@@ -82,7 +86,7 @@ private:
     llvm::Constant *x_plvClassIdx = nullptr;
     llvm::Constant *x_plvBoolStr = nullptr;
     ClassDef *x_pClass = nullptr;
-    llvm::Argument *x_plvThis = nullptr;
+    llvm::Value *x_plvThis = nullptr;
     llvm::BasicBlock *x_plvPost = nullptr;
     llvm::Value *x_plvRet = nullptr;
     std::unordered_map<std::string, llvm::Constant *> x_mapStrLits {};

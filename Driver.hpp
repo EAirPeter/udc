@@ -24,14 +24,14 @@ class CGContext;
 namespace udc {
 
 struct Options {
-    unsigned uOptimization;
     unsigned uFlags;
-    constexpr static unsigned kCompile = 1 << 0;
-    constexpr static unsigned kAssembly = 1 << 1;
-    constexpr static unsigned kLLVM = 1 << 2;
-    constexpr static unsigned kAST = 1 << 3;
-    constexpr static unsigned kSymbol = 1 << 4;
-    constexpr static unsigned kHelp = 1 << 5;
+    constexpr static unsigned kOptimiz = 1 << 0;
+    constexpr static unsigned kCompile = 1 << 1;
+    constexpr static unsigned kAssembly = 1 << 2;
+    constexpr static unsigned kLLVM = 1 << 3;
+    constexpr static unsigned kAST = 1 << 4;
+    constexpr static unsigned kSymbol = 1 << 5;
+    constexpr static unsigned kHelp = 1 << 6;
 };
 
 class Driver : private Options {

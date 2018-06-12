@@ -5,8 +5,12 @@
 
 namespace udc::ast {
 
-Program::Program(const location &loc, std::vector<std::unique_ptr<ClassDef>> &&vecClasses) noexcept :
-    NodeBase(loc), x_vecClasses(std::move(vecClasses)), x_pMain(nullptr), x_stClass(false)
+Program::Program(
+    const location &loc,
+    const std::filesystem::path &paInput,
+    std::vector<std::unique_ptr<ClassDef>> &&vecClasses
+) noexcept :
+    NodeBase(loc), x_paInput(paInput), x_vecClasses(std::move(vecClasses)), x_pMain(nullptr), x_stClass(false)
 {}
 
 Program::~Program() {}

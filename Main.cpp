@@ -14,10 +14,11 @@ int main(int ncArg, char *ppszArgs[]) {
     for (int i = 1; i < ncArg; ++i) {
         using namespace udc;
         auto pszArg = ppszArgs[i];
-        auto pchOpt = std::strchr("O:cSLath", pszArg[1]);
+        auto pchOpt = std::strchr("OcSLath", pszArg[1]);
         if (pszArg[0] != '-' || !pchOpt) {
             if (pszInput) {
                 std::cerr << "error: Unrecognized option " << (pszInput[0] == '-' ? pszInput : pszArg) << std::endl;
+                std::cerr << " note: Type \"" << ppszArgs[0] << " -h\" for help" << std::endl;
                 return -1;
             }
             pszInput = pszArg;
@@ -27,6 +28,7 @@ int main(int ncArg, char *ppszArgs[]) {
         if (pchOpt[1] != ':') {
             if (pszArg[2]) {
                 std::cerr << "error: Unrecognized option " << pszArg << std::endl;
+                std::cerr << " note: Type \"" << ppszArgs[0] << " -h\" for help" << std::endl;
                 return -1;
             }
         }
@@ -37,15 +39,13 @@ int main(int ncArg, char *ppszArgs[]) {
                 pszArg = ppszArgs[++i];
             else {
                 std::cerr << "error: Option -" << chOpt << " needs an argument" << std::endl;
+                std::cerr << " note: Type \"" << ppszArgs[0] << " -h\" for help" << std::endl;
                 return -1;
             }
         }
         switch (chOpt) {
         case 'O':
-            if (sscanf(pszArg, "%u", &vOpts.uOptimization) != 1 || vOpts.uOptimization > 2) {
-                std::cerr << "error: Invalid argument for Option -O" << std::endl;
-                return -1;
-            }
+            vOpts.uFlags |= udc::Options::kOptimiz;
             break;
         case 'c':
             vOpts.uFlags |= udc::Options::kCompile;
@@ -74,10 +74,10 @@ int main(int ncArg, char *ppszArgs[]) {
             "Usage: " << ppszArgs[0] << " [Options] <DecafFile>\n"
             "\n"
             "Options:\n"
-            "  -Ox   Optmization level [-O0, -O1 or -O2]\n"
-            "  -c    Emit object file\n"
+            "  -O    Enable optmization\n"
+            "  -c    Emit object file (default)\n"
             "  -S    Emit assembly file\n"
-            "  -L    Use LLVM representation for assembly file and object file\n"
+            "  -L    Emit LLVM IR file\n"
             "  -a    Print AST for decaf file\n"
             "  -t    Print tokens for decaf file\n"
             "  -h    Print this help";
@@ -86,9 +86,10 @@ int main(int ncArg, char *ppszArgs[]) {
     }
     if (!pszInput) {
         std::cerr << "error: No decaf file given" << std::endl;
+        std::cerr << " note: Type \"" << ppszArgs[0] << " -h\" for help" << std::endl;
         return -1;
     }
-    if (!(vOpts.uFlags & ~udc::Options::kLLVM))
+    if (!(vOpts.uFlags & ~udc::Options::kOptimiz))
         vOpts.uFlags |= udc::Options::kCompile;
     try {
         udc::Driver vDriver(vOpts);
@@ -97,7 +98,7 @@ int main(int ncArg, char *ppszArgs[]) {
         return res;
     }
     catch (std::exception &e) {
-        std::cerr << e.what() << std::endl;
+        std::cerr << "error: " << e.what() << std::endl;
     }
     return -1;
 }

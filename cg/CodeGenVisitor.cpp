@@ -1,8 +1,13 @@
 #include <llvm/IR/CFG.h>
 #include <llvm/IR/Constants.h>
+#include <llvm/IR/LegacyPassManager.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Verifier.h>
+#include <llvm/Transforms/InstCombine/InstCombine.h>
+#include <llvm/Transforms/Scalar.h>
+#include <llvm/Transforms/Scalar/GVN.h>
+#include <llvm/Transforms/Utils.h>
 
 #include "../Print.hpp"
 #include "../ScopeHelper.hpp"
@@ -12,7 +17,7 @@
 
 namespace udc::cg {
 
-CodeGenVisitor::CodeGenVisitor(CGContext &ctx) noexcept : x_ctx(ctx), x_lvBld(x_ctx.lvCtx) {}
+CodeGenVisitor::CodeGenVisitor(CGContext &ctx, bool bOptimiz) noexcept : x_ctx(ctx), x_lvBld(x_ctx.lvCtx), x_bOptimiz(bOptimiz) {}
 
 inline llvm::Constant *CodeGenVisitor::X_EmitStringLiteral(const char *psz) noexcept {
     assert(x_plvMod);
@@ -25,7 +30,7 @@ inline llvm::Constant *CodeGenVisitor::X_EmitStringLiteral(const char *psz) noex
     gv->setAlignment(1);
     gv->setConstant(true);
     gv->setDSOLocal(true);
-    gv->setLinkage(llvm::GlobalValue::PrivateLinkage);
+    gv->setLinkage(llvm::GlobalValue::InternalLinkage);
     llvm::SmallVector<llvm::Constant *, 64> vec;
     for (std::size_t i = 0; i < len; ++i)
         vec.emplace_back(llvm::ConstantInt::get(x_ctx.tyI8, psz[i]));
@@ -39,6 +44,16 @@ void CodeGenVisitor::Visit(Program &vProg) noexcept {
     ENTER_SCOPE(x_pTyReg, &vProg.GetTyReg());
     ENTER_SCOPE(x_plvMod, vProg.GetLvMod());
     ENTER_SCOPE(x_plvClassIdx, vProg.GetLvClassIdx());
+    llvm::legacy::FunctionPassManager fpm(x_plvMod);
+    if (x_bOptimiz) {
+        fpm.add(llvm::createPromoteMemoryToRegisterPass());
+        fpm.add(llvm::createInstructionCombiningPass());
+        fpm.add(llvm::createReassociatePass());
+        fpm.add(llvm::createGVNPass());
+        fpm.add(llvm::createCFGSimplificationPass());
+    }
+    fpm.doInitialization();
+    ENTER_SCOPE(x_plvFpm, &fpm);
     {
         llvm::FunctionType *ty;
         // void UdcRtlPrintf(const char *fmt, ...);
@@ -46,64 +61,101 @@ void CodeGenVisitor::Visit(Program &vProg) noexcept {
         x_plvRtlPrintf = llvm::cast<llvm::Function>(x_plvMod->getOrInsertFunction("UdcRtlPrintf", ty));
         x_plvRtlPrintf->setCallingConv(llvm::CallingConv::C);
         x_plvRtlPrintf->setDSOLocal(true);
+        x_plvRtlPrintf->setDoesNotRecurse();
+        x_plvRtlPrintf->setDoesNotThrow();
         x_plvRtlPrintf->setLinkage(llvm::GlobalValue::ExternalLinkage);
         // __declspec(noalias) void *UdcRtlAlloc(size_t cb);
         ty = llvm::FunctionType::get(x_ctx.tyVoidPtr, {x_ctx.tySize}, false);
         x_plvRtlAlloc = llvm::cast<llvm::Function>(x_plvMod->getOrInsertFunction("UdcRtlAlloc", ty));
         x_plvRtlAlloc->setCallingConv(llvm::CallingConv::C);
         x_plvRtlAlloc->setDSOLocal(true);
+        x_plvRtlAlloc->setDoesNotRecurse();
+        x_plvRtlAlloc->setDoesNotThrow();
         x_plvRtlAlloc->setLinkage(llvm::GlobalValue::ExternalLinkage);
+        x_plvRtlAlloc->setOnlyAccessesArgMemory();
         x_plvRtlAlloc->setReturnDoesNotAlias();
         // __declspec(noalias) void *UdcRtlReAlloc(void *ptr, size_t cb);
         ty = llvm::FunctionType::get(x_ctx.tyVoidPtr, {x_ctx.tyVoidPtr, x_ctx.tySize}, false);
         x_plvRtlReAlloc = llvm::cast<llvm::Function>(x_plvMod->getOrInsertFunction("UdcRtlReAlloc", ty));
         x_plvRtlReAlloc->setCallingConv(llvm::CallingConv::C);
         x_plvRtlReAlloc->setDSOLocal(true);
+        x_plvRtlReAlloc->setDoesNotRecurse();
+        x_plvRtlReAlloc->setDoesNotThrow();
         x_plvRtlReAlloc->setLinkage(llvm::GlobalValue::ExternalLinkage);
+        x_plvRtlReAlloc->setOnlyAccessesArgMemory();
         x_plvRtlReAlloc->setReturnDoesNotAlias();
+        x_plvRtlReAlloc->arg_begin()[0].addAttr(llvm::Attribute::NoCapture);
         // __declspec(noalias) void *UdcRtlAllocArray(int nLen, size_t cbOff, size_t cbElem);
         ty = llvm::FunctionType::get(x_ctx.tyVoidPtr, {x_ctx.tyI32, x_ctx.tySize, x_ctx.tySize}, false);
         x_plvRtlAllocArray = llvm::cast<llvm::Function>(x_plvMod->getOrInsertFunction("UdcRtlAllocArray", ty));
         x_plvRtlAllocArray->setCallingConv(llvm::CallingConv::C);
         x_plvRtlAllocArray->setDSOLocal(true);
+        x_plvRtlAllocArray->setDoesNotRecurse();
+        x_plvRtlAllocArray->setDoesNotThrow();
         x_plvRtlAllocArray->setLinkage(llvm::GlobalValue::ExternalLinkage);
+        x_plvRtlAllocArray->setOnlyAccessesArgMemory();
         x_plvRtlAllocArray->setReturnDoesNotAlias();
-        // bool UdcRtlInstanceOf(void *who, void *idx);
+        // bool UdcRtlInstanceOf(const void *who, const void *idx);
         ty = llvm::FunctionType::get(x_ctx.tyI1, {x_ctx.tyVoidPtr, x_ctx.tyVoidPtr}, false);
         x_plvRtlInstanceOf = llvm::cast<llvm::Function>(x_plvMod->getOrInsertFunction("UdcRtlInstanceOf", ty));
         x_plvRtlInstanceOf->setCallingConv(llvm::CallingConv::C);
         x_plvRtlInstanceOf->setDSOLocal(true);
+        x_plvRtlInstanceOf->setDoesNotRecurse();
+        x_plvRtlInstanceOf->setDoesNotThrow();
         x_plvRtlInstanceOf->setLinkage(llvm::GlobalValue::ExternalLinkage);
-        // void UdcRtlCheckCast(void *who, void *idx);
+        x_plvRtlInstanceOf->setOnlyReadsMemory();
+        x_plvRtlInstanceOf->arg_begin()[0].addAttr(llvm::Attribute::NoCapture);
+        x_plvRtlInstanceOf->arg_begin()[0].addAttr(llvm::Attribute::ReadOnly);
+        x_plvRtlInstanceOf->arg_begin()[1].addAttr(llvm::Attribute::ReadNone);
+        // void UdcRtlCheckCast(const void *who, const void *idx);
         ty = llvm::FunctionType::get(x_ctx.tyVoid, {x_ctx.tyVoidPtr, x_ctx.tyVoidPtr}, false);
         x_plvRtlCheckCast = llvm::cast<llvm::Function>(x_plvMod->getOrInsertFunction("UdcRtlCheckCast", ty));
         x_plvRtlCheckCast->setCallingConv(llvm::CallingConv::C);
         x_plvRtlCheckCast->setDSOLocal(true);
+        x_plvRtlCheckCast->setDoesNotRecurse();
+        x_plvRtlCheckCast->setDoesNotThrow();
         x_plvRtlCheckCast->setLinkage(llvm::GlobalValue::ExternalLinkage);
+        x_plvRtlCheckCast->arg_begin()[0].addAttr(llvm::Attribute::NoCapture);
+        x_plvRtlCheckCast->arg_begin()[0].addAttr(llvm::Attribute::ReadOnly);
+        x_plvRtlCheckCast->arg_begin()[1].addAttr(llvm::Attribute::ReadNone);
         // void UdcRtlCheckBound(int len, int idx);
         ty = llvm::FunctionType::get(x_ctx.tyVoid, {x_ctx.tyI32, x_ctx.tyI32}, false);
         x_plvRtlCheckBound = llvm::cast<llvm::Function>(x_plvMod->getOrInsertFunction("UdcRtlCheckBound", ty));
         x_plvRtlCheckBound->setCallingConv(llvm::CallingConv::C);
         x_plvRtlCheckBound->setDSOLocal(true);
+        x_plvRtlCheckBound->setDoesNotRecurse();
+        x_plvRtlCheckBound->setDoesNotThrow();
         x_plvRtlCheckBound->setLinkage(llvm::GlobalValue::ExternalLinkage);
         // int UdcRtlReadInteger();
         ty = llvm::FunctionType::get(x_ctx.tyI32, false);
         x_plvRtlReadInteger = llvm::cast<llvm::Function>(x_plvMod->getOrInsertFunction("UdcRtlReadInteger", ty));
         x_plvRtlReadInteger->setCallingConv(llvm::CallingConv::C);
         x_plvRtlReadInteger->setDSOLocal(true);
+        x_plvRtlReadInteger->setDoesNotRecurse();
+        x_plvRtlReadInteger->setDoesNotThrow();
         x_plvRtlReadInteger->setLinkage(llvm::GlobalValue::ExternalLinkage);
         // char *UdcRtlReadLine();
         ty = llvm::FunctionType::get(x_ctx.tyI8Ptr, false);
         x_plvRtlReadLine = llvm::cast<llvm::Function>(x_plvMod->getOrInsertFunction("UdcRtlReadLine", ty));
         x_plvRtlReadLine->setCallingConv(llvm::CallingConv::C);
         x_plvRtlReadLine->setDSOLocal(true);
+        x_plvRtlReadLine->setDoesNotRecurse();
+        x_plvRtlReadLine->setDoesNotThrow();
         x_plvRtlReadLine->setLinkage(llvm::GlobalValue::ExternalLinkage);
+        x_plvRtlReadLine->setReturnDoesNotAlias();
         // int UdcRtlStrCmp(const char *lhs, const char *rhs);
         ty = llvm::FunctionType::get(x_ctx.tyI32, {x_ctx.tyI8Ptr, x_ctx.tyI8Ptr}, false);
         x_plvRtlStrCmp = llvm::cast<llvm::Function>(x_plvMod->getOrInsertFunction("UdcRtlStrCmp", ty));
         x_plvRtlStrCmp->setCallingConv(llvm::CallingConv::C);
         x_plvRtlStrCmp->setDSOLocal(true);
+        x_plvRtlStrCmp->setDoesNotRecurse();
+        x_plvRtlStrCmp->setDoesNotThrow();
         x_plvRtlStrCmp->setLinkage(llvm::GlobalValue::ExternalLinkage);
+        x_plvRtlStrCmp->setOnlyReadsMemory();
+        x_plvRtlStrCmp->arg_begin()[0].addAttr(llvm::Attribute::NoCapture);
+        x_plvRtlStrCmp->arg_begin()[0].addAttr(llvm::Attribute::ReadOnly);
+        x_plvRtlStrCmp->arg_begin()[1].addAttr(llvm::Attribute::NoCapture);
+        x_plvRtlStrCmp->arg_begin()[1].addAttr(llvm::Attribute::ReadOnly);
     }
     // emit bool strlit
     {
@@ -115,7 +167,7 @@ void CodeGenVisitor::Visit(Program &vProg) noexcept {
         gv->setConstant(true);
         gv->setDSOLocal(true);
         gv->setInitializer(llvm::ConstantArray::get(ty, {sFalse, sTrue}));
-        gv->setLinkage(llvm::GlobalValue::PrivateLinkage);
+        gv->setLinkage(llvm::GlobalValue::InternalLinkage);
         x_plvBoolStr = gv;
     }
     for (auto &upClass : vProg.GetClasses())
@@ -129,6 +181,7 @@ void CodeGenVisitor::Visit(Program &vProg) noexcept {
         auto ty = llvm::FunctionType::get(x_ctx.tyI32, false);
         auto fn = llvm::cast<llvm::Function>(x_plvMod->getOrInsertFunction("main", ty));
         fn->setDSOLocal(true);
+        fn->setDoesNotThrow();
         fn->setLinkage(llvm::GlobalValue::ExternalLinkage);
         auto bb = llvm::BasicBlock::Create(x_ctx.lvCtx, "#fn-entry", fn);
         x_lvBld.SetInsertPoint(bb);
@@ -142,6 +195,10 @@ void CodeGenVisitor::Visit(Program &vProg) noexcept {
             Y_Reject();
             return;
         }
+    }
+    if (llvm::verifyModule(*x_plvMod, &llvm::errs())) {
+        Y_Reject();
+        return;
     }
 }
 
@@ -171,7 +228,7 @@ void CodeGenVisitor::Visit(FnDef &vFn) noexcept {
     if (vFn.IsStatic())
         vFn.GetBody()->AcceptVisitor(*this);
     else {
-        ENTER_SCOPE(x_plvThis, fn->arg_begin());
+        ENTER_SCOPE(x_plvThis, x_lvBld.CreatePointerCast(fn->arg_begin(), x_pClass->GetType().GetLvType()));
         vFn.GetBody()->AcceptVisitor(*this);
     }
     if (!x_lvBld.GetInsertBlock()->getTerminator()) {
@@ -186,6 +243,7 @@ void CodeGenVisitor::Visit(FnDef &vFn) noexcept {
         Y_Reject();
         return;
     }
+    x_plvFpm->run(*fn);
 }
 
 void CodeGenVisitor::Visit(VarDef &vVar) noexcept {
@@ -396,14 +454,22 @@ void CodeGenVisitor::Visit(BinaryExpr &expr) noexcept {
             lhs = x_lvBld.CreateCall(x_plvRtlStrCmp, {lhs, rhs});
             rhs = llvm::ConstantInt::get(x_ctx.tyI32, 0);
         }
-        x_plvRet = x_lvBld.CreateICmpEQ(lhs, rhs);
+        x_plvRet = !lhs->getType()->isPointerTy() ? x_lvBld.CreateICmpEQ(lhs, rhs) :
+            x_plvRet = x_lvBld.CreateICmpEQ(
+                x_lvBld.CreatePointerCast(lhs, x_ctx.tyVoidPtr),
+                x_lvBld.CreatePointerCast(rhs, x_ctx.tyVoidPtr)
+            );
         break;
     case BinOp::kNeq:
         if (expr.GetLhs()->GetType() == x_pTyReg->tyString) {
             lhs = x_lvBld.CreateCall(x_plvRtlStrCmp, {lhs, rhs});
             rhs = llvm::ConstantInt::get(x_ctx.tyI32, 0);
         }
-        x_plvRet = x_lvBld.CreateICmpNE(lhs, rhs);
+        x_plvRet = !lhs->getType()->isPointerTy() ? x_lvBld.CreateICmpNE(lhs, rhs) :
+            x_plvRet = x_lvBld.CreateICmpNE(
+                x_lvBld.CreatePointerCast(lhs, x_ctx.tyVoidPtr),
+                x_lvBld.CreatePointerCast(rhs, x_ctx.tyVoidPtr)
+            );
         break;
     case BinOp::kLes:
         x_plvRet = x_lvBld.CreateICmpSLT(lhs, rhs);
@@ -447,7 +513,7 @@ void CodeGenVisitor::Visit(CallExpr &expr) noexcept {
         auto &vFn = expr.GetFn();
         llvm::SmallVector<llvm::Value *, 64> vec;
         if (!vFn.IsStatic())
-            vec.emplace_back(who);
+            vec.emplace_back(x_lvBld.CreatePointerCast(who, x_ctx.tyVoidPtr));
         auto itPar = expr.GetFn().GetPars().begin();
         for (auto &upArg : expr.GetArgs()) {
             upArg->AcceptVisitor(*this);
@@ -458,8 +524,8 @@ void CodeGenVisitor::Visit(CallExpr &expr) noexcept {
             x_plvRet = x_lvBld.CreateCall(vFn.GetLvFn(), vec);
         else {
             // virtual call
-            // fn** vtable = *(fn ***) who;
-            // fn* pfn = vtable[idx + 1];
+            // fn **vtable = *(fn ***) who;
+            // fn *pfn = vtable[idx + 1];
             // pfn(args...);
             auto ty = vFn.GetLvFn()->getFunctionType();
             auto typpp = ty->getPointerTo()->getPointerTo()->getPointerTo();

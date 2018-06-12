@@ -17,7 +17,7 @@ public:
     llvm::LLVMContext lvCtx;
     const std::string sTriple;
     const llvm::Target *const plvTarget;
-    llvm::TargetMachine *const plvTargetMachine;
+    const std::unique_ptr<llvm::TargetMachine> uplvTargetMachine;
     const llvm::DataLayout lvDataLayout;
 
     const unsigned uPtrSize;

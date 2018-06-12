@@ -2,6 +2,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#include <ctype.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -45,14 +46,14 @@ __declspec(noalias) void *UdcRtlAllocArray(int nLen, size_t cbOff, size_t cbElem
     return UdcRtlAlloc(cbOff + cbElem * ((size_t) (unsigned) nLen));
 }
 
-bool UdcRtlInstanceOf(void *who, void *idx) {
-    void *src = *(void **) who;
+bool UdcRtlInstanceOf(const void *who, const void *idx) {
+    const void *src = *(const void *const *) who;
     while (src && src != idx)
-        src = *(void **) src;
+        src = *(const void *const *) src;
     return src == idx;
 }
 
-void UdcRtlCheckCast(void *who, void *idx) {
+void UdcRtlCheckCast(const void *who, const void *idx) {
     if (!UdcRtlInstanceOf(who, idx)) {
         fputs("[FATAL] Invalid cast.\n", stderr);
         exit(-1);
@@ -80,6 +81,8 @@ char *UdcRtlReadLine() {
     size_t cap = 256;
     char *buf = (char *) UdcRtlReAlloc(0, cap);
     int ch = fgetc(stdin);
+    while (ch != EOF && (ch == '\0' || ch == '\n'))
+        ch = fgetc(stdin);
     while (ch != EOF && ch != '\0' && ch != '\n') {
         if (len + 1 >= cap) {
             cap <<= 1;
