@@ -10,7 +10,7 @@
 !*.cpp
 !*.hpp
 !*.l
-!*.ypp
+!*.y
 Parser.cpp
 Parser.hpp
 Scanner.cpp
