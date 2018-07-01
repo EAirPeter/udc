@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{5950B00B-CF17-4570-B300-DC74AA070AF6}</ProjectGuid>
+    <RootNamespace>udc</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\win_flex_bison_custom_build.props" />
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Programs\include;C:\Programs\include;C:\Program Files\LLVMDebug\include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Programs\include;C:\Programs\include;C:\Program Files\LLVM\include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Programs\include;C:\Programs\include;C:\Program Files\LLVMDebug\include</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Programs\include;C:\Programs\include;C:\Program Files\LLVM\include</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SCL_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4141;4146;4244;4267;4291;4624</DisableSpecificWarnings>
+    </ClCompile>
+    <Flex>
+      <OutputFile>%(Filename).cpp</OutputFile>
+    </Flex>
+    <Bison>
+      <OutputFile>%(Filename).cpp</OutputFile>
+    </Bison>
+    <Bison>
+      <DefinesFile>%(Filename).hpp</DefinesFile>
+    </Bison>
+    <Bison>
+      <Warnings>all</Warnings>
+      <Verbose>true</Verbose>
+      <GraphFile>udc.dot</GraphFile>
+    </Bison>
+    <Link>
+      <AdditionalLibraryDirectories>C:\Program Files\LLVMDebug\lib</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SCL_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <DisableSpecificWarnings>4141;4146;4244;4267;4291;4624</DisableSpecificWarnings>
+    </ClCompile>
+    <Flex>
+      <OutputFile>%(Filename).cpp</OutputFile>
+    </Flex>
+    <Bison>
+      <OutputFile>%(Filename).cpp</OutputFile>
+    </Bison>
+    <Bison>
+      <DefinesFile>%(Filename).hpp</DefinesFile>
+    </Bison>
+    <Bison>
+      <Warnings>all</Warnings>
+      <Verbose>true</Verbose>
+      <GraphFile>udc.dot</GraphFile>
+    </Bison>
+    <Link>
+      <AdditionalLibraryDirectories>C:\Program Files\LLVMDebug\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>LLVMMIRParser.lib;LLVMLineEditor.lib;LLVMLibDriver.lib;LLVMInterpreter.lib;LLVMCoroutines.lib;LLVMSymbolize.lib;LLVMDebugInfoPDB.lib;LLVMDebugInfoDWARF.lib;LLVMLTO.lib;LLVMPasses.lib;LLVMObjCARCOpts.lib;LLVMipo.lib;LLVMInstrumentation.lib;LLVMVectorize.lib;LLVMLinker.lib;LLVMIRReader.lib;LLVMAsmParser.lib;LLVMDlltoolDriver.lib;LLVMOption.lib;LLVMTableGen.lib;LLVMOrcJIT.lib;LLVMFuzzMutate.lib;LLVMWindowsManifest.lib;LLVMX86Disassembler.lib;LLVMX86AsmParser.lib;LLVMX86CodeGen.lib;LLVMGlobalISel.lib;LLVMSelectionDAG.lib;LLVMAsmPrinter.lib;LLVMCodeGen.lib;LLVMScalarOpts.lib;LLVMInstCombine.lib;LLVMAggressiveInstCombine.lib;LLVMTransformUtils.lib;LLVMBitWriter.lib;LLVMX86Desc.lib;LLVMMCDisassembler.lib;LLVMX86Info.lib;LLVMX86AsmPrinter.lib;LLVMX86Utils.lib;LLVMMCJIT.lib;LLVMExecutionEngine.lib;LLVMTarget.lib;LLVMAnalysis.lib;LLVMRuntimeDyld.lib;LLVMCoverage.lib;LLVMProfileData.lib;LLVMObject.lib;LLVMMCParser.lib;LLVMMC.lib;LLVMBitReader.lib;LLVMCore.lib;LLVMBinaryFormat.lib;LLVMObjectYAML.lib;LLVMDebugInfoCodeView.lib;LLVMDebugInfoMSF.lib;LLVMSupport.lib;LLVMDemangle.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SCL_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4141;4146;4244;4267;4291;4624</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>C:\Program Files\LLVM\lib</AdditionalLibraryDirectories>
+    </Link>
+    <Flex>
+      <OutputFile>%(Filename).cpp</OutputFile>
+    </Flex>
+    <Bison>
+      <OutputFile>%(Filename).cpp</OutputFile>
+    </Bison>
+    <Bison>
+      <DefinesFile>%(Filename).hpp</DefinesFile>
+    </Bison>
+    <Bison>
+      <Warnings>all</Warnings>
+      <Verbose>true</Verbose>
+      <GraphFile>udc.dot</GraphFile>
+    </Bison>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SCL_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4141;4146;4244;4267;4291;4624</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>C:\Program Files\LLVM\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>LLVMLibDriver.lib;LLVMFuzzMutate.lib;LLVMCoroutines.lib;LLVMOrcJIT.lib;LLVMLTO.lib;LLVMPasses.lib;LLVMObjCARCOpts.lib;LLVMipo.lib;LLVMInstrumentation.lib;LLVMVectorize.lib;LLVMLinker.lib;LLVMIRReader.lib;LLVMWindowsManifest.lib;LLVMTableGen.lib;LLVMInterpreter.lib;LLVMDlltoolDriver.lib;LLVMOption.lib;LLVMMIRParser.lib;LLVMAsmParser.lib;LLVMX86Disassembler.lib;LLVMX86AsmParser.lib;LLVMX86CodeGen.lib;LLVMGlobalISel.lib;LLVMSelectionDAG.lib;LLVMAsmPrinter.lib;LLVMCodeGen.lib;LLVMScalarOpts.lib;LLVMInstCombine.lib;LLVMAggressiveInstCombine.lib;LLVMTransformUtils.lib;LLVMBitWriter.lib;LLVMX86Desc.lib;LLVMMCDisassembler.lib;LLVMX86Info.lib;LLVMX86AsmPrinter.lib;LLVMX86Utils.lib;LLVMMCJIT.lib;LLVMExecutionEngine.lib;LLVMTarget.lib;LLVMAnalysis.lib;LLVMRuntimeDyld.lib;LLVMLineEditor.lib;LLVMCoverage.lib;LLVMProfileData.lib;LLVMSymbolize.lib;LLVMDebugInfoPDB.lib;LLVMDebugInfoDWARF.lib;LLVMObject.lib;LLVMMCParser.lib;LLVMMC.lib;LLVMBitReader.lib;LLVMCore.lib;LLVMBinaryFormat.lib;LLVMObjectYAML.lib;LLVMDebugInfoCodeView.lib;LLVMDebugInfoMSF.lib;LLVMSupport.lib;LLVMDemangle.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Flex>
+      <OutputFile>%(Filename).cpp</OutputFile>
+    </Flex>
+    <Bison>
+      <OutputFile>%(Filename).cpp</OutputFile>
+    </Bison>
+    <Bison>
+      <DefinesFile>%(Filename).hpp</DefinesFile>
+    </Bison>
+    <Bison>
+      <Warnings>all</Warnings>
+      <Verbose>true</Verbose>
+      <GraphFile>udc.dot</GraphFile>
+    </Bison>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="ast\ArrayAccess.cpp" />
+    <ClCompile Include="ast\AssignExpr.cpp" />
+    <ClCompile Include="ast\BinaryExpr.cpp" />
+    <ClCompile Include="ast\BlockStmt.cpp" />
+    <ClCompile Include="ast\BoolLit.cpp" />
+    <ClCompile Include="ast\BreakStmt.cpp" />
+    <ClCompile Include="ast\CallExpr.cpp" />
+    <ClCompile Include="ast\CastExpr.cpp" />
+    <ClCompile Include="ast\ClassDef.cpp" />
+    <ClCompile Include="ast\eval\ClassNameVisitor.cpp" />
+    <ClCompile Include="ast\eval\InheritVisitor.cpp" />
+    <ClCompile Include="ast\eval\FieldVisitor.cpp" />
+    <ClCompile Include="ast\eval\Type.cpp" />
+    <ClCompile Include="ast\eval\TypeRegistry.cpp" />
+    <ClCompile Include="ast\eval\TypeVisitor.cpp" />
+    <ClCompile Include="ast\eval\VisitorBase.cpp" />
+    <ClCompile Include="ast\ExprStmt.cpp" />
+    <ClCompile Include="ast\FnDef.cpp" />
+    <ClCompile Include="ast\ForStmt.cpp" />
+    <ClCompile Include="ast\IfStmt.cpp" />
+    <ClCompile Include="ast\InstanceOf.cpp" />
+    <ClCompile Include="ast\IntLit.cpp" />
+    <ClCompile Include="ast\NewArrayExpr.cpp" />
+    <ClCompile Include="ast\NewClassExpr.cpp" />
+    <ClCompile Include="ast\NodeBase.cpp" />
+    <ClCompile Include="ast\NullLit.cpp" />
+    <ClCompile Include="ast\PrintStmt.cpp" />
+    <ClCompile Include="ast\Program.cpp" />
+    <ClCompile Include="ast\ReadInteger.cpp" />
+    <ClCompile Include="ast\ReadLine.cpp" />
+    <ClCompile Include="ast\ReturnStmt.cpp" />
+    <ClCompile Include="ast\StrLit.cpp" />
+    <ClCompile Include="ast\This.cpp" />
+    <ClCompile Include="ast\TypeName.cpp" />
+    <ClCompile Include="ast\UnaryExpr.cpp" />
+    <ClCompile Include="ast\VarAccess.cpp" />
+    <ClCompile Include="ast\VarDef.cpp" />
+    <ClCompile Include="ast\WhileStmt.cpp" />
+    <ClCompile Include="cg\CGContext.cpp" />
+    <ClCompile Include="cg\CodeGenVisitor.cpp" />
+    <ClCompile Include="cg\FnGenVisitor.cpp" />
+    <ClCompile Include="cg\ClassGenVisitor.cpp" />
+    <ClCompile Include="Driver.cpp" />
+    <ClCompile Include="IndentHelper.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="Print.cpp" />
+    <ClCompile Include="Scanner.cpp">
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4005; 4244; 4819</DisableSpecificWarnings>
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4005; 4244; 4819</DisableSpecificWarnings>
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4005;4141;4146;4244;4267;4291;4624;4819</DisableSpecificWarnings>
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4005;4141;4146;4244;4267;4291;4624;4819</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ast\All.hpp" />
+    <ClInclude Include="ast\ArrayAccess.hpp" />
+    <ClInclude Include="ast\AssignExpr.hpp" />
+    <ClInclude Include="ast\BinaryExpr.hpp" />
+    <ClInclude Include="ast\BlockStmt.hpp" />
+    <ClInclude Include="ast\BoolLit.hpp" />
+    <ClInclude Include="ast\BreakStmt.hpp" />
+    <ClInclude Include="ast\CallExpr.hpp" />
+    <ClInclude Include="ast\CastExpr.hpp" />
+    <ClInclude Include="ast\ClassDef.hpp" />
+    <ClInclude Include="ast\eval\ClassNameVisitor.hpp" />
+    <ClInclude Include="ast\eval\Fwd.hpp" />
+    <ClInclude Include="ast\eval\InheritVisitor.hpp" />
+    <ClInclude Include="ast\eval\FieldVisitor.hpp" />
+    <ClInclude Include="ast\eval\SymbolTable.hpp" />
+    <ClInclude Include="ast\eval\Type.hpp" />
+    <ClInclude Include="ast\eval\TypeRegistry.hpp" />
+    <ClInclude Include="ast\eval\TypeVisitor.hpp" />
+    <ClInclude Include="ast\eval\VirtFnTable.hpp" />
+    <ClInclude Include="ast\eval\VisitorBase.hpp" />
+    <ClInclude Include="ast\ExprBase.hpp" />
+    <ClInclude Include="ast\ExprStmt.hpp" />
+    <ClInclude Include="ast\FnDef.hpp" />
+    <ClInclude Include="ast\ForStmt.hpp" />
+    <ClInclude Include="ast\Fwd.hpp" />
+    <ClInclude Include="ast\NodeBase.hpp" />
+    <ClInclude Include="ast\IfStmt.hpp" />
+    <ClInclude Include="ast\InstanceOf.hpp" />
+    <ClInclude Include="ast\IntLit.hpp" />
+    <ClInclude Include="ast\NewArrayExpr.hpp" />
+    <ClInclude Include="ast\NewClassExpr.hpp" />
+    <ClInclude Include="ast\NullLit.hpp" />
+    <ClInclude Include="ast\PrintStmt.hpp" />
+    <ClInclude Include="ast\Program.hpp" />
+    <ClInclude Include="ast\ReadInteger.hpp" />
+    <ClInclude Include="ast\ReadLine.hpp" />
+    <ClInclude Include="ast\ReturnStmt.hpp" />
+    <ClInclude Include="ast\StrLit.hpp" />
+    <ClInclude Include="ast\This.hpp" />
+    <ClInclude Include="ast\TypeName.hpp" />
+    <ClInclude Include="ast\UnaryExpr.hpp" />
+    <ClInclude Include="ast\VarAccess.hpp" />
+    <ClInclude Include="ast\VarDef.hpp" />
+    <ClInclude Include="ast\WhileStmt.hpp" />
+    <ClInclude Include="cg\CGContext.hpp" />
+    <ClInclude Include="cg\CodeGenVisitor.hpp" />
+    <ClInclude Include="cg\FnGenVisitor.hpp" />
+    <ClInclude Include="cg\ClassGenVisitor.hpp" />
+    <ClInclude Include="Common.hpp" />
+    <ClInclude Include="Driver.hpp" />
+    <ClInclude Include="IndentHelper.hpp" />
+    <ClInclude Include="location.hh" />
+    <ClInclude Include="Location.hpp" />
+    <ClInclude Include="Parser.hpp" />
+    <ClInclude Include="position.hh" />
+    <ClInclude Include="Print.hpp" />
+    <ClInclude Include="Scanner.hpp" />
+    <ClInclude Include="ScopeHelper.hpp" />
+    <ClInclude Include="stack.hh" />
+  </ItemGroup>
+  <ItemGroup>
+    <Bison Include="Parser.y">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Bison>
+    <Flex Include="Scanner.l">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Flex>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\win_flex_bison_custom_build.targets" />
+  </ImportGroup>
+</Project>
