@@ -382,13 +382,16 @@ tags
 
 ## Flex/Bison
 
+# Dependencies
+!win_flex_bison-2.5.14/**/*
+
 # Scanner
 udc/Scanner.cpp
 
 # Parser
-udc/Parser.output
-udc/Parser.hpp
 udc/Parser.cpp
+udc/Parser.hpp
+udc/Parser.output
 udc/location.hh
 udc/position.hh
 udc/stack.hh

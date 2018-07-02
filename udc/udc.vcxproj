@@ -53,7 +53,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\win_flex_bison_custom_build.props" />
+    <Import Project="..\win_flex_bison-2.5.14\custom_build_rules\win_flex_bison_custom_build.props" />
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
@@ -71,16 +71,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Programs\include;C:\Programs\include;C:\Program Files\LLVMDebug\include</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\win_flex_bison-2.5.14;C:\Program Files\LLVMDebug\include</IncludePath>
+    <ExecutablePath>$(VC_ExecutablePath_x86);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(SystemRoot)\SysWow64;$(FxCopDir);$(SolutionDir)\win_flex_bison-2.5.14;$(PATH);</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Programs\include;C:\Programs\include;C:\Program Files\LLVM\include</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\win_flex_bison-2.5.14;C:\Program Files\LLVM\include</IncludePath>
+    <ExecutablePath>$(VC_ExecutablePath_x86);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(SystemRoot)\SysWow64;$(FxCopDir);$(SolutionDir)\win_flex_bison-2.5.14;$(PATH);</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Programs\include;C:\Programs\include;C:\Program Files\LLVMDebug\include</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\win_flex_bison-2.5.14;C:\Program Files\LLVMDebug\include</IncludePath>
+    <ExecutablePath>$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(SolutionDir)\win_flex_bison-2.5.14;$(PATH);</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Programs\include;C:\Programs\include;C:\Program Files\LLVM\include</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\win_flex_bison-2.5.14;C:\Program Files\LLVM\include</IncludePath>
+    <ExecutablePath>$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(SolutionDir)\win_flex_bison-2.5.14;$(PATH);</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -104,7 +108,8 @@
     <Bison>
       <Warnings>all</Warnings>
       <Verbose>true</Verbose>
-      <GraphFile>udc.dot</GraphFile>
+      <GraphFile>
+      </GraphFile>
     </Bison>
     <Link>
       <AdditionalLibraryDirectories>C:\Program Files\LLVMDebug\lib</AdditionalLibraryDirectories>
@@ -132,7 +137,8 @@
     <Bison>
       <Warnings>all</Warnings>
       <Verbose>true</Verbose>
-      <GraphFile>udc.dot</GraphFile>
+      <GraphFile>
+      </GraphFile>
     </Bison>
     <Link>
       <AdditionalLibraryDirectories>C:\Program Files\LLVMDebug\lib</AdditionalLibraryDirectories>
@@ -168,7 +174,8 @@
     <Bison>
       <Warnings>all</Warnings>
       <Verbose>true</Verbose>
-      <GraphFile>udc.dot</GraphFile>
+      <GraphFile>
+      </GraphFile>
     </Bison>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -201,7 +208,8 @@
     <Bison>
       <Warnings>all</Warnings>
       <Verbose>true</Verbose>
-      <GraphFile>udc.dot</GraphFile>
+      <GraphFile>
+      </GraphFile>
     </Bison>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -253,10 +261,10 @@
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="Print.cpp" />
     <ClCompile Include="Scanner.cpp">
-      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4005; 4244; 4819</DisableSpecificWarnings>
-      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4005; 4244; 4819</DisableSpecificWarnings>
       <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4005;4141;4146;4244;4267;4291;4624;4819</DisableSpecificWarnings>
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4005;4141;4146;4244;4267;4291;4624;4819</DisableSpecificWarnings>
       <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4005;4141;4146;4244;4267;4291;4624;4819</DisableSpecificWarnings>
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4005;4141;4146;4244;4267;4291;4624;4819</DisableSpecificWarnings>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -323,21 +331,13 @@
   <ItemGroup>
     <Bison Include="Parser.y">
       <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </Bison>
     <Flex Include="Scanner.l">
       <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </Flex>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\win_flex_bison_custom_build.targets" />
+    <Import Project="..\win_flex_bison-2.5.14\custom_build_rules\win_flex_bison_custom_build.targets" />
   </ImportGroup>
 </Project>
