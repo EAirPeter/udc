@@ -380,15 +380,15 @@ tags
 *.out
 *.app
 
-## Flex/Bison
+## Misc
 
-# Dependencies
+# win_flex_bison
 !win_flex_bison-2.5.14/**/*
 
-# Scanner
+# flex
 udc/Scanner.cpp
 
-# Parser
+# bison
 udc/Parser.cpp
 udc/Parser.hpp
 udc/Parser.output
